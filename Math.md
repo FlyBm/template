@@ -4,10 +4,24 @@
 
 ## 模板
 
+### 整除分块
+
+```cpp
+for (int l = 1, r; l <= n; l = r + 1) {
+  r = n / (n / l);
+  // do something with [l, r]...
+}
+
+// 二维:
+for (int l = 1, r; l <= min(n, m); l = r + 1) {
+  r = min(n / (n / l), m / (m / l));
+  // do something with [l, r]...
+}
+```
+
 ### 矩阵快速幂
 
 ```cpp
-typedef long long ll;
 
 const int maxn = 2e5 + 30;
 const int mod = 1e9 + 7;
@@ -58,59 +72,6 @@ array<ll, 3> operator * (M a, const array<ll, 3>  b) {
         }
     }
     return m;
-}
-int A, B, C, D, P, n;
-
-void solve(){
-    A = gn(), B = gn(), C = gn(), D = gn(), P = gn(), n = gn();
-    if (n == 1) {
-        cout << A << '\n';
-        return;
-    }
-    if (n == 2) {
-        cout << B << '\n';
-        return;
-    }
-    array<ll, 3> a = {B, A, P / 3};
-    M(m);
-    m.a[0] = {D, C, 1};
-        m.a[1] = {1, 0, 0};
-    m.a[2] = {0, 0, 1};
-
-    int l, r;
-    for(l = 3, r; l <= P; l = r + 1) {
-        r = P / (P / l);
-        a[2] = P / l;
-        if (r >= n) {
-            a = (m ^ (n - l + 1)) * a;
-            cout << a[0] << '\n';
-            return;
-        }
-        a = (m ^ (r - l + 1)) * a;
-    }
-    if (l <= n) {
-        a[2] = 0;
-        a = (m ^ (n - l + 1)) * a;
-        cout << a[0] << '\n';
-        return;
-    }
-
-
-}
-
-int main() {
-    int T = gn();
-    while (T--) solve();
-}
-
-```
-
-### 整除分块模板
-
-```cpp
-for(int l = 1, r; l <= n; l = r + 1) {
-    r = n / (n / l);
-    sum += (r - l + 1) * (n / l);
 }
 ```
 
@@ -174,10 +135,10 @@ struct Gauss {
 $C(n, m) = (C(n \% mod, m \% mod) * C(n/mod, m/mod))%mod$
 
 ```cpp
-ll Lucas (ll a, ll b) {
-	if(b == 0) return 1;
-	ll ret = (C(a%mod, b%mod, mod)* Lucas(a/mod, b/mod))%mod;
- return ret;
+ll Lucas(ll a, ll b) {
+  if (b == 0) return 1;
+  ll ret = (C(a % mod, b % mod, mod) * Lucas(a / mod, b / mod)) % mod;
+  return ret;
 }
 ```
 
@@ -197,7 +158,7 @@ T qpow(T a, T b, T m) {
 }
 ```
 
-### gcd与exgcd
+### GCD
 
 ```cpp
 template < typename T >
@@ -212,24 +173,45 @@ T gcd(T a, T b){
 }
 
 template < typename T >
-void ex_gcd(T a, T b, T &x, T &y){
+void exgcd(T a, T b, T &x, T &y){
     if(b == 0){
-        x = 1, y = 0; return;
+      x = 1, y = 0; 
+      return;
     }
-    ex_gcd(b, a % b, y, x);
-    y -= (a / b) * x;
+    exgcd(b, a % b, y, x);
+    y -= a / b * x;
 }
 ```
 
-### 线性求逆元
+### 求逆元
+
+求在模$b$意义下$a^{-1}$
+
+#### 线性求逆元
 
 ```cpp
 void init() {
 	inv[1] = 1;
 	for (int i = 2; i <= n; ++i) 
-		inv[i] = (long long)(p - p / i) * inv[p % i] % p;
+		inv[i] = (ll)(p - p / i) * inv[p % i] % p;
 }
 ```
+
+#### exgcd求逆元
+
+当$a$和$b$互质、有$exgcd(a, b, x, y)$中的x即为所求.
+
+#### 费马小定理
+
+要求$a, b$互质，	
+
+因为 $ax \equiv 1 \pmod b$ ；
+
+所以 $ax \equiv a^{b-1} \pmod b$；
+
+所以 $x \equiv a^{b-2} \pmod b$ 。
+
+
 
 ### Miller Rabin判断素数
 
@@ -246,7 +228,7 @@ bool millerRabbin(int n) {
     int x = rand() % (n - 2) + 2, v = quickPow(x, a, n);
     if (v == 1 || v == n - 1) continue;
     for (j = 0; j < b; ++j) {
-      v = (long long)v * v % n;
+      v = (ll) v * v % n;
       if (v == n - 1) break;
     }
     if (j >= b) return 0;
@@ -258,164 +240,136 @@ bool millerRabbin(int n) {
 // Miller_Rabin 算法进行素数测试
 //速度快，而且可以判断 <2^63的数
 //****************************************************************
-const int S=20;//随机算法判定次数，S越大，判错概率越小
+const int S = 20; //随机算法判定次数，S越大，判错概率越小
 
-//计算 (a*b)%c.   a,b都是long long的数，直接相乘可能溢出的
+//计算 (a*b)%c.   a,b都是ll的数，直接相乘可能溢出的
 //  a,b,c <2^63
-long long mult_mod(long long a,long long b,long long c)
-{
-    a%=c;
-    b%=c;
-    long long ret=0;
-    while(b)
-    {
-        if(b&1){ret+=a;ret%=c;}
-        a<<=1;//别手残，这里是a<<=1,不是快速幂的a=a*a;
-        if(a>=c)a%=c;
-        b>>=1;
+ll mult_mod(ll a, ll b, ll c) {
+  a %= c;
+  b %= c;
+  ll ret = 0;
+  while (b) {
+    if (b & 1) {
+      ret += a;
+      ret %= c;
     }
-    return ret;
+    a <<= 1; //别手残，这里是a<<=1,不是快速幂的a=a*a;
+    if (a >= c) a %= c;
+    b >>= 1;
+  }
+  return ret;
 }
 
 //计算  x^n %c
-long long pow_mod(long long x,long long n,long long mod)//x^n%c
-{
-    if(n==1)return x%mod;
-    x%=mod;
-    long long tmp=x;
-    long long ret=1;
-    while(n)
-    {
-        if(n&1) ret=mult_mod(ret,tmp,mod);
-        tmp=mult_mod(tmp,tmp,mod);
-        n>>=1;
-    }
-    return ret;
+ll pow_mod(ll x, ll n, ll mod) { //x^n%c
+  if (n == 1) return x % mod;
+  x %= mod;
+  ll tmp = x;
+  ll ret = 1;
+  while (n) {
+    if (n & 1) ret = mult_mod(ret, tmp, mod);
+    tmp = mult_mod(tmp, tmp, mod);
+    n >>= 1;
+  }
+  return ret;
 }
 
 //以a为基,n-1=x*2^t      a^(n-1)=1(mod n)  验证n是不是合数
 //一定是合数返回true,不一定返回false
-bool check(long long a,long long n,long long x,long long t)
-{
-    long long ret=pow_mod(a,x,n);
-    long long last=ret;
-    for(int i=1;i<=t;i++)
-    {
-        ret=mult_mod(ret,ret,n);
-        if(ret==1&&last!=1&&last!=n-1) return true;//合数
-        last=ret;
-    }
-    if(ret!=1) return true;
-    return false;
+bool check(ll a, ll n, ll x, ll t) {
+  ll ret = pow_mod(a, x, n);
+  ll last = ret;
+  for (int i = 1; i <= t; i++) {
+    ret = mult_mod(ret, ret, n);
+    if (ret == 1 && last != 1 && last != n - 1) return true; //合数
+    last = ret;
+  }
+  if (ret != 1) return true;
+  return false;
 }
 
 // Miller_Rabin()算法素数判定
 //是素数返回true.(可能是伪素数，但概率极小)
 //合数返回false;
 
-bool Miller_Rabin(long long n)
-{
-    if(n<2)return false;
-    if(n==2)return true;
-    if((n&1)==0) return false;//偶数
-    long long x=n-1;
-    long long t=0;
-    while((x&1)==0){x>>=1;t++;}
-    for(int i=0;i<S;i++)
-    {
-        long long a=rand()%(n-1)+1;//rand()需要stdlib.h头文件
-        if(check(a,n,x,t))
-            return false;//合数
-    }
-    return true;
+bool Miller_Rabin(ll n) {
+  if (n < 2) return false;
+  if (n == 2) return true;
+  if ((n & 1) == 0) return false; //偶数
+  ll x = n - 1;
+  ll t = 0;
+  while ((x & 1) == 0) {
+    x >>= 1;
+    t++;
+  }
+  for (int i = 0; i < S; i++) {
+    ll a = rand() % (n - 1) + 1; //rand()需要stdlib.h头文件
+    if (check(a, n, x, t))
+      return false; //合数
+  }
+  return true;
 }
 
 //************************************************
 //pollard_rho 算法进行质因数分解
 //************************************************
-long long factor[100];//质因数分解结果（刚返回时是无序的）
-int tol;//质因数的个数。数组小标从0开始
+ll factor[100]; //质因数分解结果（刚返回时是无序的）
+int tol; //质因数的个数。数组小标从0开始
 
-long long gcd(long long a,long long b)
-{
-    if(a==0)return 1;//???????
-    if(a<0) return gcd(-a,b);
-    while(b)
-    {
-        long long t=a%b;
-        a=b;
-        b=t;
-    }
-    return a;
+ll gcd(ll a, ll b) {
+  if (a == 0) return 1; //???????
+  if (a < 0) return gcd(-a, b);
+  while (b) {
+    ll t = a % b;
+    a = b;
+    b = t;
+  }
+  return a;
 }
 
-long long Pollard_rho(long long x,long long c)
-{
-    long long i=1,k=2;
-    long long x0=rand()%x;
-    long long y=x0;
-    while(1)
-    {
-        i++;
-        x0=(mult_mod(x0,x0,x)+c)%x;
-        long long d=gcd(y-x0,x);
-        if(d!=1&&d!=x) return d;
-        if(y==x0) return x;
-        if(i==k){y=x0;k+=k;}
+ll Pollard_rho(ll x, ll c) {
+  ll i = 1, k = 2, x0 = rand() % x, y = x0;
+  while (1) {
+    i++;
+    x0 = (mult_mod(x0, x0, x) + c) % x;
+    ll d = gcd(y - x0, x);
+    if (d != 1 && d != x) return d;
+    if (y == x0) return x;
+    if (i == k) {
+      y = x0;
+      k += k;
     }
+  }
 }
+
 //对n进行素因子分解
-void findfac(long long n)
-{
-    if(Miller_Rabin(n))//素数
-    {
-        factor[tol++]=n;
-        return;
-    }
-    long long p=n;
-    while(p>=n)p=Pollard_rho(p,rand()%(n-1)+1);
-    findfac(p);
-    findfac(n/p);
+void findfac(ll n) {
+  if (Miller_Rabin(n)) { //素数 
+    factor[tol++] = n;
+    return;
+  }
+  ll p = n;
+  while (p >= n) p = Pollard_rho(p, rand() % (n - 1) + 1);
+  findfac(p);
+  findfac(n / p);
 }
 
-int main()
-{
-#ifndef ONLINE_JUDGE
-    freopen("/Users/kzime/Codes/acm/acm/in", "r", stdin);
-#endif
-   // srand(time(NULL));//需要time.h头文件  //POJ上G++要去掉这句话
-    int T;
-    long long n;
-    scanf("%d",&T);
-    while(T--) {
-        scanf("%lld",&n);
-        if (n == 1) {
-            cout << "no\n";
-            continue;
-        }
-        if(Miller_Rabin(n))
-        {
-            cout << "no\n";
-            continue;
-        }
-        tol=0;
-        findfac(n);
-        sort(factor, factor + tol);
-        bool flag = 0;
-        for(int i=1;i<tol;i++)
-            if (factor[i] == factor[i - 1])
-                flag = 1;
-//        cout << '\n';
-        if (flag) cout << "yes\n";
-        else cout << "no\n";
-//        printf("%I64d\n",ans);
-        memset(factor, 0, sizeof(factor));
-    }
-    return 0;
-}
+// srand(time(NULL));//需要time.h头文件  //POJ上G++要去掉这句话
 ```
 
 ### 素数 欧拉函数
+
+欧拉函数， $\varphi(n)$ ，表示$[1, n]$ 中和 $n$ 互质的数的个数。
+
+-   欧拉函数是积性函数。
+
+-    $n = \sum_{d \mid n}{\varphi(d)}$ 。(莫比乌斯反演)。
+
+-   若 $n = p^k$ ，其中 $p$ 是质数，那么 $\varphi(n) = p^k - p^{k - 1}$ 。（特别的,$\varphi(p) = p - 1$)
+
+
+-   设 $n = \prod_{i=1}^{n}p_i^{k_i}$ ，其中 $p_i$ 是质数，有 $\varphi(n) = n  \prod_{i = 1}^s{\dfrac{p_i - 1}{p_i}}$ 。
+
 
 ```cpp
 void init() {
@@ -446,16 +400,28 @@ void init() {
 
 ### 中国剩余定理
 
-#### 算法流程[¶](https://oi-wiki.org/math/crt/#_3)
+#### 算法流程
 
-1. 计算所有模数的积 n；
-2. 对于第i个方程：
-   1. 计算mi = n/ni；
-   2. 计算 mi 在模 ni 意义下的 逆元mi^-1 ；
-   3. 计算  ci = mi*mi^-1（ **不要对 ni 取模** ）。
+1. 计算所有模数的积 $n$；
+2. 对于第$i$个方程：
+   1. 计算$m_i = \dfrac{n}{n_i}$；
+   2. 计算 $m_i$ 在模 $n_i$ 意义下的 逆元$m_i^{-1}$ ；
+   3. 计算  $c_i = m_i\times m_i^{-1}$（ **不要对 ni 取模** ）。
 3. 方程组的唯一解为：$\sum_{i=1}^{k}a_ic_n(mod \ \ \ n)$  。
 
 ### 筛莫比乌斯函数
+
+
+ $\mu$ 为莫比乌斯函数，定义为
+
+$$
+\mu(n)=
+\begin{cases}
+1&n=1\\
+0&n\text{ 含有平方因子}\\
+(-1)^k&k\text{ 为 }n\text{ 的本质不同质因子个数}\\
+\end{cases}
+$$
 
 ```cpp
 void pre() {
@@ -471,23 +437,60 @@ void pre() {
       mu[i * p[j]] = -mu[i];
     }
   }
+}
 ```
+
+### 莫比乌斯反演
+
+设 $f(n),g(n)$ 为两个数论函数。
+
+如果有 $f(n)=\sum_{d\mid n}g(d)$ ，那么有 $g(n)=\sum_{d\mid n}\mu(d)f(\dfrac{n}{d})$ 。
+
+如果有 $f(n)=\sum_{n|d}g(d)$ ，那么有 $g(n)=\sum_{n|d}\mu(\dfrac{d}{n})f(d)$ 。
+
+### 常见积性函数
+
+PS: $F(x)$函数具有**积性**是指当$\gcd(a, b)=1$,有$F(a \times b) = F(a) \times F(b)$, **完全积性函数**没有$\gcd(a, b) = 1$的限制
+
+- 单位函数： $\epsilon(n)=[n=1]$ （完全积性）
+
+- 恒等函数： $\operatorname{id}_k(n)=n^k$  $\operatorname{id}_{1}(n)$ 通常简记作 $\operatorname{id}(n)$ 。（完全积性）
+
+- 常数函数： $1(n)=1$ （完全积性）
+
+- 除数函数： $\sigma_{k}(n)=\sum_{d\mid n}d^{k}$  $\sigma_{0}(n)$ 通常简记作 $\operatorname{d}(n)$ 或 $\tau(n)$ ， $\sigma_{1}(n)$ 通常简记作 $\sigma(n)$ 。
+
+- 欧拉函数： $\varphi(n)=\sum_{i=1}^n [\gcd(i,n)=1]$ 
+
+- 莫比乌斯函数： $\mu(n) = \begin{cases}1 & n=1 \\ 0 & \exists d>1:d^{2} \mid n \\ (-1)^{\omega(n)} & otherwise\end{cases}$ ，其中 $\omega(n)$ 表示 $n$ 的本质不同质因子个数，它也是一个积性函数。
+
+  
+
+  若 $f(x)$ 和 $g(x)$ 均为积性函数，则以下函数也为积性函数：
+  $$
+  \begin{aligned}
+  h(x)&=f(x^p)\\
+  h(x)&=f^p(x)\\
+  h(x)&=f(x)g(x)\\
+  h(x)&=\sum_{d\mid x}f(d)g(\dfrac{x}{d})
+  \end{aligned}
+  $$
 
 ## 常用公式
 
 ### 常用数列和公式
 
-前n项平方和公式: $\frac{n*(n + 1)*(2n + 1)}{6}$
+前n项平方和公式: $\dfrac{n*(n + 1)*(2n + 1)}{6}$
 
-前n项立方和公式：$\frac{n^{2}*(n+1)^{2}}{4}$
+前n项立方和公式：$\dfrac{n^{2}*(n+1)^{2}}{4}$
 
-等差数列平方和 $n*a_{1}^{2}+n*(n-1)*a_{1}*d+\frac{n*(n-1)*(2*n-1)*d^{2}}{6}$
+等差数列平方和 $n*a_{1}^{2}+n*(n-1)*a_{1}*d+\dfrac{n*(n-1)*(2*n-1)*d^{2}}{6}$
 
 ### 划分问题
 
 $n$个点最多把直线分成$C(n,0)+C(n,1)$份
 $n$条直线最多把平面分成$C(n,0)+C(n,1)+C(n,2)$份
-$n$个平面最多把空间分成$C(n,0)+C(n,1)+C(n,2)+C(n,3)=\frac{n^{3}+5*n+6}{6}$份
+$n$个平面最多把空间分成$C(n,0)+C(n,1)+C(n,2)+C(n,3)=\dfrac{n^{3}+5*n+6}{6}$份
 $n$个空间最多把时空分成$C(n,0)+C(n,1)+C(n,2)+C(n,3)+C(n,4)$份
 
 ### 约瑟夫环
