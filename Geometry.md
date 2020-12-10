@@ -38,7 +38,7 @@ inline bool operator < (const P& a, const P& b) {
 }
 bool operator == (const P& a, const P& b) { return !sgn(a.x - b.x) && !sgn(a.y - b.y); }
 
-// line -> point
+// line point vector 同源, line 可转换为P/V
 P::P(const L& l) { *this = l.t - l.s; }
 
 // IO
@@ -52,6 +52,7 @@ istream &operator >> (istream &is, P &p) {
 LD dist(const P& p) { return sqrt(p.x * p.x + p.y * p.y); }
 LD dot(const V& a, const V& b) { return a.x * b.x + a.y * b.y; }
 LD det(const V& a, const V& b) { return a.x * b.y - a.y * b.x; }
+// 平行四边形面积
 LD cross(const P& s, const P& t, const P& o = P()) { return det(s - o, t - o); }
 // --------------------------------------------
 ```
@@ -66,8 +67,9 @@ int quad(P p) {
     if (x <= 0 && y > 0) return 2;
     if (x < 0 && y <= 0) return 3;
     if (x >= 0 && y < 0) return 4;
-  	// (0, 0)
-  	// cerr << "Assertion failed: (0), function quad, file /.../xxx.cpp, line xx."
+    // (0, 0)
+    // cerr <<
+    // "Assertion failed: (0), function quad, file /.../xxx.cpp, line xx." .   
     assert(0);
 }
 
@@ -97,7 +99,9 @@ bool l_eq(const L& a, const L& b) {
 }
 // 逆时针旋转 r 弧度
 P rotation(const P& p, const LD& r) { return P(p.x * cos(r) - p.y * sin(r), p.x * sin(r) + p.y * cos(r)); }
+// counterClockWise
 P RotateCCW90(const P& p) { return P(-p.y, p.x); }
+// ClockWise
 P RotateCW90(const P& p) { return P(p.y, -p.x); }
 // 单位法向量
 V normal(const V& v) { return V(-v.y, v.x) / dist(v); }
@@ -110,6 +114,7 @@ V normal(const V& v) { return V(-v.y, v.x) / dist(v); }
 bool p_on_seg(const P& p, const L& seg) {
     P a = seg.s, b = seg.t;
     return !sgn(det(p - a, b - a)) && sgn(dot(p - a, p - b)) <= 0;
+    // 点在线段上 <=> 平行 && a在两端点的中间 
 }
 // 点到直线距离
 LD dist_to_line(const P& p, const L& l) {
@@ -117,10 +122,14 @@ LD dist_to_line(const P& p, const L& l) {
 }
 // 点到线段距离
 LD dist_to_seg(const P& p, const L& l) {
+    // l为单点
     if (l.s == l.t) return dist(p - l);
     V vs = p - l.s, vt = p - l.t;
+    // p在 ts 方向
     if (sgn(dot(l, vs)) < 0) return dist(vs);
+    // p在 st 方向
     else if (sgn(dot(l, vt)) > 0) return dist(vt);
+    // p到直线距离即可
     else return dist_to_line(p, l);
 }
 ```
@@ -726,7 +735,7 @@ int p_on_plane(const F& f, const P& p) { return sgn(dot(norm(f), p - f.a)) == 0;
 
 // 判两点在线段异侧 点在线段上返回 0 不共面无意义
 int opposite_side(const P& u, const P& v, const L& l) {
-	return sgn(dot(cross(P(l), u - l.s), cross(P(l), v - l.s))) < 0;
+    return sgn(dot(cross(P(l), u - l.s), cross(P(l), v - l.s))) < 0;
 }
 
 bool parallel(const L& a, const L& b) { return !sgn(dist2(cross(P(a), P(b)))); }
