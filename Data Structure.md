@@ -2,6 +2,73 @@
 
 [TOC]
 
+### 字典树+贪心求两数异或最大值
+```cpp
+// codeforces 282E
+// 给了一个长度为 n(1 ≤ n ≤ 1e5) 的数组，求一个不相交的前缀和后缀，使得这个前缀和后缀中的所有数的异或值最大
+
+ll a[N];
+ll val = 0;
+
+array<int, 60> getnum (ll num) {
+    array<int, 60> ans; ans.fill(0);
+
+    int cnt = 50;
+    while(num) {
+        if(num & 1) ans[cnt] = 1;
+        num >>= 1;
+        cnt--;
+    }
+
+    return ans;
+}
+
+struct DictionaryTree {
+    int tr[N][2];
+
+    int tot = 0;
+
+    void insert(ll num) {
+        int root = 0;
+        array<int, 60> ans = getnum(num);
+        for(int i = 1; i <= 50; ++i) {
+            if(!tr[root][ans[i]]) tr[root][ans[i]] = ++tot;
+            root = tr[root][ans[i]];
+        }
+        return ;
+    }
+
+    ll getans(ll num) {
+        int root = 0;
+        array<int, 60> ans = getnum(num);
+        ll sum = 0;
+        for(int i = 1; i <= 50; ++i) {
+            if(tr[root][ans[i] ^ 1]) {
+                sum = sum + (1LL << (50 - i));
+                root = tr[root][ans[i] ^ 1];
+            } else root = tr[root][ans[i]];
+        }
+        return max(sum, num);
+    }
+}tree;
+
+int main() {
+   int n = gn();
+   for(int i = 1; i <= n; ++i) {
+       a[i] = gl(); val ^= a[i];
+   }
+
+   ll ans = 0, num = 0;
+   for(int i = n; i >= 0; --i) {
+       ans = max(ans, tree.getans(val));
+       num ^= a[i];
+       val ^= a[i];
+       tree.insert(num);
+   }
+   cout << ans << endl;
+}
+```
+
 ### 树状数组维护前缀最大值
 
 ```cpp
