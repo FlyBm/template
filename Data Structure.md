@@ -1,6 +1,32 @@
 ## 数据结构
 
 [TOC]
+### 单调栈求以某个数为最大（最小）值的区间范围
+```cpp
+// 此为单调递减栈 单调队列同理 灵活应用
+void solve(int l, int r) {
+    int top = 0;
+    st[top] = l - 1;
+    for(int i = l; i <= r; ++i) {
+        while(top and a[i] > a[st[top]]) {
+            L[st[top]] = st[top - 1] + 1;
+            R[st[top]] = i - 1;
+            top--;
+        }
+        st[++top] = i;
+    }
+    while(top) {
+        L[st[top]] = st[top - 1] + 1;
+        R[st[top]] = r;
+        top--;
+    }
+    ll ans = 0;
+    for(int i = l; i <= r; ++i) {
+        ans = ans + 1ll * (i - L[i] + 1) * (R[i] - i + 1) * a[i];
+    }
+    cout << ans << endl;
+}
+```cpp
 
 ### 字典树+贪心求两数异或最大值
 ```cpp
