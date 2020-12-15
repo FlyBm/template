@@ -4,6 +4,49 @@
 
 ## 模板
 
+### Mobius
+```cpp
+// 给定整数N，求1<=x,y<=N且Gcd(x,y)为素数的数对(x,y)有多少对.
+int vis[N], prime[N], num = 0, sum[N], mo[N];
+void getprime() {
+    mo[1] = 1;
+    for (int i = 2; i <= MAX; ++i) {
+        if(not vis[i]) {
+            prime[++num] = i; mo[i] = -1;
+        }
+        vis[i] = 1;
+        for (int j = 1; j <= num and i * prime[j] <= MAX; ++j) {
+            vis[i * prime[j]] = 1;
+            if(i % prime[j] == 0) {
+                mo[i * prime[j]] = 0; break;
+            }
+            mo[i * prime[j]] = -mo[i];
+        }
+    }
+}
+int main() {
+    int n = gn();
+    getprime();
+
+    // O(n) 处理 \simga p|T u(T/p) 并求前缀和
+    for (int j = 1; j <= num; ++j) {
+        for(int i = prime[j]; i <= MAX; i += prime[j]) {
+            sum[i] += mo[i / prime[j]];
+        }
+    }
+
+    for(int i = 1; i <= n; ++i) {
+        sum[i] += sum[i - 1];
+    }
+
+    ll ans = 0;
+    for(int l = 1, r; l <= n; l = r + 1) {
+        r = min(n, n / (n / l));
+        ans += 1ll * (n / l) * (n / l) * (sum[r] - sum[l - 1]);
+    }
+}
+```
+
 ### 整除分块
 
 ```cpp
