@@ -4,6 +4,13 @@
 
 ## 模板
 
+### 间断点合并
+```cpp
+for (int l = 1, r, len = min(a, b); l <= len; l = r + 1) {
+    r = min(a / (a / l), b / (b / l));
+    ans += 1ll * (mo[r] - mo[l - 1]) * (a / l) * (b / l);
+}
+```
 ### Mobius
 ```cpp
 // 给定整数N，求1<=x,y<=N且Gcd(x,y)为素数的数对(x,y)有多少对.
