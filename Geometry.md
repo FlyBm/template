@@ -52,7 +52,7 @@ istream &operator >> (istream &is, P &p) {
 LD dist(const P& p) { return sqrt(p.x * p.x + p.y * p.y); }
 LD dot(const V& a, const V& b) { return a.x * b.x + a.y * b.y; }
 LD det(const V& a, const V& b) { return a.x * b.y - a.y * b.x; }
-// 平行四边形面积
+// 平行四边形面积  os × ot
 LD cross(const P& s, const P& t, const P& o = P()) { return det(s - o, t - o); }
 // --------------------------------------------
 ```
