@@ -547,6 +547,24 @@ PS: $F(x)$函数具有**积性**是指当$\gcd(a, b)=1$,有$F(a \times b) = F(a)
 
 ## 常用公式
 
+### 欧拉函数以及Mobius函数的性质
+欧拉函数 $\varphi(n)$ 表示小于$n$且与$n$互质的个数
+
+1. 对于质数$n$，$\varphi(n)=n-1$
+2. 对于$n = p^{k}$，$\varphi(n)=(p-1)*p^{k-1}$
+3. 对于$gcd(n, m)=1$，$\varphi(n*m) = \varphi(n)\times \varphi(m)$
+4. 对于$n=\prod p_{i}^{k_i}$，$\varphi(n)=n\times \prod(1-\frac{1}{p_i})$
+5. 对于互质的$a$，$m$，$a^{\varphi(m)}\equiv 1(\mod m)$
+6. 小于$n$且与$n$互质的数的和为$S=n\times \frac{\varphi(n)}{2}$
+7. 对于质数$p$，若$n\mod p = 0$，则$\varphi(n \times p) = \varphi(n) \times p$；若$n\mod p \ne 0$，则$\varphi(n \times p) = \varphi(n) \times (p - 1)$
+8. $\sum_{d|n}\varphi(d)=n$，$\varphi(n)=\sum_{d|n}\mu(d)\times \frac{n}{d}$
+
+$Mobius$函数的性质
+
+1. $$ \sum_{d|n}\mu(d)=\left\{ \begin{aligned} 1 &&if(n = 1) \\ 0 && if(n >1)\end{aligned} \right. $$
+2. $\sum_{d|n} \frac{\mu(d)}{d}=\frac{\varphi(n)}{n}$
+3. $\mu(a\times b)=\mu(a)*\mu(b)$
+
 ### 二项式定理以及指数推广到负数
 $(x + 1)^n=\sum_{i=0}^{n}C(n,i)x^{i}$
 
