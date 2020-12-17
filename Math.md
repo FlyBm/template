@@ -4,6 +4,25 @@
 
 ## 模板
 
+### 组合数
+```cpp
+ll C(int x, int y) {
+    
+    // prework
+    inv[1] = inv[0] = 1; fac[1] = fac[0] = 1;
+    for (int i = 2; i <= MAX; ++i) {
+        inv[i] = 1ll * (mod - mod / i) * inv[mod % i] % mod;
+        fac[i] = 1ll * fac[i - 1] * i % mod;
+    }
+    for(int i = 1; i <= MAX; ++i) {
+        inv[i] = 1ll * inv[i - 1] * inv[i] % mod;
+    }
+    // main work
+    if(y > x) return 0;
+    if(x == 0 or y == 0) return 1;
+    return 1ll * fac[x] * inv[y] % mod * inv[x - y] % mod;
+}
+```
 ### 间断点合并
 ```cpp
 for (int l = 1, r, len = min(a, b); l <= len; l = r + 1) {
@@ -527,6 +546,15 @@ PS: $F(x)$函数具有**积性**是指当$\gcd(a, b)=1$,有$F(a \times b) = F(a)
   $$
 
 ## 常用公式
+
+### 二项式定理以及指数推广到负数
+$(x + 1)^n=\sum_{i=0}^{n}C(n,i)x^{i}$
+
+$(x+1)^{-n}=\sum_{i=0}^{\infty}C(-n,i)x^{i}=\sum_{i=0}^{\infty}(-1)^{i}C(n+i-1,i)x^{i}$
+
+$C(-n,m)=(-1)^{m}C(n+m-1,m)$
+
+$(1-x)^{-n}=\sum_{i=0}^{\infty}C(n+i-1,i)x^{i}$
 
 ### 常用数列和公式
 
