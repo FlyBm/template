@@ -1864,4 +1864,575 @@ struct Segment {
 
 ```cpp
 const int N = 3e4 + 100;
-const int 
+const int mod = 1e9 + 7;
+const int M = 1500;
+
+int n, a[N], root[N], tot = 0, last[1000500], ret = 0;
+
+struct node {
+    int lc, rc, sum;
+}s[N * 40];
+
+void insert(int l, int r, int pre, int &now, int idx, int c) {
+    s[++tot] = s[pre];
+    now = tot;
+    s[now].sum += c;
+    if(l == r) return ;
+    int mid = l + r >> 1;
+    if(idx <= mid) insert(l, mid, s[pre].lc, s[now].lc, idx, c);
+    else insert(mid + 1, r, s[pre].rc, s[now].rc, idx, c);
+}
+
+void query(int rt, int l, int r, int p) {
+    if(l == r) {
+        ret += s[rt].sum;
+        return ;
+    }
+    int mid = l + r >> 1;
+    if(p <= mid) ret += s[s[rt].rc].sum, query(s[rt].lc, l, mid, p);
+    else query(s[rt].rc, mid + 1, r, p);
+}
+
+int main() {
+    n = gn();
+    for(int i = 1; i <= n; ++i)  a[i] = gn();
+    for(int i = 1; i <= n; ++i) {
+        if(!last[a[i]]) insert(1, n, root[i - 1], root[i], i, 1);
+        else {
+            int temp = 0;
+            insert(1, n, root[i - 1], temp, last[a[i]], -1);
+            insert(1, n, temp, root[i], i, 1);
+        }
+        last[a[i]] = i;
+    }
+    int q = gn();
+    for( int i = 1; i <= q; ++i) {
+        int l = gn(), r = gn();
+        ret = 0;
+        query(root[r], 1, n, l);
+    }
+}
+```
+
+### 带修改莫队
+
+```cpp
+int a[N], sum[N], num[N * 10];
+ll ans[N]; ll cnt = 0;
+
+struct node {
+    int l, r, pre, id;
+}s[N];
+
+struct star {
+    int pos, id;
+}op[N];
+
+inline void add(int x) {
+    cnt += num[sum[x]];
+    num[sum[x]]++;
+}
+
+inline void sub(int x) {
+    num[sum[x]]--;
+    cnt -= num[sum[x]];
+}
+
+inline void work(int x, int l, int r) {
+    x = op[x].pos;
+    if(x >= l && x <= r) {
+        sub(x);
+        sum[x] = sum[x] ^ a[x] ^ a[x + 1];
+        add(x);
+        swap(a[x], a[x + 1]);
+    } else {
+        sum[x] = sum[x] ^ a[x] ^ a[x + 1];
+        swap(a[x], a[x + 1]);
+    }
+
+}
+
+int main() {
+    int block = pow(n, 2.0 / 3.0);
+
+    int Cnum = 0, Qnum = 0;
+    for(int i = 1; i <= m; ++i) {
+        int cmd = gn();
+        if(cmd == 1) {
+            s[++Qnum] = {gn() - 1, gn(), Cnum, Qnum};
+        } else {
+            op[++Cnum] = {gn(), Cnum};
+        }
+    }
+
+    sort(s + 1, s + 1 + Qnum, [&](node a, node b) {
+        if(a.l / block != b.l / block) return a.l / block < b.l / block;
+        if(a.r / block != b.r / block) return a.r / block < b.r / block;
+        return a.pre < b.pre;
+    });
+
+    int l = 1, r = 0, now = 0;
+    for(int i = 1; i <= Qnum; ++i) {
+        while(s[i].l < l) add(--l);
+        while(s[i].r > r) add(++r);
+        while(s[i].l > l) sub(l++);
+        while(s[i].r < r) sub(r--);
+        while(now < s[i].pre) work(++now, l, r);
+        while(now > s[i].pre) work(now--, l, r);
+        ans[s[i].id] = 1LL * (s[i].r - s[i].l) * (s[i].r - s[i].l + 1) / 2LL - cnt;
+    }
+}
+```
+
+### 线段树最大子段和
+
+```cpp
+struct star {
+     ll lsum, rsum, sum, ans;
+}s[N << 2];
+
+void pushup(int node) {
+    s[node].sum = s[lson].sum + s[rson].sum;
+    s[node].lsum = max(s[lson].lsum, s[lson].sum + s[rson].lsum);
+    s[node].rsum = max(s[rson].rsum, s[rson].sum + s[lson].rsum);
+    s[node].ans = max(s[lson].rsum + s[rson].lsum, max(s[lson].ans, s[rson].ans));
+}
+
+void build(int node, int l, int r) {
+    if(l == r) {
+        s[node].lsum = s[node].rsum = s[node].sum = a[l];
+        s[node].ans = a[l];
+        return ;
+    }
+    int mid = l + r >> 1;
+    build(lson, l, mid);
+    build(rson, mid + 1, r);
+    pushup(node);
+}
+
+star query(int node, int l, int r, int L, int R) {
+    if(L <= l && R >= r) {
+        return s[node];
+    }
+    int mid = l + r >> 1;
+    ll sign = -1e9;
+    star lp = {sign, sign, sign, sign}, rp = {sign, sign, sign, sign}, ans = {sign, sign, sign, sign};
+    if(L <= mid) lp = query(lson, l, mid, L, R);
+    if(R > mid) rp = query(rson, mid + 1, r, L, R);
+    ans.sum = lp.sum + rp.sum;
+    ans.lsum = max(lp.lsum, lp.sum + rp.lsum);
+    ans.rsum = max(rp.rsum, rp.sum + lp.rsum);
+    ans.ans = max(lp.rsum + rp.lsum, max(lp.ans, rp.ans));
+    return ans;
+
+}
+```
+
+### 莫队+ST表
+
+```cpp
+constexpr int mod = 1e9 + 7;
+constexpr int N = 1e5 + 5;
+
+//莫队算法
+int a[N], ans[N], pos[N], len, mp[N];
+
+struct node {
+    int l, r, k;
+}s[N];
+
+int v[N];
+int f[N][25], dp[N][25], n, m, LOG[N], k;
+
+inline where(int x) {
+    return lower_bound(v, v + k, x) - v + 1;
+}
+
+inline void add(int node) {
+    if(!mp[a[node]]) ++len;
+    mp[a[node]]++;
+}
+
+inline void sub(int node) {
+    mp[a[node]]--;
+    if(!mp[a[node]]) --len;
+}
+
+inline void ST_prework() {
+    for(int i = 1; i <= n; ++i) {
+        f[i][0] = dp[i][0] = a[i];
+        LOG[i] = log2(i);
+    }
+    int t = LOG[n] + 1;
+    for(int j = 1; j < t; ++j) {
+        for(int i = 1; i <= n - (1 << j) + 1; ++i) {
+            f[i][j] = max(f[i][j - 1], f[i + (1 << (j - 1))][j - 1]);
+            dp[i][j] = min(dp[i][j - 1], dp[i + (1 << (j - 1))][j - 1]);
+        }
+    }
+}
+
+inline int ST_query(int l, int r) {
+    int k = LOG[r - l + 1];
+    return max(f[l][k], f[r - (1 << k) + 1][k]) - min(dp[l][k], dp[r - (1 << k) + 1][k]) + 1;
+}
+
+int main() {
+      len = 0;
+      n = gn(), m = gn();
+      int block = sqrt(n);
+      for(int i = 1; i <= n; ++i) {
+          mp[i] = 0;
+          a[i] = gn();
+          pos[i] = i / block;
+          v[i - 1] = a[i];
+      }
+      ST_prework();
+
+      sort(v, v + n);
+      k = unique(v, v + n) - v;
+      for(int i = 1; i <= n; ++i) a[i] = where(a[i]);
+      for(int i = 1; i <= m; ++i) {
+          s[i].l = gn(), s[i].r = gn(), s[i].k = i;
+      }
+      sort(s + 1, s + 1 + m, [](node a, node b) {
+          if(pos[a.l] == pos[b.l]){
+                if(pos[a.l] % 2) return  a.r < b.r;
+                return a.r > b.r;
+            }
+            return pos[a.l] < pos[b.l];
+      });
+      int l = 1, r = 0;
+      for(int i = 1; i <= m; ++i) {
+          while(s[i].l < l) add(--l);
+          while(s[i].r > r) add(++r);
+          while(s[i].l > l) sub(l++);
+          while(s[i].r < r) sub(r--);
+          if(ST_query(s[i].l, s[i].r) == len) {
+              ans[s[i].k] = 1;
+          } else ans[s[i].k] = 0;
+      }
+}
+```
+
+### 线段树左右区间前缀维护
+
+```cpp
+//lp表示最左边的端点 rp表示最右端的端点 lsum左侧最大和 rsum右侧最大和
+
+struct node{
+    int lsum, rsum, lp, rp, sum;
+}s[N<<2];
+void pushup(int node,int l,int r){
+    int mid=(l+r)>>1;
+
+    ////左右端点
+    s[node].lp=s[lson].lp;
+    s[node].rp=s[rson].rp;
+
+    ////合并sum
+    if(s[lson].rp==s[rson].lp){
+        s[node].sum=max(s[lson].sum,s[rson].sum);
+    } else{
+        s[node].sum=(s[lson].rsum+s[rson].lsum);
+        s[node].sum=max(s[node].sum,s[lson].sum);
+        s[node].sum=max(s[node].sum,s[rson].sum);
+    }
+
+    if(s[lson].rp!=s[rson].lp&&s[lson].lsum==(mid-l+1)){
+        s[node].lsum=(s[lson].lsum+s[rson].lsum);
+    }else {
+        s[node].lsum=s[lson].lsum;
+    }
+
+    if(s[lson].rp!=s[rson].lp&&s[rson].rsum==(r-mid)){
+        s[node].rsum=(s[lson].rsum+s[rson].rsum);
+    }else {
+        s[node].rsum=s[rson].rsum;
+    }
+}
+
+void build(int node,int l,int r){
+    if(l==r){
+        s[node].lsum=s[node].rsum=s[node].sum=1;
+        s[node].lp=s[node].rp=0;
+        return ;
+    }
+    int mid=l+r>>1;
+    build(lson,l,mid);
+    build(rson,mid+1,r);
+    pushup(node,l,r);
+}
+
+void change(int node,int l,int r,int idx){
+    if(l==r){
+        s[node].lsum=s[node].rsum=s[node].sum=1;
+        s[node].lp=!s[node].lp;
+        s[node].rp=!s[node].rp;
+        return ;
+    }
+    int mid=l+r>>1;
+    if(idx<=mid) change(lson,l,mid,idx);
+    else change(rson,mid+1,r,idx);
+    pushup(node,l,r);
+}
+```
+
+### 树链剖分+线段树
+
+```jsx
+int n,m,r,p;
+vector<int> v[N];
+int dep[N],f[N],siz[N],son[N],top[N];
+int id[N],tot=0,a[N],out[N],mp[N];
+void dfs(int node,int fa){
+    dep[node]=dep[fa]+1;
+    f[node]=fa;
+    siz[node]=1;
+    int maxn=0;
+    for(int k:v[node]){
+        if(k==fa)continue;
+        dfs(k,node);
+        siz[node]+=siz[k];
+        if(siz[k]>maxn){
+            maxn=siz[k];
+            son[node]=k;
+        }
+    }
+}
+void dfs1(int node,int topx){
+    top[node]=topx;
+    id[node]=++tot;
+    mp[tot]=node;
+    if(son[node]){
+        dfs1(son[node],topx);
+    }
+    for(int k:v[node]){
+        if(k==f[node]||k==son[node])continue;
+        dfs1(k,k);
+    }
+    out[node]=tot;
+}
+ll t[N<<2],lazy[N<<2];
+void pushup(int node){
+    t[node]=(t[lson]+t[rson])%p;
+}
+void build(int node,int l,int r){
+    if(l==r){
+        t[node]=a[mp[l]];
+        return ;
+    }
+    int mid=l+r>>1;
+    build(lson,l,mid);
+    build(rson,mid+1,r);
+    pushup(node);
+}
+void spread(int node,int l,int r){
+    if(lazy[node]){
+        int mid=l+r>>1;
+        t[lson]=(t[lson]+lazy[node]*(mid-l+1))%p;
+        t[rson]=(t[rson]+lazy[node]*(r-mid))%p;
+        lazy[lson]=(lazy[lson]+lazy[node])%p;
+        lazy[rson]=(lazy[rson]+lazy[node])%p;
+        lazy[node]=0;
+    }
+}
+void change(int node,int l,int r,int L,int R,int val){
+    if(L<=l&&R>=r){
+        lazy[node]=(lazy[node]+val)%p;
+        t[node]=(t[node]+val*(r-l+1))%p;
+        return ;
+    }
+    spread(node,l,r);
+    int mid=l+r>>1;
+    if(L<=mid) change(lson,l,mid,L,R,val);
+    if(R>mid) change(rson,mid+1,r,L,R,val);
+    pushup(node);
+}
+ll query(int node,int l,int r,int L,int R){
+    if(L<=l&&R>=r){
+        return t[node];
+    }
+    spread(node,l,r);
+    int mid=l+r>>1;
+    ll val=0;
+    if(L<=mid) val=(val+query(lson,l,mid,L,R))%p;
+    if(R>mid) val=(val+query(rson,mid+1,r,L,R))%p;
+    return val%p;
+}
+int main(){
+    n=gn(),m=gn(),r=gn(),p=gn();
+    repi(i,1,n){
+        a[i]=gn();
+        if(a[i]>p)a[i]%=p;
+    }
+    repi(i,2,n){
+        int x=gn(),y=gn();
+        v[x].pb(y);
+        v[y].pb(x);
+    }
+    dfs(r,0);
+    dfs1(r,r);
+    build(1,1,n);
+    repi(i,1,m){
+        int cmd=gn();
+        if(cmd==1){
+            int x=gn(),y=gn(),k=gn();
+            while(top[x]!=top[y]){
+                if(dep[top[x]]>=dep[top[y]]){
+                    change(1,1,n,id[top[x]],id[x],k);
+                    x=f[top[x]];
+                }else {
+                    change(1,1,n,id[top[y]],id[y],k);
+                    y=f[top[y]];
+                }
+            }
+            int l=min(id[x],id[y]),r=max(id[x],id[y]);
+            change(1,1,n,l,r,k);
+        }else if(cmd==2){
+            int x=gn(),y=gn();
+            ll ans=0;
+            while(top[x]!=top[y]){
+                if(dep[top[x]]>=dep[top[y]]){
+                    ans+=query(1,1,n,id[top[x]],id[x]);
+                    if(ans>p)ans%=p;
+                    x=f[top[x]];
+                }else {
+                    ans+=query(1,1,n,id[top[y]],id[y]);
+                    if(ans>p)ans%=p;
+                    y=f[top[y]];
+                }
+            }
+            int l=min(id[x],id[y]),r=max(id[x],id[y]);
+            ans+=query(1,1,n,l,r);
+            printf("%lld\n",ans%p);
+        }else if(cmd==3){
+            int x=gn(),k=gn();
+            change(1,1,n,id[x],out[x],k);
+        }else {
+            int x=gn();
+            printf("%lld\n",query(1,1,n,id[x],out[x]));
+        }
+    }
+}
+```
+
+### 扫描线
+
+```jsx
+struct star{
+    ll x, y, h, val;
+}t[N];
+int tot = 0;
+vector<int> v;
+int where(int x) {
+    return lower_bound(v.begin(), v.end(), x) - v.begin() + 1;
+}
+struct node {
+    ll sum,val,len;
+}s[N<<2];
+void pushup(int node, int l, int r) {
+    if(s[node].sum) {
+        s[node].val = s[node].len;
+    }else s[node].val = s[lson].val + s[rson].val;
+}
+void build(int node, int l, int r) {
+    if(l == r) {
+        s[node].len = v[l] - v[l-1];
+        return ;
+    }
+    int mid = (l + r) >> 1;
+    build(lson, l, mid);
+    build(rson, mid + 1, r);
+    s[node].len = s[lson].len + s[rson].len;
+}
+void change(int node, int l, int r, int L, int R, int val) {
+    if(L <= l && R >= r){
+        s[node].sum += val;
+        pushup(node, l, r);
+        return ;
+    }
+    int mid = (l+r) >> 1;
+    if(L <= mid) change(lson, l, mid, L, R, val);
+    if(R > mid) change(rson, mid + 1, r, L, R, val);
+    pushup(node, l, r);
+}
+int main(){
+    int n = gn();
+    for(int i = 1; i <= n; ++i) {
+        int x=gn(),y=gn(),_x=gn(),_y=gn();
+        t[++tot] = {x, _x, y, 1};
+        t[++tot] = {x, _x, _y, -1};
+        v.pb(x),v.pb(_x);
+    }
+    sort(v.begin(), v.end());
+    v.erase(unique(v.begin(),v.end()),v.end());
+    int len = v.size();
+    build(1, 1, len - 1);
+
+    ll ans=0;
+    sort(t + 1, t + 1 + tot, [](star a,star b){
+        if(a.h==b.h) return a.val>b.val;
+        return a.h<b.h;
+    });
+    for(int i = 1; i <= tot - 1; ++i) {
+        change(1,1,len-1,where(t[i].x),where(t[i].y)-1,t[i].val);
+        ans+=s[1].val*(t[i+1].h-t[i].h);
+    }
+
+    print(ans);
+    putchar(10);
+}
+```
+
+### 主席树
+
+```jsx
+int n, m;
+vector <int> v;
+struct node {
+    int lc, rc, sum;
+}s[N * 40];
+
+int tot = 0, root[N], a[N];
+void insert(int l, int r, int pre, int &now, int idx) {
+    s[++tot] = s[pre];
+    now = tot;
+    s[now].sum++;
+    if(l == r) return ;
+    int mid = l + r >> 1;
+    if(idx <= mid) insert(l, mid, s[pre].lc, s[now].lc, idx);
+    else insert(mid + 1, r, s[pre].rc, s[now].rc, idx);
+}
+
+int query(int l, int r, int L, int R, int k) {
+    if(l == r) return l;
+    int mid = l + r >> 1;
+    int tem = s[s[R].lc].sum - s[s[L].lc].sum;
+    if(k <= tem) return query(l, mid, s[L].lc, s[R].lc, k);
+    else return query(mid + 1, r, s[L].rc, s[R].rc, k - tem);
+}
+
+int where(int x) {
+    return lower_bound(all(v), x) - v.begin() + 1;
+}
+int main(){
+    n = gn(), m = gn();
+    repi(i, 1, n) {
+        a[i] = gn();
+        v.pb(a[i]);
+    }
+    sort(all(v));
+    v.erase(unique(all(v)), v.end());
+    int len = v.size();
+    repi(i, 1, n) {
+        insert(1, len, root[i - 1], root[i], where(a[i]));
+        //cout << where(a[i]) << endl;
+    }
+    repi(i, 1, m) {
+        int l = gn(), r = gn(), k = gn();
+        print(v[query(1, len, root[l - 1], root[r], k) - 1]);
+        putchar(10);
+    }
+}
+```
