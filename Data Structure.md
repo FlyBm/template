@@ -1,6 +1,170 @@
 ## 数据结构
 
 [TOC]
+
+### 吉司机线段树
+```cpp
+#pragma GCC optimize(3) // 手动开O^3
+
+struct SegmentBeats {
+    static const int maxn = 2e5 + 100;
+
+    #define lson node << 1
+    #define rson node << 1 | 1
+
+    struct node {
+        int minx, seminx, cnt, lazy, sum;
+        int num[32];
+    }s[maxn << 2];
+
+    __attribute__((optimize("O3"),target("avx"))) // 卡常
+    void pushup(int node, int l, int r) {
+        for (int i = 0; i <= 30; ++i) {
+            s[node].num[i] = s[lson].num[i] + s[rson].num[i];
+        }
+
+        s[node].minx = s[lson].minx, s[node].cnt = s[lson].cnt, s[node].seminx = s[lson].seminx;
+
+        if(s[rson].minx < s[node].minx) {
+            s[node].minx = s[rson].minx, s[node].cnt = s[rson].cnt;
+            s[node].seminx = min(s[lson].minx, s[rson].seminx);
+        } else if (s[rson].minx == s[node].minx) {
+            s[node].cnt += s[rson].cnt;
+            s[node].seminx = min(s[node].seminx, s[rson].seminx);
+        } else {
+            s[node].seminx = min(s[node].seminx, s[rson].minx);
+        }
+
+        s[node].sum = s[lson].sum ^ s[rson].sum;
+    }
+
+    __attribute__((optimize("O3"),target("avx")))
+    void spread(int node, int l, int r) {
+        if(s[node].lazy > s[lson].minx and s[node].lazy < s[lson].seminx) {
+            for (int i = 0; i <= 30; ++i) {
+                if(s[lson].minx & (1 << i)) s[lson].num[i] -= s[lson].cnt;
+            }
+            if(s[lson].cnt & 1) s[lson].sum ^= s[lson].minx;
+
+            s[lson].minx = s[node].lazy;
+
+            for (int i = 0; i <= 30; ++i) {
+                if(s[lson].minx & (1 << i)) s[lson].num[i] += s[lson].cnt;
+            }
+            if(s[lson].cnt & 1) s[lson].sum ^= s[lson].minx;
+            s[lson].lazy = max(s[node].lazy, s[lson].lazy);
+        }
+        if(s[node].lazy > s[rson].minx and s[node].lazy < s[rson].seminx) {
+            for (int i = 0; i <= 30; ++i) {
+                if(s[rson].minx & (1 << i)) s[rson].num[i] -= s[rson].cnt;
+            }
+            if(s[rson].cnt & 1) s[rson].sum ^= s[rson].minx;
+
+            s[rson].minx = s[node].lazy;
+
+            for (int i = 0; i <= 30; ++i) {
+                if(s[rson].minx & (1 << i)) s[rson].num[i] += s[rson].cnt;
+            }
+            if(s[rson].cnt & 1) s[rson].sum ^= s[rson].minx;
+            s[rson].lazy = max(s[node].lazy, s[rson].lazy);
+        }
+        s[node].lazy = 0;
+    }
+
+    __attribute__((optimize("O3"),target("avx")))
+    void build (int node, int l, int r) {
+        if(l == r) {
+            s[node].minx = a[l], s[node].seminx = (1 << 30);
+            s[node].cnt = 1; s[node].lazy = 0; s[node].sum = a[l];
+            for (int i = 0; i <= 30; ++i) {
+                if (a[l] & (1 << i)) s[node].num[i] = 1;
+                else s[node].num[i] = 0;
+            }
+            return ;
+        }
+        int mid = l + r >> 1;
+        build(lson, l, mid);
+        build(rson, mid + 1, r);
+        pushup(node, l, r);
+    }
+
+    __attribute__((optimize("O3"),target("avx")))
+    void change(int node, int l, int r, int L, int R, int x) {
+        if(L == l and R == r) {
+            if(x <= s[node].minx) return ;
+            else if (x < s[node].seminx) {
+                for (int i = 0; i <= 30; ++i) {
+                    if(s[node].minx & (1 << i)) s[node].num[i] -= s[node].cnt;
+                }
+                if(s[node].cnt & 1) s[node].sum ^= s[node].minx;
+
+                s[node].minx = x;
+
+                for (int i = 0; i <= 30; ++i) {
+                    if(s[node].minx & (1 << i)) s[node].num[i] += s[node].cnt;
+                }
+                if(s[node].cnt & 1) s[node].sum ^= s[node].minx;
+                s[node].lazy = x;
+                return ;
+            }
+        }
+        if(s[node].lazy) spread(node, l, r);
+        int mid = l + r >> 1;
+        if(R <= mid) change(lson, l, mid, L, R, x);
+        else if (L > mid) change(rson, mid + 1, r, L, R, x);
+        else change(lson, l, mid, L, mid, x), change(rson, mid + 1, r, mid + 1, R, x);
+        pushup(node, l, r);
+    }
+
+    __attribute__((optimize("O3"),target("avx")))
+    int query (int node, int l, int r, int L, int R, int maxbit) {
+        if(L <= l and R >= r) {
+            return s[node].num[maxbit];
+        }
+        if(s[node].lazy) spread(node, l, r);
+        int mid = l + r >> 1;
+        int ans = 0;
+        if(L <= mid) ans += query(lson, l, mid, L, R, maxbit);
+        if(R > mid) ans += query(rson, mid + 1, r, L, R, maxbit);
+        return ans;
+    }
+
+    __attribute__((optimize("O3"),target("avx")))
+    int querysum(int node, int l, int r, int L, int R) {
+        if(L <= l and R >= r) {
+            return s[node].sum;
+        }
+        if(s[node].lazy) spread(node, l, r);
+        int mid = l + r >> 1;
+        int ans = 0;
+        if(L <= mid) ans ^= querysum(lson, l, mid, L, R);
+        if(R > mid) ans ^= querysum(rson, mid + 1, r, L, R);
+        return ans;
+    }
+}tree;
+
+int main() {
+    int n = gn(), q = gn();
+    for (int i = 1; i <= n; ++i) {
+        a[i] = gn();
+    }
+    tree.build(1, 1, n);
+    for (int i = 1; i <= q; ++i) {
+        int type = gn(), l = gn(), r = gn(), x = gn();
+        if(type == 1) {
+            tree.change(1, 1, n, l, r, x);
+        } else {
+            int num = (tree.querysum(1, 1, n, l, r) ^ x);
+            int maxid = -1;
+            for (int j = 0; j <= 30; ++j) {
+                if (num & (1 << j)) maxid = j;
+            }
+            maxid == -1 ? printf("0\n") : printf("%d\n", tree.query(1, 1, n, l, r, maxid) + ((x & (1 << maxid)) != 0) );
+        }
+    }
+}
+```
+
 ### 单调栈求以某个数为最大（最小）值的区间范围
 ```cpp
 // 此为单调递减栈 单调队列同理 灵活应用
