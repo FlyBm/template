@@ -2,9 +2,32 @@
 
 [TOC]
 
+### 树上背包
+```cpp
+ll dp[N][N][2], w[N], siz[N];
+
+void dfs (int node, int fa) {
+    siz[node] = 1;
+    dp[node][1][1] = w[node], dp[node][0][0] = 0;
+
+    for (auto to : v[node]) {
+        if (to == fa) continue;
+        dfs(to, node);
+        for (int j = siz[node]; j >= 0; --j) {
+            for (int k = siz[to]; k >= 0; --k) {
+                dp[node][j + k][0] = max(dp[node][j][0] + dp[to][k][0], dp[node][j + k][0]);
+                if (k >= 1) dp[node][j + k][0] = max(dp[node][j + k][0], dp[node][j][0] + dp[to][k][1] + w[to]);
+                if (k + j >= 1 and j >= 1) dp[node][j + k][1] = max(dp[node][j + k][1], dp[node][j][1] + dp[to][k][0] + w[to]);
+                if (k + j >= 1 and j >= 1 and  k >= 1) dp[node][j + k][1] = max(dp[node][j + k][1], dp[node][j][1] + dp[to][k][1] + w[to]);
+            }
+        }
+        siz[node] += siz[to];
+    }
+}
+```
 ### 分组背包
 
-```jsx
+```cpp
 struct EulerSieve{
     static const int N = 3e4 + 50;
     int vis[N], prime[N];
