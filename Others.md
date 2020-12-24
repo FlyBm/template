@@ -2,6 +2,17 @@
 
 [TOC]
 
+### 茅台随机数
+```cpp
+mt19937 rnd(time(0));
+int a[N];
+
+void solve() {
+    shuffle(a + 1, a + N, rnd);
+    printf("%lld\n", rnd());
+}
+```
+
 ### 阴间快读
 
 ```cpp
