@@ -556,7 +556,7 @@ $f_{k_0}(0)=(1+0)^n$
 $f_{k_1}(0)=n\times (1+0)^{n-1}$
 $f_{k_2}(0)=n\times (n-1)\times (1+0)^{n-2}$
 $...$
-所以有$f(x)=1^n\times \frac{x^0}{0!}+1^{n-1}\times x^1\times \frac{n}{1!}+1^{n-2}\times x^1\times \frac {n\times (n-1)}{2!}...$
+所以有$f(x)=1^n\times \frac{x^0}{0!}+1^{n-1}\times x^1\times \frac{n}{1!}+1^{n-2}\times x^2\times \frac {n\times (n-1)}{2!}...$
 联系二项式公式，可以得到上面式子与二项式展开一样。
 
 ### 欧拉函数以及Mobius函数的性质
