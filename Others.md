@@ -9,7 +9,7 @@ int a[N];
 
 void solve() {
     shuffle(a + 1, a + N, rnd);
-    printf("%lld\n", rnd());
+    printf("%lld\n", default_random_engine(seed));
 }
 ```
 
