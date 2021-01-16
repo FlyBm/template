@@ -4,6 +4,97 @@
 
 ## 模板
 
+### 线性基
+```cpp
+struct Linear_Basis {
+    ll p[65], d[65];
+    int cnt = 0;
+    Linear_Basis() {
+        memset(p, 0, sizeof p);
+    }
+
+    //向线性基中插入一个数
+    bool ins(ll x) {
+        for (int i = 62; i >= 0; --i) {
+            if (x & (1ll << i)) {
+                if (not p[i]) {
+                    p[i] = x; break;
+                }
+                x ^= p[i];
+            }
+        }
+        return x > 0ll;
+    }
+
+    //将线性基改造成每一位相互独立，即对于二进制的某一位i，只有pi的这一位是1，其它都是0
+    void rebuild() {
+        cnt = 0;
+        for (int i = 62; i >= 0; --i) {
+            for (int j = i - 1; j >= 0; --j) {
+                if (p[i] & (1ll << j)) p[i] ^= p[j];
+            }
+        }
+        for (int i = 0; i <= 62; ++i) {
+            if (p[i]) d[++cnt] = p[i];
+        }
+    }
+
+    //求线性空间与ans异或的最大值
+    ll MAX(ll x) {
+        for (int i = 62; i >= 0; --i) {
+            if ((x ^ p[i]) > x) x ^= p[i];
+        }
+        return x;
+    }
+
+    //如果是求一个数与线性基的异或最小值，则需要先rebuild，再从高位向低位依次进行异或
+    ll MIN() {
+        for (int i = 0; i <= 62; ++i) {
+            if (p[i]) return p[i];
+        }
+    }
+
+    //求线性基能够组成的数中的第K大
+    ll kth(ll k) {
+        ll ret = 0;
+        if (k >= (1ll << cnt)) return -1;
+        for (int i = 62; i >= 0; --i) {
+            if (k & (1ll << i)) ret ^= d[i];
+        }
+        return ret;
+    }
+
+    //合并两个线性基
+    Linear_Basis &merge (const Linear_Basis &xx) {
+        for (int i = 62; i >= 0; --i) {
+            if (xx.p[i]) ins(xx.p[i]);
+        }
+        return *this;
+    }
+}LB;
+
+//两个线性基求交 tmp不断构建A+(B\ans)
+Linear_Basis merge(Linear_Basis a, Linear_Basis b) {
+    Linear_Basis A = a, tmp = a, ans;
+    ll cur, d;
+    for (int i = 0; i <= 62; ++i) {
+        if (b.p[i]) {
+            cur = 0; d = b.p[i];
+            for (int j = i; j >= 0; --j) {
+                if ((d << j) & 1) {
+                    if (tmp.p[j]) {
+                        d ^= tmp.p[j], cur ^= A.p[j];
+                        if (d) continue;
+                        ans.p[i] = cur;
+                    } else tmp.p[j] = d, A.p[j] = cur;
+                    break;
+                }
+            }
+        }
+    }
+    return ans;
+}
+```
 ### 组合数
 ```cpp
 ll C(int x, int y) {
