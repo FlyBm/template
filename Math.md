@@ -661,6 +661,7 @@ $...$
 6. 小于$n$且与$n$互质的数的和为$S=n\times \frac{\varphi(n)}{2}$
 7. 对于质数$p$，若$n\mod p = 0$，则$\varphi(n \times p) = \varphi(n) \times p$；若$n\mod p \ne 0$，则$\varphi(n \times p) = \varphi(n) \times (p - 1)$
 8. $\sum_{d|n}\varphi(d)=n$，$\varphi(n)=\sum_{d|n}\mu(d)\times \frac{n}{d}$
+9. 当$n$为奇数时，$\varphi(n) = \varphi(n \times 2)$
 
 $Mobius$函数的性质
 
