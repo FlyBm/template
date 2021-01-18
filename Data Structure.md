@@ -1,7 +1,185 @@
 ## 数据结构
 
 [TOC]
+### fhq Treap 区间操作（按大小分裂）
+```cpp
+mt19937 rnd(233);
+struct fhqTreap {
+    #define l(x) fhq[x].l
+    #define r(x) fhq[x].r
+    #define rd(x) fhq[x].rd
+    #define val(x) fhq[x].val
+    #define siz(x) fhq[x].siz
+    #define rev(x) fhq[x].rev
 
+    struct node {
+        int l, r, val, rd, siz;
+        bool rev;
+    }fhq[N];
+
+    int cnt = 0, root = 0;
+
+    inline void update (int now) {
+        siz(now) = siz(l(now)) + siz(r(now)) + 1;
+    }
+
+    inline int newnode (int val) {
+        ++cnt;
+        fhq[cnt] = {0, 0, val, (int)rnd(), 1};
+        return cnt;
+    }
+
+    inline void spread(int now) {
+        swap(l(now), r(now));
+        rev(l(now)) ^= 1;
+        rev(r(now)) ^= 1;
+        rev(now) = 0;
+    }
+
+    inline void split(int now, int siz, int &x, int &y) {
+        if (not now) {
+            x = y = 0;
+            return ;
+        }
+        if (rev(now)) spread(now);
+        if (siz(l(now)) < siz) {
+            x = now;
+            split(r(now), siz - siz(l(now)) - 1, r(now), y);
+        } else {
+            y = now;
+            split(l(now), siz, x, l(now));
+        }
+        update(now);
+    }
+
+    inline int merge(int x, int y) {
+        if (not x or not y) return x + y;
+        if (rd(x) > rd(y)) {
+            if (rev(x)) spread(x);
+            r(x) = merge(r(x), y);
+            update(x);
+            return x;
+        } else {
+            if (rev(y)) spread(y);
+            l(y) = merge(x, l(y));
+            update(y);
+            return y;
+        }
+    }
+
+    void reverse(int l, int r) {
+        int x, y, z;
+        split(root, l - 1, x, y);
+        split(y, r - l + 1, y, z);
+        rev(y) ^= 1;
+        root = merge(merge(x, y), z);
+    }
+}tree;
+```
+### fhq Treap 平衡树基本操作（按值分裂）
+```cpp
+mt19937 rnd(time(0));
+
+struct fhqTreap{
+    #define l(x) fhq[x].l
+    #define r(x) fhq[x].r 
+    struct Node {
+        int l, r;
+        int val, rd;
+        int siz;
+    }fhq[N];
+
+    int cnt = 0, root = 0;
+
+    inline int newnode(int val) {
+        fhq[++cnt].val = val;
+        fhq[cnt].rd = rnd();
+        fhq[cnt].siz = 1;
+        return cnt;
+    }
+
+    inline void update(int now) {
+        fhq[now].siz = fhq[l(now)].siz + fhq[r(now)].siz + 1;
+    }
+
+    void split(int now, int val, int &x, int &y) {
+        if (not now) {
+            x = y = 0;
+            return ;
+        }
+        if (fhq[now].val <= val) {
+            x = now;
+            split(fhq[now].r, val, fhq[now].r, y);
+        } else {
+            y = now;
+            split(fhq[now].l, val, x, fhq[now].l);
+        }
+        update(now);
+    }
+
+    int merge(int x, int y) {
+        if (not x or not y) return x + y;
+        if (fhq[x].rd > fhq[y].rd) {
+            fhq[x].r = merge(fhq[x].r, y);
+            update(x);
+            return x;
+        } else { 
+            fhq[y].l = merge(x, fhq[y].l);
+            update(y);
+            return y;
+        }
+    }
+
+    int x, y, z;
+    inline void ins(int val) {
+        split(root, val, x, y);
+        root = merge(merge(x, newnode(val)), y);
+    }
+
+    inline void del(int val) {
+        split(root, val, x, z);
+        split(x, val - 1, x, y);
+        y = merge(l(y), r(y));
+        root = merge(merge(x, y), z);
+    }
+
+    inline void getrank(int val, int &rank) {
+        split(root, val - 1, x, y);
+        rank = fhq[x].siz + 1;
+        root = merge(x, y);
+    }
+
+    inline void getnum(int rank, int &val) {
+        int now = root;
+        while (now) {
+            if (fhq[l(now)].siz + 1 == rank) break;
+            else if (fhq[l(now)].siz >= rank) now = l(now);
+            else {
+                rank -= fhq[l(now)].siz + 1;
+                now = r(now);
+            }
+        }
+        val = fhq[now].val;
+    }
+
+    inline void pre(int val, int &id) {
+        split(root, val - 1, x, y);
+        int now = x;
+        while (r(now)) now = r(now);
+        id = fhq[now].val;
+        root = merge(x, y);
+    } 
+
+    inline void nxt(int val, int &id) {
+        split(root, val, x, y);
+        int now = y;
+        while (l(now)) now = l(now);
+        id = fhq[now].val;
+        root = merge(x, y);
+    } 
+    
+} tree;
+```
 ### 吉司机线段树
 
 吉司机线段树是一种势能线段树，可以实现区间取 $min/max$(给定 $l,r,x$ 把所有满足 $l≤i≤r$ 的 $a_i$ 改成 $min(a_i,x)$ 和区间求和
