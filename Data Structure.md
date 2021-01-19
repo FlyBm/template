@@ -336,27 +336,6 @@ struct SegmentBeats {
         return ans;
     }
 }tree;
-
-int main() {
-    int n = gn(), q = gn();
-    for (int i = 1; i <= n; ++i) {
-        a[i] = gn();
-    }
-    tree.build(1, 1, n);
-    for (int i = 1; i <= q; ++i) {
-        int type = gn(), l = gn(), r = gn(), x = gn();
-        if(type == 1) {
-            tree.change(1, 1, n, l, r, x);
-        } else {
-            int num = (tree.querysum(1, 1, n, l, r) ^ x);
-            int maxid = -1;
-            for (int j = 0; j <= 30; ++j) {
-                if (num & (1 << j)) maxid = j;
-            }
-            maxid == -1 ? printf("0\n") : printf("%d\n", tree.query(1, 1, n, l, r, maxid) + ((x & (1 << maxid)) != 0) );
-        }
-    }
-}
 ```
 
 ### 单调栈求以某个数为最大（最小）值的区间范围
