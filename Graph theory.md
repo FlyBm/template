@@ -1,7 +1,61 @@
 ## 图论
 
 [TOC]
+### 最小斯坦纳树
+```cpp
+/*
+ *  Steiner Tree：求，使得指定K个点连通的生成树的最小总权值
+ *  K 为特殊点的个数
+ *  endSt=1<<K
+ *  dp[i][state] 表示以i为根，连通状态为state的生成树值
+ */
 
+priority_queue<pair<int, int> > q;
+int dp[(1 << K) + 2][N], endSt;
+
+void initSteinerTree () {
+    memset(dp, 0x3f, sizeof dp);
+    endSt = 1 << k;
+    for (int i = 1; i <= k; ++i) {
+        dp[(1 << (i - 1))][i] = 0;
+    }
+}
+
+void dijkstra(int state) {
+    while (not q.empty()) {
+        int now = q.top().second, dis = -q.top().first;
+        q.pop();
+        if (dp[state][now] < dis) continue;
+        for (int i = head[now]; ~i; i = s[i].net) {
+            int to = s[i].to;
+            if (dp[state][to] > dp[state][now] + s[i].w) {
+                dp[state][to] = dp[state][now] + s[i].w;
+                q.push({-dp[state][to], to});
+            }
+        }
+    }
+}
+
+int SteinerTree() {
+    for (int state = 1; state < endSt; ++state) {
+        for (int i = 1; i <= n; ++i) {
+            for (int sub = state; sub; sub = (sub - 1) & state) {
+                dp[state][i] = min(dp[state][i], dp[sub][i] + dp[state - sub][i]);
+            }
+            if (dp[state][i] != INF) q.push({-dp[state][i], i});
+        }
+        dijkstra(state);
+    }
+
+    int ans = INF;
+
+    for (int i = 1; i <= n; ++i) {
+        ans = min(ans, dp[(1 << k) - 1][i]);
+    }
+
+    return ans;
+}
+```
 ### 点分治
 
 处理树上路径问题
