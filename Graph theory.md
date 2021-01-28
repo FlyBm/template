@@ -1,6 +1,101 @@
 ## 图论
 
 [TOC]
+### 有源汇上下界最大流/最小流
+最小流最后一步改成减就好
+```cpp
+struct node{
+    int to, net;
+    ll w;
+}s[M * 2];
+int dep[N], cur[N], tot = -1, head[N], S, T, n, m, ss, tt; // ss tt 真正的源汇点 S T 超源超汇
+
+void add(int x, int y, int z) {
+    s[++tot] = {y, head[x], z};
+    head[x] = tot;
+}
+
+void add_net_edge (int x, int y, int z) {
+    add(x, y, z);
+    add(y, x, 0);
+}
+
+bool bfs(int st, int ed) {
+    memset(dep, 0, sizeof dep);
+    dep[st] = 1;
+    queue<int> q;
+    q.push(st);
+    while (not q.empty()) {
+        int now = q.front();
+        q.pop();
+        for (int i = head[now]; ~i; i = s[i].net) {
+            int to = s[i].to;
+            if (not dep[to] and s[i].w > 0) {
+                dep[to] = dep[now] + 1;
+                q.push(to);
+            }
+        }
+    }
+    return dep[ed];
+}
+
+ll dfs (int u, ll flo, int ed) {
+    if (u == ed) return flo;
+    ll del = 0;
+    for (int i = cur[u]; (~i) and flo; i = s[i].net) {
+        cur[u] = i;
+        int to = s[i].to;
+        if (dep[to] != dep[u] + 1 or s[i].w <= 0) continue;
+        ll x = dfs(to, min(flo, s[i].w), ed);
+        flo -= x; del += x;
+        s[i].w -= x; s[i ^ 1].w += x;
+    }
+    if (not del) dep[u] = -2;
+    return del;
+}
+
+int dinic(int st, int ed) {
+    int ans = 0;
+    while (bfs(st, ed)) {
+        for (int i = S; i <= T; ++i) cur[i] = head[i];
+        ans += dfs(st, (1 << 30), ed);
+    }
+    return ans;
+}
+
+int in[N], out[N];
+
+int main() {
+    n = gn(), m = gn(), ss = gn(), tt = gn();
+    S = 0, T = n + 1;
+
+    for (int i = S; i <= T; ++i) head[i] = -1;
+    for (int i = 1; i <= m; ++i) {
+        int x = gn(), y = gn(), low = gn(), high = gn();
+        add_net_edge(x, y, high - low);
+        in[y] += low;
+        out[x] += low;
+    }
+    for (int i = 1; i <= n; ++i) {
+        if (in[i] > out[i]) add_net_edge(S, i, in[i] - out[i]);
+        else if (in[i] < out[i]) add_net_edge(i, T, out[i] - in[i]);
+    }
+
+    add_net_edge(tt, ss, INF);
+    dinic(S, T);
+
+    for (int i = head[S]; ~i; i = s[i].net) {
+        if (s[i].w != 0) {
+            puts("please go home to sleep");
+            return 0;
+        }
+    }
+
+    ll flow = s[tot].w;
+    s[tot].w = s[tot - 1].w = 0;
+    cout << flow + dinic(ss, tt) << endl;
+}
+```
 ### 无源汇上下界可行流
 有源汇的话加一条从T -> S [0, inf) 的边即可
 ```cpp
