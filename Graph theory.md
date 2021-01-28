@@ -1,6 +1,44 @@
 ## 图论
 
 [TOC]
+### 无源汇上下界可行流
+有源汇的话加一条从T -> S [0, inf) 的边即可
+```cpp
+void solve() {
+    
+    n = gn(), m = gn();
+    S = 0, T = n + 1;
+
+    for (int i = S; i <= T; ++i) head[i] = -1;
+    
+    // i -> j high[i] - low[i] 
+    for (int i = 1; i <= m; ++i) {
+        road[i] = {gn(), gn(), gn(), gn()};
+        road[i].id = add_net_edge(road[i].x, road[i].y, road[i].high - road[i].low);
+        in[road[i].y] += road[i].low;
+        out[road[i].x] += road[i].low;
+    }
+    // S -> i in[i] > out[i] i -> T in[i] < out[i] 
+    for (int i = 1; i <= n; ++i) {
+        if (in[i] > out[i]) add_net_edge(S, i, in[i] - out[i]);
+        else if (in[i] < out[i]) add_net_edge(i, T, out[i] - in[i]);
+    }
+    dinic();
+
+    for (int i = head[S]; ~i; i = s[i].net) {
+        if (s[i].w != 0) {
+            puts("NO");
+            return ;
+        }
+    }
+
+    puts("YES");
+    for (int i = 1; i <= m; ++i) {
+        cout << road[i].low + s[road[i].id ^ 1].w << '\n';
+    }
+    cout << endl;
+}
+```
 ### 最小斯坦纳树
 ```cpp
 /*
