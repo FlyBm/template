@@ -1,6 +1,110 @@
 ## 数据结构
 
 [TOC]
+### 线段树分裂合并 ODT树
+```cpp
+struct node {
+    int l, r;
+    bool operator < (const node &rhs) const {
+        return l < rhs.l;
+    }
+};
+
+int sign[N];
+
+struct SegmentTree {
+    static const int maxn = 1e5 + 100;
+    #define lson(x) s[x].lc
+    #define rson(x) s[x].rc
+    struct node {
+        int lc, rc;
+        int num;
+    } s[maxn * 80];
+
+    int root[maxn];
+    int tot = 0;
+
+    void insert(int &rt, int l, int r, int idx, int num) {
+        if(!rt) rt = ++tot;
+
+        s[rt].num += num;
+
+        if(l == r) return ;
+
+        int mid = (l + r) >> 1;
+
+        if(idx <= mid) insert(lson(rt), l, mid, idx, num);
+        else insert(rson(rt), mid + 1, r, idx, num);
+    }
+
+    int query(int rt, int l, int r) {
+        if(l == r) return l;
+        int mid = (l + r) >> 1;
+        return s[s[rt].lc].num ? query(s[rt].lc, l, mid) : query(s[rt].rc, mid + 1, r);
+    }
+
+    void merge(int &u, int v) {
+        if(not u or not v) {
+            u += v;
+            return ;
+        }
+
+        s[u].num += s[v].num;
+
+        merge(lson(u), lson(v));
+        merge(rson(u), rson(v));
+    }
+
+    void split(int x, int &y, int k, bool flag) {
+        y = ++tot;
+        s[y].num = s[x].num - k;
+        s[x].num = k;
+
+        if (flag) {
+            int num = s[s[x].lc].num;
+            if (num < k) split(s[x].rc, s[y].rc, k - num, flag);
+            else swap(s[x].rc, s[y].rc);
+            if (num > k) split(s[x].lc, s[y].lc, k, flag);
+        } else {
+            int num = s[s[x].rc].num;
+            if (num < k) split(s[x].lc, s[y].lc, k - num, flag);
+            else swap(s[x].lc, s[y].lc);
+            if (num > k) split(s[x].rc, s[y].rc, k, flag);
+        }
+    }
+
+} tree;
+
+set<node> st;
+
+set<node>::iterator spilt(int pos) {
+    auto to = st.lower_bound({pos});
+    if (to != st.end() and to->l == pos) {
+        return to;
+    }
+    --to;
+    int l = to->l, r = to->r;
+    st.erase(to);
+    int root = 0;
+    tree.split(tree.root[l], tree.root[pos], pos - l, sign[l]);
+    sign[pos] = sign[l];
+    st.insert({l, pos - 1});
+    return  st.insert({pos, r}).first;
+}
+
+void assign(int l, int r, int flag) {
+    auto itr = spilt(r + 1), itl = spilt(l);
+
+    for (set<node>::iterator it = ++itl; it != itr; ++it) {
+        tree.merge(tree.root[l], tree.root[it->l]);
+    }
+    st.erase(itl, itr);
+
+    st.insert({l, r});
+
+    sign[l] = flag;
+}
+```
 ### 线段树维护联通性
 ```cpp
 int dis(int x, int y) {
