@@ -1,6 +1,191 @@
 ## 数据结构
 
 [TOC]
+### 线段树维护联通性
+```cpp
+int dis(int x, int y) {
+    return dep[x] + dep[y] - 2 * dep[lca(x, y)];
+}
+
+struct SegmentTree {
+    static const int maxn = 2e5 + 100;
+    pair<int, int> s[maxn << 2];
+    #define lson node << 1
+    #define rson node << 1 | 1
+
+    function<pair<int, int> (pair<int, int>, int)> merge = [&](pair<int, int> point, int c) -> pair<int, int> {
+        if (point.first == -1 or c == -1) return {-1, -1};
+        int a = point.first;
+        int b = point.second;
+        int a_to_b = dis(a, b);
+        int a_to_c = dis(a, c);
+        int b_to_c = dis(b, c);
+        if (a_to_b + a_to_c == b_to_c) return {b, c};
+        if (a_to_b + b_to_c == a_to_c) return {a, c};
+        if (b_to_c + a_to_c == a_to_b) return {a, b};
+        return {-1, -1};
+    };
+
+    void pushup(int node) {
+        pair<int, int> lp = s[lson], rp = s[rson], x;
+        x = merge(lp, rp.first);
+        x = merge(x, rp.second);
+        s[node] = x;
+    }
+
+    void build(int node, int l, int r) {
+        if (l == r) {
+            s[node] = {a[l], a[l]};
+            return ;
+        }
+        int mid = l + r >> 1;
+        build(lson, l, mid);
+        build(rson, mid + 1, r);
+        pushup(node);
+    }
+
+    void change(int node, int l, int r, int id, int val) {
+        if (l == r) {
+            s[node] = {val, val};
+            return;
+        }
+        int mid = l + r >> 1;
+        if (id <= mid) change(lson, l, mid, id, val);
+        else change(rson, mid + 1, r, id, val);
+        pushup(node);
+    }
+
+    int query(int node, int l, int r, pair<int, int> pre) {
+        if (l == r) {
+            pair<int, int> lp = pre, rp = s[node], x;
+            x = merge(lp, rp.first);
+            x = merge(x, rp.second);
+            return x.first == -1 ? l - 1 : l;
+        }
+        int mid = l + r >> 1;
+        pair<int, int> x = merge(pre, s[lson].first);
+        x = merge(x, s[lson].second);
+        if (x.first == -1) return query(lson, l, mid, pre);
+        else return query(rson, mid + 1, r, x);
+    }
+} tree;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin >> n;
+    for (int i = 1; i <= n; ++i) {
+        head[i] = -1;
+        cin >> b[i]; b[i]++;
+        a[b[i]] = i;
+    }
+    for (int i = 2; i <= n; ++i) {
+        int x; cin >> x; add(x, i);
+    }
+
+    dfs(1, 0);
+    dfs1(1, 1);
+
+    tree.build(1, 1, n);
+
+    int q; cin >> q;
+
+    while (q--) {
+        int cmd; cin >> cmd;
+        if (cmd == 1) {
+            int x, y; cin >> x >> y;
+            swap(b[x], b[y]);
+            a[b[x]] = x;
+            a[b[y]] = y;
+            tree.change(1, 1, n, b[x], a[b[x]]);
+            tree.change(1, 1, n, b[y], a[b[y]]);
+        } else {
+            cout << tree.query(1, 1, n, {a[1], a[1]}) << endl;
+        }
+    }
+}
+```
+### 线段树优化建图
+```cpp
+struct node {
+    int to, net, w;
+}s[N * 4];
+
+int tot = 0, head[N * 4];
+
+void add (int x, int y, int w) {
+    s[++tot] = {y, head[x], w};
+    head[x] = tot;
+}
+
+int val[N];
+
+int cnt, ls[N], rs[N];
+
+void build(int &p, int &q, int l, int r) {
+    if (l == r) {
+        p = q = l;
+        return;
+    }
+    if (not p) p = ++cnt;
+    if (not q) q = ++cnt;
+    int mid = (l + r) >> 1;
+    build(ls[p], ls[q], l, mid); add(p, ls[p], 0), add(ls[q], q, 0);
+    build(rs[p], rs[q], mid + 1, r); add(p, rs[p], 0), add(rs[q], q, 0);
+}
+
+void change(int node, int l, int r, int L, int R, int rt, int flag) {
+    if (L == l and R == r) {
+        if (flag) add(node, rt, 0);
+        else add(rt, node, 0);
+        return;
+    }
+    int mid = l + r >> 1;
+    if (R <= mid) change(ls[node], l, mid, L, R, rt, flag);
+    else if (L > mid) change(rs[node], mid + 1, r, L, R, rt, flag);
+    else {
+        change(ls[node], l, mid, L, mid, rt, flag);
+        change(rs[node], mid + 1, r, mid + 1, R, rt, flag);
+    }
+}
+
+
+int main() {
+    memset(head, -1, sizeof head);
+    memset(val, 0x3f, sizeof val);
+    n = gn(), m = gn(), k = gn();
+    cnt = n;
+    int rootp = 0, rootq = 0;
+    build(rootp, rootq, 1, n);
+    for (int i = 1; i <= m; ++i) {
+        int l = ++cnt, r = ++cnt;
+        int a = gn(), b = gn(), c = gn(), d = gn();
+        add(l, r, 1);
+        change(rootq, 1, n, a, b, l, 1);
+        change(rootp, 1, n, c, d, r, 0);
+        l = ++cnt, r = ++cnt;
+        add(l, r, 1);
+        change(rootq, 1, n, c, d, l, 1);
+        change(rootp, 1, n, a, b, r, 0);
+    }
+
+    priority_queue<pair<int, int> > q;
+    q.push({0, k});
+    val[k] = 0;
+
+    while (not q.empty()) {
+        int now = q.top().second, num = -q.top().first;
+        q.pop();
+        if (num > val[now]) continue;
+        for (int i = head[now]; ~i; i = s[i].net) {
+            int to = s[i].to;
+            if (val[to] > val[now] + s[i].w) {
+                val[to] = val[now] + s[i].w;
+                q.push({-val[to], to});
+            }
+        }
+    }
+}
+```
 ### fhq Treap 区间操作（按大小分裂）
 ```cpp
 mt19937 rnd(233);
