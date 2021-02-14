@@ -1922,9 +1922,9 @@ int main() {
 	treeans.build(1, 1, n);
 	for(int i = 1; i <= m; ++i) {
 		ll l = gl(), r = gl();
-        ll k = treeans.querysum(1, 1, n, l, r);
-        k = (k + 1) / 2;
-        ll id = treeans.queryid(1, 1, n, l, r, k);
+        	ll k = treeans.querysum(1, 1, n, l, r);
+        	k = (k + 1) / 2;
+        	ll id = treeans.queryid(1, 1, n, l, r, k);
 	}
 }
 ```
@@ -2595,6 +2595,17 @@ int main() {
         if(a.l / block != b.l / block) return a.l / block < b.l / block;
         if(a.r / block != b.r / block) return a.r / block < b.r / block;
         return a.pre < b.pre;
+    });
+    
+    // 奇偶优化排序
+    sort(s + 1, s + 1 + Qnum, [&](node a, node b) {
+        if(a.l / block != b.l / block) return a.l / block < b.l / block;
+        if(a.r / block != b.r / block) {
+            if (a.l / block & 1) return a.r / block < b.r / block;
+            else return a.r / block > b.r / block;
+        }
+        if ((a.l / block & 1) == (a.r / block & 1)) return a.pre < b.pre;
+        return a.pre > b.pre;
     });
 
     int l = 1, r = 0, now = 0;
