@@ -1,6 +1,95 @@
 ## 数据结构
 
 [TOC]
+### 莫队二次离线
+子区间 or 区间对数一类满足区间减法的问题
+```
+vector<int> buc;
+
+vector<tuple<int, int, int> >  v[N];
+
+ll cnt[N], pre[N];
+ll ans[N];
+
+struct node {
+    int l, r, id;
+    ll ans;
+}q[N];
+
+int main() {
+    int n = gn(), m = gn(), k = gn();
+    for (int i = 1; i <= n; ++i) a[i] = gn();
+
+    for (int i = 1; i <= m; ++i) {
+        int l = gn(), r = gn();
+        q[i] = {l, r, i};
+    }
+
+    for (int i = 0, len = (1 << 14); i < len; ++i) {
+        if (__builtin_popcount(i) == k) buc.push_back(i);
+    }
+
+    for (int i = 1; i <= n; ++i) {
+        for (auto x : buc) cnt[a[i] ^ x] ++;
+        pre[i] = cnt[a[i + 1]];
+    }
+
+    memset(cnt, 0, sizeof cnt);
+
+    int block = sqrt(n);
+    sort(q + 1, q + 1 + m, [&](node a, node b) {
+        if (a.l / block != b.l / block) return a.l < b.l;
+        return a.r < b.r;
+    });
+
+    // [l, r]
+    for (int i = 1, l = 1, r = 0; i <= m; ++i) {
+        // [l, r] -> [l + i, r]
+        if (l < q[i].l) v[r].emplace_back(l, q[i].l - 1, -i);
+        while (l < q[i].l) {
+            q[i].ans += pre[l - 1];
+            ++l;
+        }
+
+        // [l, r] -> [l - i, r]
+        if (l > q[i].l) v[r].emplace_back(q[i].l, l - 1, i);
+        while (l > q[i].l) {
+            --l;
+            q[i].ans -= pre[l - 1];
+        }
+
+        // [l, r] -> [l, r + i]
+        if (r < q[i].r) v[l - 1].emplace_back(r + 1, q[i].r, -i);
+        while (r < q[i].r) {
+            q[i].ans += pre[r];
+            ++r;
+        }
+
+        // [l, r] -> [l, r - i]
+        if (r > q[i].r) v[l - 1].emplace_back(q[i].r + 1, r, i);
+        while (r > q[i].r) {
+            --r;
+            q[i].ans -= pre[r];
+        }
+    }
+
+    for (int i = 1; i <= n; ++i) {
+        for (auto to : buc) cnt[a[i] ^ to] ++;
+        for (auto x : v[i]) {
+            auto[nl, nr, id] = x;
+            for (int j = nl; j <= nr; ++j) {
+                ll tem = cnt[a[j]];
+                if (j <= i and k == 0) --tem;
+                q[abs(id)].ans += ((id > 0) ? 1 : -1) * tem;
+            }
+        }
+    }
+
+    for (int i = 1; i <= m; ++i) q[i].ans += q[i - 1].ans;
+
+    for (int i = 1; i <= m; ++i) ans[q[i].id] = q[i].ans;
+}
+```
 ### 线段树分裂合并 ODT树
 ```cpp
 struct node {
