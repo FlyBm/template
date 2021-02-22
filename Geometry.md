@@ -205,12 +205,12 @@ S convex_hull(S& s) {
     S ret(MAX_N * 2);
     int sz = 0;
     FOR (i, 0, s.size()) {
-        while (sz > 1 && sgn(cross(ret[sz - 1], s[i], ret[sz - 2])) < 0) --sz;
+        while (sz > 1 && sgn(cross(ret[sz - 1], s[i], ret[sz - 2])) <= 0) --sz;
         ret[sz++] = s[i];
     }
     int k = sz;
     FORD (i, (LL)s.size() - 2, -1) {
-        while (sz > k && sgn(cross(ret[sz - 1], s[i], ret[sz - 2])) < 0) --sz;
+        while (sz > k && sgn(cross(ret[sz - 1], s[i], ret[sz - 2])) <= 0) --sz;
         ret[sz++] = s[i];
     }
     ret.resize(sz - (s.size() > 1));
