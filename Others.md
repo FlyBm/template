@@ -2,8 +2,7 @@
 
 [TOC]
 ### hash表
-```
-
+```cpp
 typedef unsigned long long ull;
 // 99991 , 3000017 , 7679977 , 19260817 , 7679977
 struct HashMap{
