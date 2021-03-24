@@ -2906,139 +2906,185 @@ void change(int node,int l,int r,int idx){
 
 ### 树链剖分+线段树
 
-```jsx
-int n,m,r,p;
+```cpp
 vector<int> v[N];
-int dep[N],f[N],siz[N],son[N],top[N];
-int id[N],tot=0,a[N],out[N],mp[N];
-void dfs(int node,int fa){
-    dep[node]=dep[fa]+1;
-    f[node]=fa;
-    siz[node]=1;
-    int maxn=0;
-    for(int k:v[node]){
-        if(k==fa)continue;
-        dfs(k,node);
-        siz[node]+=siz[k];
-        if(siz[k]>maxn){
-            maxn=siz[k];
-            son[node]=k;
+
+int dep[N], f[N], siz[N], son[N], top[N];
+int id[N], tot = 0;
+
+void predfs(int node, int fa) {
+    dep[node] = dep[fa] + 1;
+    siz[node] = 1;
+    f[node] = fa;
+    int maxn = 0;
+    for (auto to : v[node]) {
+        if (to == fa) continue;
+        predfs(to, node);
+        siz[node] += siz[to];
+        if (siz[to] > maxn) {
+            maxn = siz[to];
+            son[node] = to;
         }
     }
 }
-void dfs1(int node,int topx){
-    top[node]=topx;
-    id[node]=++tot;
-    mp[tot]=node;
-    if(son[node]){
-        dfs1(son[node],topx);
-    }
-    for(int k:v[node]){
-        if(k==f[node]||k==son[node])continue;
-        dfs1(k,k);
-    }
-    out[node]=tot;
-}
-ll t[N<<2],lazy[N<<2];
-void pushup(int node){
-    t[node]=(t[lson]+t[rson])%p;
-}
-void build(int node,int l,int r){
-    if(l==r){
-        t[node]=a[mp[l]];
-        return ;
-    }
-    int mid=l+r>>1;
-    build(lson,l,mid);
-    build(rson,mid+1,r);
-    pushup(node);
-}
-void spread(int node,int l,int r){
-    if(lazy[node]){
-        int mid=l+r>>1;
-        t[lson]=(t[lson]+lazy[node]*(mid-l+1))%p;
-        t[rson]=(t[rson]+lazy[node]*(r-mid))%p;
-        lazy[lson]=(lazy[lson]+lazy[node])%p;
-        lazy[rson]=(lazy[rson]+lazy[node])%p;
-        lazy[node]=0;
+
+void dfs(int node, int topx) {
+    top[node] = topx;
+    id [node] = ++tot;
+    if (son[node]) dfs(son[node], topx);
+    for (auto to : v[node]) {
+        if (to == f[node] or to == son[node]) continue;
+        dfs(to, to);
     }
 }
-void change(int node,int l,int r,int L,int R,int val){
-    if(L<=l&&R>=r){
-        lazy[node]=(lazy[node]+val)%p;
-        t[node]=(t[node]+val*(r-l+1))%p;
-        return ;
+
+int lca(int x, int y) {
+    while (top[x] != top[y]) {
+        if (dep[top[x]] >= dep[top[y]]) x = f[top[x]];
+        else y = f[top[y]];
     }
-    spread(node,l,r);
-    int mid=l+r>>1;
-    if(L<=mid) change(lson,l,mid,L,R,val);
-    if(R>mid) change(rson,mid+1,r,L,R,val);
-    pushup(node);
+    return dep[x] < dep[y] ? x : y;
 }
-ll query(int node,int l,int r,int L,int R){
-    if(L<=l&&R>=r){
-        return t[node];
-    }
-    spread(node,l,r);
-    int mid=l+r>>1;
-    ll val=0;
-    if(L<=mid) val=(val+query(lson,l,mid,L,R))%p;
-    if(R>mid) val=(val+query(rson,mid+1,r,L,R))%p;
-    return val%p;
+
+int dis(int x, int y) {
+    return dep[x] + dep[y] - 2 * dep[lca(x, y)];
 }
-int main(){
-    n=gn(),m=gn(),r=gn(),p=gn();
-    repi(i,1,n){
-        a[i]=gn();
-        if(a[i]>p)a[i]%=p;
-    }
-    repi(i,2,n){
-        int x=gn(),y=gn();
-        v[x].pb(y);
-        v[y].pb(x);
-    }
-    dfs(r,0);
-    dfs1(r,r);
-    build(1,1,n);
-    repi(i,1,m){
-        int cmd=gn();
-        if(cmd==1){
-            int x=gn(),y=gn(),k=gn();
-            while(top[x]!=top[y]){
-                if(dep[top[x]]>=dep[top[y]]){
-                    change(1,1,n,id[top[x]],id[x],k);
-                    x=f[top[x]];
-                }else {
-                    change(1,1,n,id[top[y]],id[y],k);
-                    y=f[top[y]];
-                }
-            }
-            int l=min(id[x],id[y]),r=max(id[x],id[y]);
-            change(1,1,n,l,r,k);
-        }else if(cmd==2){
-            int x=gn(),y=gn();
-            ll ans=0;
-            while(top[x]!=top[y]){
-                if(dep[top[x]]>=dep[top[y]]){
-                    ans+=query(1,1,n,id[top[x]],id[x]);
-                    if(ans>p)ans%=p;
-                    x=f[top[x]];
-                }else {
-                    ans+=query(1,1,n,id[top[y]],id[y]);
-                    if(ans>p)ans%=p;
-                    y=f[top[y]];
-                }
-            }
-            int l=min(id[x],id[y]),r=max(id[x],id[y]);
-            ans+=query(1,1,n,l,r);
-            printf("%lld\n",ans%p);
-        }else if(cmd==3){
-            int x=gn(),k=gn();
-            change(1,1,n,id[x],out[x],k);
-        }else {
-            int x=gn();
-            printf("%lld\n",query(1,1,n,id[x],out[x]));
+
+struct SegmentTree {
+#define lson node << 1
+#define rson node << 1 | 1
+    int num[N << 2], lazy[N << 2], istrue[N << 2];
+
+    void spread(int node) {
+        if (lazy[node]) {
+            num[lson] += lazy[node];
+            num[rson] += lazy[node];
+            lazy[lson] += lazy[node];
+            lazy[rson] += lazy[node];
+            lazy[node] = 0;
         }
+    }
+
+    void pushup(int node) {
+        num[node] = max(num[lson], num[rson]);
+        istrue[node] = (istrue[lson] and istrue[rson] and num[lson] == num[rson]);
+    }
+
+    void build(int node, int l, int r) {
+        num[node] = lazy[node] = 0;
+        istrue[node] = 1;
+        if (l == r) return;
+        int mid = l + r >> 1;
+        build(lson, l, mid);
+        build(rson, mid + 1, r);
+    }
+
+    void change(int node, int l, int r, int L, int R, int val) {
+        if (L <= l and R >= r) {
+            num[node] += val;
+            lazy[node] += val;
+            return;
+        }
+        int mid = l + r >> 1;
+        spread(node);
+        if (L <= mid) change(lson, l, mid, L, R, val);
+        if (R > mid) change(rson, mid + 1, r, L, R, val);
+        pushup(node);
+    }
+
+    pair<int, int> query(int node, int l, int r, int L, int R) {
+        if (L == l and R == r) {
+            return {istrue[node], num[node]};
+        }
+        int mid = l + r >> 1;
+        spread(node);
+        if (R <= mid) return query(lson, l, mid, L, R);
+        else if (L > mid) return query(rson, mid + 1, r, L, R);
+        else {
+            pair<int, int> lc, rc;
+            lc = query(lson, l, mid, L, mid);
+            rc = query(rson, mid + 1, r, mid + 1, R);
+            int val = (lc.first and rc.first and lc.second == rc.second);
+            return {val, lc.second};
+        }
+    }
+} tree;
+
+struct node {
+    int fi, st, dis;
+} road[N];
+
+int main() {
+    int n = gn(), m = gn();
+    for (int i = 1; i < n; ++i) {
+        int x = gn(), y =gn();
+        v[y].emplace_back(x);
+        v[x].emplace_back(y);
+    }
+
+    predfs(1, 0);
+    dfs(1, 1);
+
+    tree.build(1, 1, n);
+
+    for (int i = 1; i <= m; ++i) {
+        int x = gn(), y = gn();
+        if (id[x] > id[y]) swap(x, y);
+        road[i] = {x, y, dis(x, y)};
+    }
+
+    sort(road + 1, road + 1 + m, [](node a, node b) {
+        return a.dis > b.dis;
+    });
+
+    for (int i = 1; i <= m; ++i) {
+        // query
+        int x = road[i].fi, y = road[i].st;
+
+        pair<int, int> now, star;
+        int flag = 1;
+        while(top[x] != top[y]) {
+            if(dep[top[x]] >= dep[top[y]]) {
+                if (flag) {
+                    now = tree.query(1, 1, n, id[top[x]], id[x]);
+                    flag = 0;
+                } else {
+                    star = tree.query(1, 1, n, id[top[x]], id[x]);
+                    now = {(now.first and star.first and now.second == star.second), star.second};
+                }
+                x = f[top[x]];
+            }else {
+                if (flag) {
+                    now = tree.query(1, 1, n, id[top[y]], id[y]);
+                    flag = 0;
+                } else {
+                    star = tree.query(1, 1, n, id[top[y]], id[y]);
+                    now = {(now.first and star.first and now.second == star.second), star.second};
+                }
+                y = f[top[y]];
+            }
+        }
+        int l = min(id[x], id[y]), r = max(id[x], id[y]);
+        if (flag) {
+            now = tree.query(1, 1, n, l, r);
+            flag = 0;
+        } else {
+            star = tree.query(1, 1, n, l, r);
+            now = {(now.first and star.first and now.second == star.second), star.second};
+        }
+        // add
+        x = road[i].fi, y = road[i].st;
+
+        while(top[x] != top[y]) {
+            if(dep[top[x]] >= dep[top[y]]) {
+                tree.change(1, 1, n, id[top[x]], id[x], 1);
+                x = f[top[x]];
+            }else {
+                tree.change(1, 1, n, id[top[y]], id[y], 1);
+                y = f[top[y]];
+            }
+        }
+        tree.change(1, 1, n, l, r, 1);
     }
 }
 ```
