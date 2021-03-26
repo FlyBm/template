@@ -3,6 +3,63 @@
 [TOC]
 
 ## 模板
+### 高斯消元求线性方程组和异或方程组
+```cpp
+#include<bits/stdc++.h>
+using namespace std;
+#define MAX_SIZE 1048
+int Matrix[MAX_SIZE][MAX_SIZE];
+int Free_x[MAX_SIZE]; //自由变元
+int X_Ans[MAX_SIZE]; //解集
+int Free_num=0;  //自由变元数
+
+// 下标从0开始
+int Guass(int Row,int Column) //系数矩阵的行，列
+{
+    int row = 0, col = 0, max_r;
+    for(row = 0; row < Row && col < Column; row++, col++) {
+        max_r = row;
+        for(int i = row + 1;i < Row; i++)    //找出当前列的最大值
+            if(abs(Matrix[i][col]) > abs(Matrix[max_r][col]))
+                max_r = i;
+        if(Matrix[max_r][col] == 0) {   //最大值为0，等价有自由元，记录
+            row--;
+            Free_x[++Free_num] = col + 1;
+            continue;
+        }
+        if(max_r != row)   //将最大值换到当前行
+            swap(Matrix[row], Matrix[max_r]);
+        for(int i = row + 1; i < Row; ++i) {
+            if(Matrix[i][col] != 0) {
+                int LCM = lcm(abs(Matrix[i][col]), abs(Matrix[row][col]));
+                int ta = LCM / abs(Matrix[i][col]);
+                int tb = LCM / abs(Matrix[row][col]);
+                if(Matrix[i][col] * Matrix[row][col] < 0)//异号由减变加
+                    tb = -tb;
+                for(int j = col; j < Column + 1; ++j)
+                    Matrix[i][j] = Matrix[i][j] * ta - Matrix[row][j] * tb;
+            }
+        }
+    }
+    //row跳出时表示矩阵非零行数
+
+    for(int i = row; i < Row; ++i)  //无解
+        if(Matrix[i][Column] != 0)
+            return -1;
+
+    if(row < Column)   //无穷多解，返回自由变元数
+        return Column - row;
+
+    for(int i = Column - 1; i >= 0; --i) {
+        int temp = Matrix[i][Column];
+        for(int j = i + 1;j < Column; j++)
+            if(Matrix[i][j] != 0)
+                temp -= Matrix[i][j] * X_Ans[j];
+        X_Ans[i] = temp / Matrix[i][i];
+    }
+    return 0;
+}
+```
 
 ### 线性基
 ```cpp
