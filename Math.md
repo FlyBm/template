@@ -4,6 +4,7 @@
 
 ## 模板
 ### 高斯消元求线性方程组和异或方程组
+线性方程组
 ```cpp
 #include<bits/stdc++.h>
 using namespace std;
@@ -60,7 +61,55 @@ int Guass(int Row,int Column) //系数矩阵的行，列
     return 0;
 }
 ```
+异或方程组
+```cpp
+#include<bits/stdc++.h>
+using namespace std;
+#define MAX_SIZE 350
+#define ll long long
+ll Matrix[MAX_SIZE][MAX_SIZE];
+ll Free_x[MAX_SIZE];   //自由变元
+ll X_Ans[MAX_SIZE];  //解集 
+ll Free_num=0;  //自由变元数
 
+ll Guass(ll Row, ll Column)  //系数矩阵的行和列
+{
+    ll row = 0,col = 0, max_r;
+    for(row = 0; row < Row && col < Column; row++, col++) {
+        max_r = row;
+        for(ll i = row + 1;i < Row; ++i)   //找出当前列最大值
+            if(abs(Matrix[i][col]) > abs(Matrix[max_r][col]))
+                max_r = i;
+        if(Matrix[max_r][col] == 0) {
+            row--;
+            Free_x[Free_num++] = col + 1;
+            continue;
+        }
+        if(max_r!=row)  //交换
+            swap(Matrix[row], Matrix[max_r]);
+        for(ll i=row+1;i<Row;i++) {
+            if(Matrix[i][col] != 0) {
+                for(ll j = col; j < Column + 1; ++j)
+                    Matrix[i][j]^=Matrix[row][j];
+            }
+        }
+    }
+    for(ll i = row; i < Row; ++i)   //无解
+        if(Matrix[i][Column] != 0)
+            return -1;
+
+    if(row < Column)   //无穷多解
+        return Column - row;
+
+    //唯一解
+    for(ll i = Column - 1; i >= 0; --i) {
+        X_Ans[i] = Matrix[i][Column];
+        for(ll j = i + 1; j < Column; ++j)
+            X_Ans[i] ^= (Matrix[i][j] && X_Ans[j]);
+    }
+    return 0;
+}
+```
 ### 线性基
 ```cpp
 struct Linear_Basis {
