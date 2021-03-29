@@ -389,7 +389,6 @@ LD sector_area(const P& a, const P& b, LD r) {
 LD c_tri_area(P a, P b, P center, LD r) {
     a = a - center; b = b - center;
     int ina = sgn(dist(a) - r) < 0, inb = sgn(dist(b) - r) < 0;
-    // dbg(a, b, ina, inb);
     if (ina && inb) {
         return fabs(cross(a, b)) / 2;
     } else {
@@ -597,8 +596,12 @@ bool p_in_circle(const P& p, const C& c) {
 }
 C min_circle_cover(const vector<P> &in) {
     vector<P> a(in.begin(), in.end());
-    dbg(a.size());
-    random_shuffle(a.begin(), a.end());
+    
+    random_device rd; // c++ 14
+    mt19937 g(rd());
+    shuffle(a.begin(), a.end(), g);
+    // random_shuffle(a.begin(), a.end());
+    
     P c = a[0]; LD r = 0; int n = a.size();
     FOR (i, 1, n) if (!p_in_circle(a[i], {c, r})) {
         c = a[i]; r = 0;
@@ -700,7 +703,6 @@ P rotation(const P& p, const LD& r, int axis = 0) {
 // 模板是顺时针的
 P rotation(const P& p, const LD& r, const P& n) {
     LD c = cos(r), s = sin(r), x = n.x, y = n.y, z = n.z;
-    // dbg(c, s);
     return P((x * x * (1 - c) + c) * p.x + (x * y * (1 - c) + z * s) * p.y + (x * z * (1 - c) - y * s) * p.z,
              (x * y * (1 - c) - z * s) * p.x + (y * y * (1 - c) + c) * p.y + (y * z * (1 - c) + x * s) * p.z,
              (x * z * (1 - c) + y * s) * p.x + (y * z * (1 - c) - x * s) * p.y + (z * z * (1 - c) + c) * p.z);
@@ -769,7 +771,12 @@ bool p_on_line(const P& p, const L& l) {
 vector<F> convex_hull(vector<P> &p) {
     sort(p.begin(), p.end());
     p.erase(unique(p.begin(), p.end()), p.end());
-    random_shuffle(p.begin(), p.end());
+
+    random_device rd; // c++ 14
+    mt19937 g(rd());
+    shuffle(p.begin(), p.end(), g);
+    // random_shuffle(p.begin(), p.end());
+    
     vector<FT> face;
     FOR (i, 2, p.size()) {
         if (p_on_line(p[i], L(p[0], p[1]))) continue;
