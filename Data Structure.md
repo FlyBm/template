@@ -3,7 +3,7 @@
 [TOC]
 ### 莫队二次离线
 子区间 or 区间对数一类满足区间减法的问题
-```
+```cpp
 vector<int> buc;
 
 vector<tuple<int, int, int> >  v[N];
