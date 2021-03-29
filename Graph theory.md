@@ -1,6 +1,266 @@
 ## 图论
 
 [TOC]
+### 割点割边
+```cpp
+struct node{
+    int u, v, next;
+}edge[N];
+
+int head[N], ip;
+
+void init(){
+    memset(head, -1, sizeof(head));
+    ip = 1;
+}
+
+void addedge(int u, int v){
+    edge[++ip] = {u, v, head[u]};
+    head[u] = ip;
+}
+
+namespace e_dcc { // 桥和便双连通分量
+    int Count = 0, sol = 0, dcc = 0, bigdcc = 0, cnt = 0;
+    // sol桥的数量 dcc边双连通分量的个数
+    bool bridge[N * 2];
+    int low[N], dfn[N];
+    int color[N];
+
+    void dfs(int x) {
+        ++cnt;
+        color[x] = dcc;
+        for (int i = head[x]; ~i; i = edge[i].next) {
+            int to = edge[i].v;
+            if (color[to] or bridge[i]) continue;
+            dfs(to);
+        }
+    }
+
+    void tarjan(int node, int in_edge) {
+        dfn[node] = low[node] = ++Count;
+        for(int i = head[node]; ~i; i = edge[i].next){
+            int to = edge[i].v;
+            if (not dfn[to]) {
+                tarjan(to, i);
+                low[node] = min(low[node], low[to]);
+
+                if (low[to] > dfn[node]) {
+                    bridge[i] = bridge[i ^ 1] = true;
+                }
+            } else if (i != (in_edge ^ 1)) low[node] = min(low[node], dfn[to]);
+        }
+    }
+
+    map<int, int> mp;
+    int maxnsiz = 1;
+    void getans (int n, int m) {
+        Count = 0, sol = 0, dcc = 0, bigdcc = 0;
+        mp.clear(), maxnsiz = 1;
+        for (int i = 1; i <= n; ++i) {
+            dfn[i] = low[i] = color[i] = 0;
+            Count = 0;
+        }
+
+        for (int i = 1; i <= 2 * m + 2; ++i) bridge[i] = false;
+
+        for (int i = 1; i <= n; ++i) {
+            if (not dfn[i]) tarjan(i, 0);
+        }
+
+        for (int i = 1; i <= n; i++){
+            if (not color[i]) {
+                ++dcc;
+                cnt = 0;
+                dfs(i);
+                if (cnt > 1) ++bigdcc;
+            }
+        }
+
+        for (int i = 2; i < ip; i += 2) {
+            if (bridge[i]) ++sol;
+            if (color[edge[i].u] == color[edge[i].v]) {
+                int num = color[edge[i].u];
+                mp[num] ++;
+                maxnsiz = max(maxnsiz, mp[num]);
+            }
+        }
+    }
+}
+
+namespace v_dcc { // 割点
+    int dfn[N], low[N], Count = 0;
+    int vis[N];
+
+    set<int> ans;
+    void tarjan(int node, int rt){
+        dfn[node] = low[node] = ++Count;
+        vis[node] = 1;
+        int child = 0;
+        for(int i = head[node]; i != -1; i = edge[i].next){
+            int to = edge[i].v;
+            if(!dfn[to]) {
+                ++child;
+                tarjan(to, rt);
+                low[node] = min(low[to], low[node]);
+                if(node != rt and low[to] >= dfn[node]) {
+                    ans.insert(node);
+                }
+            } else if(vis[to]) {
+                low[node] = min(low[node], dfn[to]);
+            }
+        }
+        if(child >= 2 and node == rt) {
+            ans.insert(node);
+        }
+    }
+
+    void getans (int n) {
+        ans.clear();
+        for (int i = 1; i <= n; ++i) {
+            dfn[i] = low[i] = vis[i] = 0;
+            Count = 0;
+        }
+
+        for (int i = 1; i <= n; ++i) {
+            if (not dfn[i]) tarjan(i, i);
+        }
+
+    }
+}
+```
+### 有源汇上下界最大流/最小流
+最小流最后一步改成减去汇点到源点的流就好
+```cpp
+struct node{
+    int to, net;
+    ll w;
+}s[M * 2];
+int dep[N], cur[N], tot = -1, head[N], S, T, n, m, ss, tt; // ss tt 真正的源汇点 S T 超源超汇
+
+void add(int x, int y, int z) {
+    s[++tot] = {y, head[x], z};
+    head[x] = tot;
+}
+
+void add_net_edge (int x, int y, int z) {
+    add(x, y, z);
+    add(y, x, 0);
+}
+
+bool bfs(int st, int ed) {
+    memset(dep, 0, sizeof dep);
+    dep[st] = 1;
+    queue<int> q;
+    q.push(st);
+    while (not q.empty()) {
+        int now = q.front();
+        q.pop();
+        for (int i = head[now]; ~i; i = s[i].net) {
+            int to = s[i].to;
+            if (not dep[to] and s[i].w > 0) {
+                dep[to] = dep[now] + 1;
+                q.push(to);
+            }
+        }
+    }
+    return dep[ed];
+}
+
+ll dfs (int u, ll flo, int ed) {
+    if (u == ed) return flo;
+    ll del = 0;
+    for (int i = cur[u]; (~i) and flo; i = s[i].net) {
+        cur[u] = i;
+        int to = s[i].to;
+        if (dep[to] != dep[u] + 1 or s[i].w <= 0) continue;
+        ll x = dfs(to, min(flo, s[i].w), ed);
+        flo -= x; del += x;
+        s[i].w -= x; s[i ^ 1].w += x;
+    }
+    if (not del) dep[u] = -2;
+    return del;
+}
+
+int dinic(int st, int ed) {
+    int ans = 0;
+    while (bfs(st, ed)) {
+        for (int i = S; i <= T; ++i) cur[i] = head[i];
+        ans += dfs(st, (1 << 30), ed);
+    }
+    return ans;
+}
+
+int in[N], out[N];
+
+int main() {
+    n = gn(), m = gn(), ss = gn(), tt = gn();
+    S = 0, T = n + 1;
+
+    for (int i = S; i <= T; ++i) head[i] = -1;
+    for (int i = 1; i <= m; ++i) {
+        int x = gn(), y = gn(), low = gn(), high = gn();
+        add_net_edge(x, y, high - low);
+        in[y] += low;
+        out[x] += low;
+    }
+    for (int i = 1; i <= n; ++i) {
+        if (in[i] > out[i]) add_net_edge(S, i, in[i] - out[i]);
+        else if (in[i] < out[i]) add_net_edge(i, T, out[i] - in[i]);
+    }
+
+    add_net_edge(tt, ss, INF);
+    dinic(S, T);
+
+    for (int i = head[S]; ~i; i = s[i].net) {
+        if (s[i].w != 0) {
+            puts("please go home to sleep");
+            return 0;
+        }
+    }
+
+    ll flow = s[tot].w;
+    s[tot].w = s[tot - 1].w = 0;
+    cout << flow + dinic(ss, tt) << endl;
+}
+```
+### 无源汇上下界可行流
+有源汇的话加一条从T -> S [0, inf) 的边即可
+```cpp
+void solve() {
+    
+    n = gn(), m = gn();
+    S = 0, T = n + 1;
+
+    for (int i = S; i <= T; ++i) head[i] = -1;
+    
+    // i -> j high[i] - low[i] 
+    for (int i = 1; i <= m; ++i) {
+        road[i] = {gn(), gn(), gn(), gn()};
+        road[i].id = add_net_edge(road[i].x, road[i].y, road[i].high - road[i].low);
+        in[road[i].y] += road[i].low;
+        out[road[i].x] += road[i].low;
+    }
+    // S -> i in[i] > out[i] i -> T in[i] < out[i] 
+    for (int i = 1; i <= n; ++i) {
+        if (in[i] > out[i]) add_net_edge(S, i, in[i] - out[i]);
+        else if (in[i] < out[i]) add_net_edge(i, T, out[i] - in[i]);
+    }
+    dinic();
+
+    for (int i = head[S]; ~i; i = s[i].net) {
+        if (s[i].w != 0) {
+            puts("NO");
+            return ;
+        }
+    }
+
+    puts("YES");
+    for (int i = 1; i <= m; ++i) {
+        cout << road[i].low + s[road[i].id ^ 1].w << '\n';
+    }
+    cout << endl;
+}
+```
 ### 最小斯坦纳树
 ```cpp
 /*

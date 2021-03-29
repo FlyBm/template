@@ -1,7 +1,49 @@
 ## 其他
 
 [TOC]
+### hash表
+```cpp
+typedef unsigned long long ull;
+// 99991 , 3000017 , 7679977 , 19260817 , 7679977
+struct HashMap{
+    static const int mod = 12227;
+    struct node {
+        int nxt;
+        ull w;
+    }e[N];
+    int etot = 0, head[mod], tot[N][2];
+    void init () {
+        etot = 0;
+        memset(head, -1, sizeof head);
+    }
 
+    void add(int x, ull val) {
+        e[++etot] = {head[x], val};
+        head[x] = etot;
+    }
+
+    bool insert (ull hashVal, bool tp) {
+        int x = hashVal % mod;
+        for (int i = head[x]; ~i; i = e[i].nxt){
+            if (hashVal == e[i].w){
+                tot[i][tp]++;
+                return true;
+            }
+        }
+        add(x, hashVal);
+        tot[etot][tp] = 1;
+        tot[etot][tp ^ 1] = 0;
+        return false;
+    }
+
+    bool check(){
+        for (int i = 1; i <= etot; ++i) {
+            if (tot[i][0]==tot[i][1] && tot[i][0] == 1) return true;
+        }
+        return false;
+    }
+}hashTable;
+```
 ### 茅台随机数
 ```cpp
 mt19937 rnd(time(0));
@@ -11,25 +53,6 @@ void solve() {
     shuffle(a + 1, a + N, rnd);
     printf("%lld\n", default_random_engine(seed));
 }
-```
-
-### 阴间快读
-
-```cpp
-struct fastin {
-    char buf[BUFSIZ], *it, *en;
-    char getchar() {
-        if (it == en) it = buf, en = buf + fread(buf, 1, BUFSIZ, stdin);
-        return *it++;
-    }
-    template<typename T>
-    fastin& operator >> (T &i) {
-        int f; char c = getchar();
-        for (f = 1;!isdigit(c); c = getchar()) if (c == '-') f = -1;
-        for (i = 0; isdigit(c); c = getchar()) i = i * 10 + c - '0';
-        i *= f; return *this;
-    }
-} fin;
 ```
 
 ### 龟速乘

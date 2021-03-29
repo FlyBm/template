@@ -1,7 +1,101 @@
 ## 动态规划
 
 [TOC]
+### 树型$DP$基础应用
 
+#### 树上距离之和
+
+```cpp
+ll siz[N], son[N]; 
+ll ans[N];
+int n;
+// son 子树的答案 ans 其他顶点到i的答案
+void predfs(int node, int fa) {
+    siz[node] = 1;
+    son[node] = 0;
+    for (auto to : v[node]) {
+        if (to == fa) continue;
+        predfs(to, node);
+        siz[node] += siz[to];
+        son[node] += siz[to] + son[to];
+    }
+}
+
+void dfs(int node, int fa) {
+    if (node == fa) {
+        ans[node] = son[node];
+    } else {
+        ans[node] = (ans[fa] - son[node] - siz[node]) + (n - siz[node]) + son[node];
+    }
+    for (auto to : v[node]) {
+        if (to == fa) continue;
+        dfs(to, node);
+    }
+}
+```
+
+#### 最小支配集
+
+求覆盖一个树所有的点，需要覆盖最小的次数，覆盖一个点之后其相邻的点也被覆盖。
+
+```cpp
+int dp[10050][3];
+//0 表示被儿子覆盖 1 表示被自己覆盖 2 表示被父亲覆盖
+//dp[node][1] = min(dp[to][2], dp[to][1], dp[to][0])
+//dp[node][2] = min(dp[to][1], dp[to][0])
+//dp[node][0] = min(dp[to][1], dp[to][0]) + res
+vector<int> v[10050];
+void dfs (int node, int fa) {
+    dp[node][1] = 1;
+    int res = 0x3f3f3f3f;
+    bool flag = false;
+    for (int to : v[node]) {
+        if(to==fa)continue;
+        dfs(to, node);
+        dp[node][1] += min(dp[to][0], min(dp[to][1], dp[to][2]));
+        dp[node][2] += min(dp[to][1], dp[to][0]);
+        if(dp[to][1] <= dp[to][0] and not flag) res = 0, flag = true;
+        if(dp[to][1] > dp[to][0] and not flag) res = min(res, dp[to][1] - dp[to][0]);
+    }
+    dp[node][0] = dp[node][2] + res;
+}
+```
+
+#### 最大独立子集
+最大独立子集: 对于一个树形结构 所有的孩子和他们的父亲存在排斥
+
+也就是如果选取了某个节点 则不能选取这个节点的所有孩子节点。
+
+```cpp
+int f[N][2]; // 0 不选 1 选
+void dfs (int node, int fa) {
+    f[node][1] = h[node];
+    for (int k : v[node]) {
+        if(k == fa)continue;
+        dfs(k, node);
+        f[node][1] += f[k][0];
+        f[node][0] += max(f[k][1], f[k][0]);
+    }
+}
+```
+
+#### 最小点覆盖
+
+所有的边被看住 即对于一条边我选了父亲就不用选儿子
+
+```cpp
+int dp[1600][2]; // 0 不选 1 选
+vector<int> v[1600];
+void dfs(int node, int fa) {
+    dp[node][1] = 1;
+    for(auto to : v[node]){
+        if(to == fa)continue;
+        dfs(to, node);
+        dp[node][1] += min(dp[to][0], dp[to][1]);
+        dp[node][0] += dp[to][1];
+    }
+}
+```
 ### 树上背包
 ```cpp
 ll dp[N][N][2], w[N], siz[N];

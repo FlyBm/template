@@ -1,6 +1,384 @@
 ## 数据结构
 
 [TOC]
+### 莫队二次离线
+子区间 or 区间对数一类满足区间减法的问题
+```
+vector<int> buc;
+
+vector<tuple<int, int, int> >  v[N];
+
+ll cnt[N], pre[N];
+ll ans[N];
+
+struct node {
+    int l, r, id;
+    ll ans;
+}q[N];
+
+int main() {
+    int n = gn(), m = gn(), k = gn();
+    for (int i = 1; i <= n; ++i) a[i] = gn();
+
+    for (int i = 1; i <= m; ++i) {
+        int l = gn(), r = gn();
+        q[i] = {l, r, i};
+    }
+
+    for (int i = 0, len = (1 << 14); i < len; ++i) {
+        if (__builtin_popcount(i) == k) buc.push_back(i);
+    }
+
+    for (int i = 1; i <= n; ++i) {
+        for (auto x : buc) cnt[a[i] ^ x] ++;
+        pre[i] = cnt[a[i + 1]];
+    }
+
+    memset(cnt, 0, sizeof cnt);
+
+    int block = sqrt(n);
+    sort(q + 1, q + 1 + m, [&](node a, node b) {
+        if (a.l / block != b.l / block) return a.l < b.l;
+        return a.r < b.r;
+    });
+
+    // [l, r]
+    for (int i = 1, l = 1, r = 0; i <= m; ++i) {
+        // [l, r] -> [l + i, r]
+        if (l < q[i].l) v[r].emplace_back(l, q[i].l - 1, -i);
+        while (l < q[i].l) {
+            q[i].ans += pre[l - 1];
+            ++l;
+        }
+
+        // [l, r] -> [l - i, r]
+        if (l > q[i].l) v[r].emplace_back(q[i].l, l - 1, i);
+        while (l > q[i].l) {
+            --l;
+            q[i].ans -= pre[l - 1];
+        }
+
+        // [l, r] -> [l, r + i]
+        if (r < q[i].r) v[l - 1].emplace_back(r + 1, q[i].r, -i);
+        while (r < q[i].r) {
+            q[i].ans += pre[r];
+            ++r;
+        }
+
+        // [l, r] -> [l, r - i]
+        if (r > q[i].r) v[l - 1].emplace_back(q[i].r + 1, r, i);
+        while (r > q[i].r) {
+            --r;
+            q[i].ans -= pre[r];
+        }
+    }
+
+    for (int i = 1; i <= n; ++i) {
+        for (auto to : buc) cnt[a[i] ^ to] ++;
+        for (auto x : v[i]) {
+            auto[nl, nr, id] = x;
+            for (int j = nl; j <= nr; ++j) {
+                ll tem = cnt[a[j]];
+                if (j <= i and k == 0) --tem;
+                q[abs(id)].ans += ((id > 0) ? 1 : -1) * tem;
+            }
+        }
+    }
+
+    for (int i = 1; i <= m; ++i) q[i].ans += q[i - 1].ans;
+
+    for (int i = 1; i <= m; ++i) ans[q[i].id] = q[i].ans;
+}
+```
+### 线段树分裂合并 ODT树
+```cpp
+struct node {
+    int l, r;
+    bool operator < (const node &rhs) const {
+        return l < rhs.l;
+    }
+};
+
+int sign[N];
+
+struct SegmentTree {
+    static const int maxn = 1e5 + 100;
+    #define lson(x) s[x].lc
+    #define rson(x) s[x].rc
+    struct node {
+        int lc, rc;
+        int num;
+    } s[maxn * 80];
+
+    int root[maxn];
+    int tot = 0;
+
+    void insert(int &rt, int l, int r, int idx, int num) {
+        if(!rt) rt = ++tot;
+
+        s[rt].num += num;
+
+        if(l == r) return ;
+
+        int mid = (l + r) >> 1;
+
+        if(idx <= mid) insert(lson(rt), l, mid, idx, num);
+        else insert(rson(rt), mid + 1, r, idx, num);
+    }
+
+    int query(int rt, int l, int r) {
+        if(l == r) return l;
+        int mid = (l + r) >> 1;
+        return s[s[rt].lc].num ? query(s[rt].lc, l, mid) : query(s[rt].rc, mid + 1, r);
+    }
+
+    void merge(int &u, int v) {
+        if(not u or not v) {
+            u += v;
+            return ;
+        }
+
+        s[u].num += s[v].num;
+
+        merge(lson(u), lson(v));
+        merge(rson(u), rson(v));
+    }
+
+    void split(int x, int &y, int k, bool flag) {
+        y = ++tot;
+        s[y].num = s[x].num - k;
+        s[x].num = k;
+
+        if (flag) {
+            int num = s[s[x].lc].num;
+            if (num < k) split(s[x].rc, s[y].rc, k - num, flag);
+            else swap(s[x].rc, s[y].rc);
+            if (num > k) split(s[x].lc, s[y].lc, k, flag);
+        } else {
+            int num = s[s[x].rc].num;
+            if (num < k) split(s[x].lc, s[y].lc, k - num, flag);
+            else swap(s[x].lc, s[y].lc);
+            if (num > k) split(s[x].rc, s[y].rc, k, flag);
+        }
+    }
+
+} tree;
+
+set<node> st;
+
+set<node>::iterator spilt(int pos) {
+    auto to = st.lower_bound({pos});
+    if (to != st.end() and to->l == pos) {
+        return to;
+    }
+    --to;
+    int l = to->l, r = to->r;
+    st.erase(to);
+    int root = 0;
+    tree.split(tree.root[l], tree.root[pos], pos - l, sign[l]);
+    sign[pos] = sign[l];
+    st.insert({l, pos - 1});
+    return  st.insert({pos, r}).first;
+}
+
+void assign(int l, int r, int flag) {
+    auto itr = spilt(r + 1), itl = spilt(l);
+
+    for (set<node>::iterator it = ++itl; it != itr; ++it) {
+        tree.merge(tree.root[l], tree.root[it->l]);
+    }
+    st.erase(itl, itr);
+
+    st.insert({l, r});
+
+    sign[l] = flag;
+}
+```
+### 线段树维护联通性
+```cpp
+int dis(int x, int y) {
+    return dep[x] + dep[y] - 2 * dep[lca(x, y)];
+}
+
+struct SegmentTree {
+    static const int maxn = 2e5 + 100;
+    pair<int, int> s[maxn << 2];
+    #define lson node << 1
+    #define rson node << 1 | 1
+
+    function<pair<int, int> (pair<int, int>, int)> merge = [&](pair<int, int> point, int c) -> pair<int, int> {
+        if (point.first == -1 or c == -1) return {-1, -1};
+        int a = point.first;
+        int b = point.second;
+        int a_to_b = dis(a, b);
+        int a_to_c = dis(a, c);
+        int b_to_c = dis(b, c);
+        if (a_to_b + a_to_c == b_to_c) return {b, c};
+        if (a_to_b + b_to_c == a_to_c) return {a, c};
+        if (b_to_c + a_to_c == a_to_b) return {a, b};
+        return {-1, -1};
+    };
+
+    void pushup(int node) {
+        pair<int, int> lp = s[lson], rp = s[rson], x;
+        x = merge(lp, rp.first);
+        x = merge(x, rp.second);
+        s[node] = x;
+    }
+
+    void build(int node, int l, int r) {
+        if (l == r) {
+            s[node] = {a[l], a[l]};
+            return ;
+        }
+        int mid = l + r >> 1;
+        build(lson, l, mid);
+        build(rson, mid + 1, r);
+        pushup(node);
+    }
+
+    void change(int node, int l, int r, int id, int val) {
+        if (l == r) {
+            s[node] = {val, val};
+            return;
+        }
+        int mid = l + r >> 1;
+        if (id <= mid) change(lson, l, mid, id, val);
+        else change(rson, mid + 1, r, id, val);
+        pushup(node);
+    }
+
+    int query(int node, int l, int r, pair<int, int> pre) {
+        if (l == r) {
+            pair<int, int> lp = pre, rp = s[node], x;
+            x = merge(lp, rp.first);
+            x = merge(x, rp.second);
+            return x.first == -1 ? l - 1 : l;
+        }
+        int mid = l + r >> 1;
+        pair<int, int> x = merge(pre, s[lson].first);
+        x = merge(x, s[lson].second);
+        if (x.first == -1) return query(lson, l, mid, pre);
+        else return query(rson, mid + 1, r, x);
+    }
+} tree;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin >> n;
+    for (int i = 1; i <= n; ++i) {
+        head[i] = -1;
+        cin >> b[i]; b[i]++;
+        a[b[i]] = i;
+    }
+    for (int i = 2; i <= n; ++i) {
+        int x; cin >> x; add(x, i);
+    }
+
+    dfs(1, 0);
+    dfs1(1, 1);
+
+    tree.build(1, 1, n);
+
+    int q; cin >> q;
+
+    while (q--) {
+        int cmd; cin >> cmd;
+        if (cmd == 1) {
+            int x, y; cin >> x >> y;
+            swap(b[x], b[y]);
+            a[b[x]] = x;
+            a[b[y]] = y;
+            tree.change(1, 1, n, b[x], a[b[x]]);
+            tree.change(1, 1, n, b[y], a[b[y]]);
+        } else {
+            cout << tree.query(1, 1, n, {a[1], a[1]}) << endl;
+        }
+    }
+}
+```
+### 线段树优化建图
+```cpp
+struct node {
+    int to, net, w;
+}s[N * 4];
+
+int tot = 0, head[N * 4];
+
+void add (int x, int y, int w) {
+    s[++tot] = {y, head[x], w};
+    head[x] = tot;
+}
+
+int val[N];
+
+int cnt, ls[N], rs[N];
+
+void build(int &p, int &q, int l, int r) {
+    if (l == r) {
+        p = q = l;
+        return;
+    }
+    if (not p) p = ++cnt;
+    if (not q) q = ++cnt;
+    int mid = (l + r) >> 1;
+    build(ls[p], ls[q], l, mid); add(p, ls[p], 0), add(ls[q], q, 0);
+    build(rs[p], rs[q], mid + 1, r); add(p, rs[p], 0), add(rs[q], q, 0);
+}
+
+void change(int node, int l, int r, int L, int R, int rt, int flag) {
+    if (L == l and R == r) {
+        if (flag) add(node, rt, 0);
+        else add(rt, node, 0);
+        return;
+    }
+    int mid = l + r >> 1;
+    if (R <= mid) change(ls[node], l, mid, L, R, rt, flag);
+    else if (L > mid) change(rs[node], mid + 1, r, L, R, rt, flag);
+    else {
+        change(ls[node], l, mid, L, mid, rt, flag);
+        change(rs[node], mid + 1, r, mid + 1, R, rt, flag);
+    }
+}
+
+
+int main() {
+    memset(head, -1, sizeof head);
+    memset(val, 0x3f, sizeof val);
+    n = gn(), m = gn(), k = gn();
+    cnt = n;
+    int rootp = 0, rootq = 0;
+    build(rootp, rootq, 1, n);
+    for (int i = 1; i <= m; ++i) {
+        int l = ++cnt, r = ++cnt;
+        int a = gn(), b = gn(), c = gn(), d = gn();
+        add(l, r, 1);
+        change(rootq, 1, n, a, b, l, 1);
+        change(rootp, 1, n, c, d, r, 0);
+        l = ++cnt, r = ++cnt;
+        add(l, r, 1);
+        change(rootq, 1, n, c, d, l, 1);
+        change(rootp, 1, n, a, b, r, 0);
+    }
+
+    priority_queue<pair<int, int> > q;
+    q.push({0, k});
+    val[k] = 0;
+
+    while (not q.empty()) {
+        int now = q.top().second, num = -q.top().first;
+        q.pop();
+        if (num > val[now]) continue;
+        for (int i = head[now]; ~i; i = s[i].net) {
+            int to = s[i].to;
+            if (val[to] > val[now] + s[i].w) {
+                val[to] = val[now] + s[i].w;
+                q.push({-val[to], to});
+            }
+        }
+    }
+}
+```
 ### fhq Treap 区间操作（按大小分裂）
 ```cpp
 mt19937 rnd(233);
@@ -1633,9 +2011,9 @@ int main() {
 	treeans.build(1, 1, n);
 	for(int i = 1; i <= m; ++i) {
 		ll l = gl(), r = gl();
-        ll k = treeans.querysum(1, 1, n, l, r);
-        k = (k + 1) / 2;
-        ll id = treeans.queryid(1, 1, n, l, r, k);
+        	ll k = treeans.querysum(1, 1, n, l, r);
+        	k = (k + 1) / 2;
+        	ll id = treeans.queryid(1, 1, n, l, r, k);
 	}
 }
 ```
@@ -2307,6 +2685,17 @@ int main() {
         if(a.r / block != b.r / block) return a.r / block < b.r / block;
         return a.pre < b.pre;
     });
+    
+    // 奇偶优化排序
+    sort(s + 1, s + 1 + Qnum, [&](node a, node b) {
+        if(a.l / block != b.l / block) return a.l / block < b.l / block;
+        if(a.r / block != b.r / block) {
+            if (a.l / block & 1) return a.r / block < b.r / block;
+            else return a.r / block > b.r / block;
+        }
+        if ((a.l / block & 1) == (a.r / block & 1)) return a.pre < b.pre;
+        return a.pre > b.pre;
+    });
 
     int l = 1, r = 0, now = 0;
     for(int i = 1; i <= Qnum; ++i) {
@@ -2517,139 +2906,185 @@ void change(int node,int l,int r,int idx){
 
 ### 树链剖分+线段树
 
-```jsx
-int n,m,r,p;
+```cpp
 vector<int> v[N];
-int dep[N],f[N],siz[N],son[N],top[N];
-int id[N],tot=0,a[N],out[N],mp[N];
-void dfs(int node,int fa){
-    dep[node]=dep[fa]+1;
-    f[node]=fa;
-    siz[node]=1;
-    int maxn=0;
-    for(int k:v[node]){
-        if(k==fa)continue;
-        dfs(k,node);
-        siz[node]+=siz[k];
-        if(siz[k]>maxn){
-            maxn=siz[k];
-            son[node]=k;
+
+int dep[N], f[N], siz[N], son[N], top[N];
+int id[N], tot = 0;
+
+void predfs(int node, int fa) {
+    dep[node] = dep[fa] + 1;
+    siz[node] = 1;
+    f[node] = fa;
+    int maxn = 0;
+    for (auto to : v[node]) {
+        if (to == fa) continue;
+        predfs(to, node);
+        siz[node] += siz[to];
+        if (siz[to] > maxn) {
+            maxn = siz[to];
+            son[node] = to;
         }
     }
 }
-void dfs1(int node,int topx){
-    top[node]=topx;
-    id[node]=++tot;
-    mp[tot]=node;
-    if(son[node]){
-        dfs1(son[node],topx);
-    }
-    for(int k:v[node]){
-        if(k==f[node]||k==son[node])continue;
-        dfs1(k,k);
-    }
-    out[node]=tot;
-}
-ll t[N<<2],lazy[N<<2];
-void pushup(int node){
-    t[node]=(t[lson]+t[rson])%p;
-}
-void build(int node,int l,int r){
-    if(l==r){
-        t[node]=a[mp[l]];
-        return ;
-    }
-    int mid=l+r>>1;
-    build(lson,l,mid);
-    build(rson,mid+1,r);
-    pushup(node);
-}
-void spread(int node,int l,int r){
-    if(lazy[node]){
-        int mid=l+r>>1;
-        t[lson]=(t[lson]+lazy[node]*(mid-l+1))%p;
-        t[rson]=(t[rson]+lazy[node]*(r-mid))%p;
-        lazy[lson]=(lazy[lson]+lazy[node])%p;
-        lazy[rson]=(lazy[rson]+lazy[node])%p;
-        lazy[node]=0;
+
+void dfs(int node, int topx) {
+    top[node] = topx;
+    id [node] = ++tot;
+    if (son[node]) dfs(son[node], topx);
+    for (auto to : v[node]) {
+        if (to == f[node] or to == son[node]) continue;
+        dfs(to, to);
     }
 }
-void change(int node,int l,int r,int L,int R,int val){
-    if(L<=l&&R>=r){
-        lazy[node]=(lazy[node]+val)%p;
-        t[node]=(t[node]+val*(r-l+1))%p;
-        return ;
+
+int lca(int x, int y) {
+    while (top[x] != top[y]) {
+        if (dep[top[x]] >= dep[top[y]]) x = f[top[x]];
+        else y = f[top[y]];
     }
-    spread(node,l,r);
-    int mid=l+r>>1;
-    if(L<=mid) change(lson,l,mid,L,R,val);
-    if(R>mid) change(rson,mid+1,r,L,R,val);
-    pushup(node);
+    return dep[x] < dep[y] ? x : y;
 }
-ll query(int node,int l,int r,int L,int R){
-    if(L<=l&&R>=r){
-        return t[node];
-    }
-    spread(node,l,r);
-    int mid=l+r>>1;
-    ll val=0;
-    if(L<=mid) val=(val+query(lson,l,mid,L,R))%p;
-    if(R>mid) val=(val+query(rson,mid+1,r,L,R))%p;
-    return val%p;
+
+int dis(int x, int y) {
+    return dep[x] + dep[y] - 2 * dep[lca(x, y)];
 }
-int main(){
-    n=gn(),m=gn(),r=gn(),p=gn();
-    repi(i,1,n){
-        a[i]=gn();
-        if(a[i]>p)a[i]%=p;
-    }
-    repi(i,2,n){
-        int x=gn(),y=gn();
-        v[x].pb(y);
-        v[y].pb(x);
-    }
-    dfs(r,0);
-    dfs1(r,r);
-    build(1,1,n);
-    repi(i,1,m){
-        int cmd=gn();
-        if(cmd==1){
-            int x=gn(),y=gn(),k=gn();
-            while(top[x]!=top[y]){
-                if(dep[top[x]]>=dep[top[y]]){
-                    change(1,1,n,id[top[x]],id[x],k);
-                    x=f[top[x]];
-                }else {
-                    change(1,1,n,id[top[y]],id[y],k);
-                    y=f[top[y]];
-                }
-            }
-            int l=min(id[x],id[y]),r=max(id[x],id[y]);
-            change(1,1,n,l,r,k);
-        }else if(cmd==2){
-            int x=gn(),y=gn();
-            ll ans=0;
-            while(top[x]!=top[y]){
-                if(dep[top[x]]>=dep[top[y]]){
-                    ans+=query(1,1,n,id[top[x]],id[x]);
-                    if(ans>p)ans%=p;
-                    x=f[top[x]];
-                }else {
-                    ans+=query(1,1,n,id[top[y]],id[y]);
-                    if(ans>p)ans%=p;
-                    y=f[top[y]];
-                }
-            }
-            int l=min(id[x],id[y]),r=max(id[x],id[y]);
-            ans+=query(1,1,n,l,r);
-            printf("%lld\n",ans%p);
-        }else if(cmd==3){
-            int x=gn(),k=gn();
-            change(1,1,n,id[x],out[x],k);
-        }else {
-            int x=gn();
-            printf("%lld\n",query(1,1,n,id[x],out[x]));
+
+struct SegmentTree {
+#define lson node << 1
+#define rson node << 1 | 1
+    int num[N << 2], lazy[N << 2], istrue[N << 2];
+
+    void spread(int node) {
+        if (lazy[node]) {
+            num[lson] += lazy[node];
+            num[rson] += lazy[node];
+            lazy[lson] += lazy[node];
+            lazy[rson] += lazy[node];
+            lazy[node] = 0;
         }
+    }
+
+    void pushup(int node) {
+        num[node] = max(num[lson], num[rson]);
+        istrue[node] = (istrue[lson] and istrue[rson] and num[lson] == num[rson]);
+    }
+
+    void build(int node, int l, int r) {
+        num[node] = lazy[node] = 0;
+        istrue[node] = 1;
+        if (l == r) return;
+        int mid = l + r >> 1;
+        build(lson, l, mid);
+        build(rson, mid + 1, r);
+    }
+
+    void change(int node, int l, int r, int L, int R, int val) {
+        if (L <= l and R >= r) {
+            num[node] += val;
+            lazy[node] += val;
+            return;
+        }
+        int mid = l + r >> 1;
+        spread(node);
+        if (L <= mid) change(lson, l, mid, L, R, val);
+        if (R > mid) change(rson, mid + 1, r, L, R, val);
+        pushup(node);
+    }
+
+    pair<int, int> query(int node, int l, int r, int L, int R) {
+        if (L == l and R == r) {
+            return {istrue[node], num[node]};
+        }
+        int mid = l + r >> 1;
+        spread(node);
+        if (R <= mid) return query(lson, l, mid, L, R);
+        else if (L > mid) return query(rson, mid + 1, r, L, R);
+        else {
+            pair<int, int> lc, rc;
+            lc = query(lson, l, mid, L, mid);
+            rc = query(rson, mid + 1, r, mid + 1, R);
+            int val = (lc.first and rc.first and lc.second == rc.second);
+            return {val, lc.second};
+        }
+    }
+} tree;
+
+struct node {
+    int fi, st, dis;
+} road[N];
+
+int main() {
+    int n = gn(), m = gn();
+    for (int i = 1; i < n; ++i) {
+        int x = gn(), y =gn();
+        v[y].emplace_back(x);
+        v[x].emplace_back(y);
+    }
+
+    predfs(1, 0);
+    dfs(1, 1);
+
+    tree.build(1, 1, n);
+
+    for (int i = 1; i <= m; ++i) {
+        int x = gn(), y = gn();
+        if (id[x] > id[y]) swap(x, y);
+        road[i] = {x, y, dis(x, y)};
+    }
+
+    sort(road + 1, road + 1 + m, [](node a, node b) {
+        return a.dis > b.dis;
+    });
+
+    for (int i = 1; i <= m; ++i) {
+        // query
+        int x = road[i].fi, y = road[i].st;
+
+        pair<int, int> now, star;
+        int flag = 1;
+        while(top[x] != top[y]) {
+            if(dep[top[x]] >= dep[top[y]]) {
+                if (flag) {
+                    now = tree.query(1, 1, n, id[top[x]], id[x]);
+                    flag = 0;
+                } else {
+                    star = tree.query(1, 1, n, id[top[x]], id[x]);
+                    now = {(now.first and star.first and now.second == star.second), star.second};
+                }
+                x = f[top[x]];
+            }else {
+                if (flag) {
+                    now = tree.query(1, 1, n, id[top[y]], id[y]);
+                    flag = 0;
+                } else {
+                    star = tree.query(1, 1, n, id[top[y]], id[y]);
+                    now = {(now.first and star.first and now.second == star.second), star.second};
+                }
+                y = f[top[y]];
+            }
+        }
+        int l = min(id[x], id[y]), r = max(id[x], id[y]);
+        if (flag) {
+            now = tree.query(1, 1, n, l, r);
+            flag = 0;
+        } else {
+            star = tree.query(1, 1, n, l, r);
+            now = {(now.first and star.first and now.second == star.second), star.second};
+        }
+        // add
+        x = road[i].fi, y = road[i].st;
+
+        while(top[x] != top[y]) {
+            if(dep[top[x]] >= dep[top[y]]) {
+                tree.change(1, 1, n, id[top[x]], id[x], 1);
+                x = f[top[x]];
+            }else {
+                tree.change(1, 1, n, id[top[y]], id[y], 1);
+                y = f[top[y]];
+            }
+        }
+        tree.change(1, 1, n, l, r, 1);
     }
 }
 ```
