@@ -47,6 +47,7 @@ struct HashMap{
 ### 茅台随机数
 ```cpp
 mt19937 rnd(time(0));
+mt19937 rnd(chrono::system_clock::now().time_since_epoch().count());
 int a[N];
 
 void solve() {
