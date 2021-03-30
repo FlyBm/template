@@ -1,6 +1,19 @@
 ## 动态规划
 
 [TOC]
+### 枚举子集
+C(n, k) k = 0 特殊处理
+```cpp
+void GospersHack(int k, int n) {
+    int cur = (1 << k) - 1;
+    int limit = (1 << n);
+    while (cur < limit) {
+        int lb = cur & -cur;
+        int r = cur + lb;
+        cur = (((r ^ cur) >> 2) / lb) | r;
+    }
+}
+```
 ### 树型$DP$基础应用
 
 #### 树上距离之和
