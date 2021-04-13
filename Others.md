@@ -1,6 +1,33 @@
 ## 其他
 
 [TOC]
+### java输入挂
+```java
+public class Main {
+    public static StreamTokenizer in = new StreamTokenizer(new BufferedReader(new InputStreamReader(System.in),32768));
+    public static PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
+
+    public static double nextDouble() throws IOException{
+        in.nextToken(); return in.nval;
+    }
+    public static float nextFloat() throws IOException{
+        in.nextToken(); return (float)in.nval;
+    }
+    public static int nextInt() throws IOException{
+        in.nextToken(); return (int)in.nval;
+    }
+    public static String next() throws IOException {
+        in.nextToken(); return in.sval;
+    }
+    public static void main(String[] args) throws IOException {
+        while (true) {
+            int h = nextInt();
+            if (h == -1) break;
+            int w = nextInt(), n = nextInt();
+        }
+    }
+}
+```
 ### __builtin函数
 ```cpp
 __builtin_ffs(x)  //返回x中最后一个为1的位是从后向前的第几位
