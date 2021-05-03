@@ -54,6 +54,22 @@ LD dot(const V& a, const V& b) { return a.x * b.x + a.y * b.y; }
 LD det(const V& a, const V& b) { return a.x * b.y - a.y * b.x; }
 // 平行四边形面积  os × ot
 LD cross(const P& s, const P& t, const P& o = P()) { return det(s - o, t - o); }
+
+// 极坐标 极角
+double theta(double x, double y) {
+    if (x > 0) return atan(y/x);
+
+    if (x == 0) {
+        if (y > 0) return pi/2;
+        return -pi/2;
+    } else {
+        if (y >= 0) return atan(y/x) + pi;
+        return atan(y/x) - pi;
+    }
+
+}
+
+
 // --------------------------------------------
 ```
 
