@@ -1,3 +1,11 @@
+### 其他
+#### Java String 读入
+```java
+// 直接在主函数里面这样写
+BufferedReader inBuff = new BufferedReader(new InputStreamReader(System.in));
+String s = inBuff.readLine();
+System.out.println(s);
+```
 ### 动态规划
 ### 数学
 ### 计算几何
