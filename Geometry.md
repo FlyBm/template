@@ -2,13 +2,17 @@
 
 ## 二维几何：点与向量
 
+### 基本
+
 ```cpp
 #define y1 yy1
 #define nxt(i) ((i + 1) % s.size())
 typedef double LD;
 const LD PI = acos(-1);
 const LD eps = 1E-10;
+// ####
 int sgn(LD x) { return fabs(x) < eps ? 0 : (x > 0 ? 1 : -1); }
+// ####
 struct L;
 struct P;
 // point == vector
@@ -34,9 +38,12 @@ P operator * (const P& a, LD k) { return P(a.x * k, a.y * k); }
 P operator / (const P& a, LD k) { return P(a.x / k, a.y / k); }
 
 inline bool operator < (const P& a, const P& b) {
-    return sgn(a.x - b.x) < 0 || (sgn(a.x - b.x) == 0 && sgn(a.y - b.y) < 0);
+    return sgn(a.x - b.x) < 0 or
+          (sgn(a.x - b.x) == 0 && sgn(a.y - b.y) < 0);
 }
-bool operator == (const P& a, const P& b) { return !sgn(a.x - b.x) && !sgn(a.y - b.y); }
+bool operator == (const P& a, const P& b) { 
+    return !sgn(a.x - b.x) && !sgn(a.y - b.y); 
+}
 
 // line point vector 同源, line 可转换为P/V
 P::P(const L& l) { *this = l.t - l.s; }
@@ -51,6 +58,7 @@ istream &operator >> (istream &is, P &p) {
 
 LD dist(const P& p) { return sqrt(p.x * p.x + p.y * p.y); }
 LD dot(const V& a, const V& b) { return a.x * b.x + a.y * b.y; }
+// 叉积 a x b
 LD det(const V& a, const V& b) { return a.x * b.y - a.y * b.x; }
 // 平行四边形面积  os × ot
 LD cross(const P& s, const P& t, const P& o = P()) { return det(s - o, t - o); }
@@ -83,9 +91,6 @@ int quad(P p) {
     if (x <= 0 && y > 0) return 2;
     if (x < 0 && y <= 0) return 3;
     if (x >= 0 && y < 0) return 4;
-    // (0, 0)
-    // cerr <<
-    // "Assertion failed: (0), function quad, file /.../xxx.cpp, line xx." .   
     assert(0);
 }
 
@@ -102,6 +107,31 @@ struct cmp_angle {
 };
 ```
 
+### 点/向量
+
+```cpp
+// 极角极坐标
+LD arg(const P& a) { // arg in (-pi, pi]
+    if (a.x > 0) 
+        return atan(a.y / a.x);
+    if (a.x == 0) {
+        if (a.y > 0) return PI / 2;
+        return -PI/2;
+    } else { // a.x < 0
+        if (a.y >= 0) return atan(a.y/ a.x) + PI;
+        return atan(a.y / a.x) - PI;
+    }
+}
+// 逆时针旋转 r 弧度
+P rotation(const P& p, const LD& r) { return P(p.x * cos(r) - p.y * sin(r), p.x * sin(r) + p.y * cos(r)); }
+// 逆时针
+P RotateCCW90(const P& p) { return P(-p.y, p.x); }
+// 顺时针
+P RotateCW90(const P& p) { return P(p.y, -p.x); }
+// 单位法向量
+V normal(const V& v) { return V(-v.y, v.x) / dist(v); }
+```
+
 ### 线
 
 ```cpp
@@ -113,14 +143,6 @@ bool parallel(const L& a, const L& b) {
 bool l_eq(const L& a, const L& b) {
     return parallel(a, b) && parallel(L(a.s, b.t), L(b.s, a.t));
 }
-// 逆时针旋转 r 弧度
-P rotation(const P& p, const LD& r) { return P(p.x * cos(r) - p.y * sin(r), p.x * sin(r) + p.y * cos(r)); }
-// counterClockWise
-P RotateCCW90(const P& p) { return P(-p.y, p.x); }
-// ClockWise
-P RotateCW90(const P& p) { return P(p.y, -p.x); }
-// 单位法向量
-V normal(const V& v) { return V(-v.y, v.x) / dist(v); }
 ```
 
 ### 点与线
@@ -212,6 +234,7 @@ LD polygon_area(const S& s) {
         ret += cross(s[i], s[i + 1], s[0]);
     return ret / 2;
 }
+
 // 构建凸包 点不可以重复 < 0 边上可以有点， <= 0 则不能
 // 会改变输入点的顺序
 const int MAX_N = 1000;
@@ -233,12 +256,12 @@ S convex_hull(S& s) {
     return ret;
 }
 
-P ComputeCentroid(const vector<P> &p) {
+P ComputeCentroid(const S &s) {
     P c(0, 0);
     LD scale = 6.0 * polygon_area(p);
-    for (unsigned i = 0; i < p.size(); i++) {
-        unsigned j = (i + 1) % p.size();
-        c = c + (p[i] + p[j]) * (p[i].x * p[j].y - p[j].x * p[i].y);
+    for (unsigned i = 0; i < s.size(); i++) {
+        unsigned j = (i + 1) % s.size();
+        c = c + (s[i] + s[j]) * (s[i].x * s[j].y - s[j].x * s[i].y);
     }
     return c / scale;
 }
@@ -612,12 +635,12 @@ bool p_in_circle(const P& p, const C& c) {
 }
 C min_circle_cover(const vector<P> &in) {
     vector<P> a(in.begin(), in.end());
-    
+
     random_device rd; // c++ 14
     mt19937 g(rd());
     shuffle(a.begin(), a.end(), g);
     // random_shuffle(a.begin(), a.end());
-    
+
     P c = a[0]; LD r = 0; int n = a.size();
     FOR (i, 1, n) if (!p_in_circle(a[i], {c, r})) {
         c = a[i]; r = 0;
@@ -773,7 +796,6 @@ int s_intersect(const L& u, const L& v) {
 2. 如果点在凸包外，那么找到所有原凸包上所有分隔了对于这个点可见面和不可见面的边，以这样的边的两个点和新的点创建新的面加入凸包中。
 
 ```cpp
-
 struct FT {
     int a, b, c;
     FT() { }
@@ -792,7 +814,7 @@ vector<F> convex_hull(vector<P> &p) {
     mt19937 g(rd());
     shuffle(p.begin(), p.end(), g);
     // random_shuffle(p.begin(), p.end());
-    
+
     vector<FT> face;
     FOR (i, 2, p.size()) {
         if (p_on_line(p[i], L(p[0], p[1]))) continue;
@@ -831,4 +853,3 @@ found:
     return out;
 }
 ```
-
