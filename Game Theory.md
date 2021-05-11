@@ -1,6 +1,9 @@
-# 经典博弈
 
-## Anti-Nim
+# 博弈论
+
+## 经典博弈
+
+### Anti-Nim
 
 > Nim博弈的前提下，取走最后一个石子的人为输。判断先手是否必胜
 >
@@ -15,9 +18,9 @@
 
 ![img](https://img2018.cnblogs.com/i-beta/1417592/201911/1417592-20191127195332910-141546231.png)
 
-## Anti-SG 和 SJ定理
+### Anti-SG 和 SJ定理
 
-- Anti-SG 游戏规定，决策集合为空的游戏者赢。 
+- Anti-SG 游戏规定，决策集合为空的游戏者赢。
 
 - Anti-SG 其他规则与 SG 游戏相同。
 
@@ -25,18 +28,18 @@ SJ定理为：对于任意一个 Anti-SG 游戏，如果我们规定当局面中
 
 （1）游戏的 SG 函数不为 0 且游戏中某个单一游戏的 SG 函数大于1；
 
-（2）游戏的 SG 函数为 0 且游戏中没有单一游戏的 SG 函数大于 1。 
+（2）游戏的 SG 函数为 0 且游戏中没有单一游戏的 SG 函数大于 1。
 
-## Every-SG
+### Every-SG
 
-- Every-SG 游戏规定，对于还没有结束的单一游戏，游戏者必须 对该游戏进行一步决策； 
+- Every-SG 游戏规定，对于还没有结束的单一游戏，游戏者必须 对该游戏进行一步决策；
 - Every-SG 游戏的其他规则与普通 SG 游戏相同
 
 解法：在通过拓扑关系计算某一个状态点的 SG 函数时（事实上，我们只需 要计算该状态点的 SG 值是否为 0），对于 SG 值为 0 的点，我们需要知道 最快几步能将游戏带入终止状态，对于 SG 值不为 0 的点，我们需要知道 最慢几步游戏会被带入终止状态，我们用 step 函数来表示这个值。
 
 ![image-20201219224247874](C:\Users\22176\AppData\Roaming\Typora\typora-user-images\image-20201219224247874.png)
 
-## 斐波那契博弈
+### 斐波那契博弈
 
 > 1堆石子有n个,两人轮流取.先取者第1次可以取任意多个，但不能全部取完.以后每次取的石子数不能超过上次取子数的2倍。
 >
@@ -44,15 +47,15 @@ SJ定理为：对于任意一个 Anti-SG 游戏，如果我们规定当局面中
 
 当n为斐波那契数的时候后手必胜，否则先手必胜
 
-## Nim-K
+### Nim-K
 
 > n堆石子，每次从不超过k堆中取任意多个石子，最后不能取的人算失败。
 
 结论： 把n堆石子的石子数用二进制表示，统计每一二进制位上的1的个数，若每一位上1的个数mod (k + 1)全为0，则必败。否则必胜
 
-证明：https://www.cnblogs.com/vongang/archive/2013/06/01/3112790.html
+证明：<https://www.cnblogs.com/vongang/archive/2013/06/01/3112790.html>
 
-## Anti-Nim-K
+### Anti-Nim-K
 
 > n堆石子，每次从不超过k堆中取任意多个石子，取走最后石子的人算失败。
 
@@ -62,13 +65,13 @@ SJ定理为：对于任意一个 Anti-SG 游戏，如果我们规定当局面中
 
 证明同上
 
-## New Nim
+### New Nim
 
 > 在第一个回合中，第一个游戏者可以直接拿走若干个整堆的火柴。可以一堆都不拿，但不可以全部拿走。第二回合也一样，第二个游戏者也有这样一次机会。从第三个回合（又轮到第一个游戏者）开始，规则和Nim游戏一样。如果你先拿，怎样才能保证获胜？如果可以获胜的话，还要让第一回合拿的火柴总数尽量小。
 
 **结论**：为使后手必败，先手留给后手的必然是若干线性无关的数字，否则后手可以留下一个异或和为零的非空子集使得先手必败，故问题转化为拿走和最小的数字使得留下的数线性无关，即留下和最大的线性基，这样拿走的数量显然最少，找到和最大的线性基只需贪心的把数字从大到小加入到基中即可.
 
-## 阶梯博弈
+### 阶梯博弈
 
 > 排成直线的格子上放有n个棋子，棋子$i$在左数第$p_i$个格子上。Geo and Bob轮流选择一个棋子向左移动。每次可以移动一格及其以上任意多格，但是不允许反超其他棋子，也不允许将两个棋子放在同一个格子内
 >
@@ -82,7 +85,7 @@ SJ定理为：对于任意一个 Anti-SG 游戏，如果我们规定当局面中
 
 但是在本题中，我们需要一种等价转换的思想，我们可以把每两个棋子之间的格子看成一堆石子，右棋子左移格子减少可以看做拿石子，左棋子左移格子增加这个状态后手可以通过右棋子移动同样的步数使先手操作无效化。于是按照阶梯博弈处理即可，同样要注意的一个细节是棋子数量奇偶数会有影响。
 
-## K倍动态减法
+### K倍动态减法
 
 > 两人取一堆石子，石子有n个。 先手第一次不能全部取完但是至少取一个。之后每人取的个数不能超过另一个人上一次取的数的K倍。拿到最后一颗石子的赢。先手是否有必胜策略？若有，先手第一步最少取几个？ 来源：hdu2486
 
@@ -139,7 +142,7 @@ int main()
 
 ```
 
-## Nim积
+### Nim积
 
 我们对于一些二维 Nim游戏（好像更高维也行），可以拆分成两维单独的 Nim 然后求 Nim 积。
 
@@ -209,43 +212,41 @@ int main()
 }
 ```
 
+## 找规律
 
-
-# 找规律
-
-## HDU 3032 SG函数找规律
+### HDU 3032 SG函数找规律
 
 > Nim博弈，不过增加了一个操作是每次可以把某一堆石子分成两堆。
 
 我们可以把每堆石子看做一个SG函数，那么当前$SG[i]$的计算方式除了统计前i-1个SG[i]的值以外，还要计算i的所有拆分成两堆的SG函数异或。 但是n太大了，所以需要打个表，找出一个规律。
 
-## NC 20893 图中删边 + 猜结论
+### NC 20893 图中删边 + 猜结论
 
 > 一个n个点的无向完全图，每次操作都可以从当前点选择一条边移动到另一个点，并且这条边不能再走。不能再操作为输，问先手是否必胜。
 
 n = 2时显然先手胜 n = 3时先手必胜 所以我们推一推n = 4时的情况发现先手也存在必胜策略，故猜测除了n = 1时先手皆为必胜。
 
-# 经典博弈变式
+## 经典博弈变式
 
-## HDU 2897 Bash博弈变式
+### HDU 2897 Bash博弈变式
 
 > 一堆石子有n个石头，一次最少取p个，最多取q个，两人轮流取直到堆为空。最后一次取硬币的人为输。先取者是否有必胜策略？
 
 显然1 ~ p为先取者必败，p+1 ~ p + q为先取者必胜。  p + q 为循环节
 
-## NC 17865 Bash博弈变式
+### NC 17865 Bash博弈变式
 
 > 一个会在t = 0时刻爆炸的炸弹，每个人每次可以将炸弹调快[a,b]秒，每次扔给对面消耗1秒。问先手是否必胜
 
 和HDU2897思路类似
 
-## CodeForces 1451D 对称博弈
+### CodeForces 1451D 对称博弈
 
 > 两个人在坐标轴上轮流走。起始在$(0,0)$，每次只能向右走$k$格或者向上走$k$格。要求坐标满足$x^2+y^2 \le d^2$。求先手是否必胜。
 
 假设能走到的最远位置为(zx,zy),只要判断(zx+x,y)是否在边界内即可。 如果不在则先手必败，因为此时后手通过模仿先手的动作，一定可以到达(zx,zy)从而使先手无路可走。
 
-## NC Contest 9752C Bash博弈变式
+### NC Contest 9752C Bash博弈变式
 
 > n个贝壳放成一堆，A先手B后手，A每次可以从中取[1,p]个，B每次可以取[1,q]个。问两人都最优策略，求谁能获胜
 
@@ -253,7 +254,7 @@ n = 2时显然先手胜 n = 3时先手必胜 所以我们推一推n = 4时的情
 
 if n > p, then max(p,q) person win.
 
-## NC 14619 Nim博弈变式
+### NC 14619 Nim博弈变式
 
 > Nim博弈，不过要求是如果先取者第一次拿第k堆的物品，是否必胜。
 
@@ -263,39 +264,33 @@ if n > p, then max(p,q) person win.
 
 设所有石头个数异或和为$sum$,则$H = sum \oplus x_k$,故我们只需要判断 $sum \oplus x_k <= x_k$即可
 
-## HDU 1850 Nim博弈变式
+### HDU 1850 Nim博弈变式
 
 > NIm博弈，不过问的是先手想赢，第一步有多少种取法。
 
 与上题类似，不过变化在于每个堆都要判断一下
 
-## HDU 1730 Nim博弈变式
+### HDU 1730 Nim博弈变式
 
 > 给出n行m列的棋盘，每行上有黑子和白子，A只能挪动黑子，B只能挪动白子，每次左右挪动可以任意格但不能越过对面棋子，要求A先手，是否有必胜策略。
 
 显然可以分解成n个组合游戏，对于每个组合游戏我们可以把两个棋子之间的距离看做一个石子堆。那么这就是一个Nim博弈的等价转换。
 
-## HDU 3533 三维Nim积
+### HDU 3533 三维Nim积
 
 与二维Nim不同之处在于多了一个
 
-```
+```cpp
 Nim_Multi(x,Nim_Multi(y,z));
 ```
 
+### LightOj 1229
 
+### LightOJ 1344
 
-## LightOj 1229
+## SG函数
 
-
-
-## LightOJ 1344
-
-
-
-# SG函数
-
-## NC 18388 Nim博弈变式 + SG函数
+### NC 18388 Nim博弈变式 + SG函数
 
 > NIm博弈，不过每次取每堆时，只能取“当前堆的石子个数的约数”的个数。求第一步有多少种不同的获胜策略.一个策略指的是，从哪堆石子中，取走多少颗石子。只要取的那一堆不同，或取的数目不同，都算不同的策略。
 
@@ -312,61 +307,59 @@ bool vis[100005];
 int SG[100005], x[100005];
 
 void getSG() {
-	for(int i = 1; i <= 100000; i++) {
-		memset(vis, 0, sizeof(vis));
-		for(int j = 1; j * j <= i; j++) {
-			if(i % j == 0) {
-				vis[SG[i - j]] = true;
-				vis[SG[i - i / j]] = true;
-			}
-		}
-		for(int j = 0; ; j++) {
-			if(!vis[j]) {
-				SG[i] = j;
-				break;
-			}
-		}
-	}
-	//for(int i = 1; i <= 100; i++) printf("sg[%d]:%d\n", i, SG[i]);
+ for(int i = 1; i <= 100000; i++) {
+  memset(vis, 0, sizeof(vis));
+  for(int j = 1; j * j <= i; j++) {
+   if(i % j == 0) {
+    vis[SG[i - j]] = true;
+    vis[SG[i - i / j]] = true;
+   }
+  }
+  for(int j = 0; ; j++) {
+   if(!vis[j]) {
+    SG[i] = j;
+    break;
+   }
+  }
+ }
+ //for(int i = 1; i <= 100; i++) printf("sg[%d]:%d\n", i, SG[i]);
 }
 
 
 int main() {
-	getSG();
-	int n;
-	scanf("%d", &n);
-	int sum = 0;
-	for(int i = 1; i <= n; i++) {
-		scanf("%d", &x[i]);
-		sum ^= SG[x[i]];
-	}
-	if(sum == 0) printf("0");
-	else {
-		int ans = 0;
-		for(int i = 1; i <= n; i++) {
-			int now = sum ^ SG[x[i]];
-			for(int j = 1; j * j <= x[i]; j++) {
-				if(x[i] % j == 0) {
-					if( (SG[x[i] - j] ^ now) == 0 ) ans++;
-					if( j * j != x[i] && (SG[x[i] - x[i] / j] ^ now) == 0 ) ans++;
-				}
-			}
-		}
-		printf("%d", ans);
-	} 
-	return 0;
+ getSG();
+ int n;
+ scanf("%d", &n);
+ int sum = 0;
+ for(int i = 1; i <= n; i++) {
+  scanf("%d", &x[i]);
+  sum ^= SG[x[i]];
+ }
+ if(sum == 0) printf("0");
+ else {
+  int ans = 0;
+  for(int i = 1; i <= n; i++) {
+   int now = sum ^ SG[x[i]];
+   for(int j = 1; j * j <= x[i]; j++) {
+    if(x[i] % j == 0) {
+     if( (SG[x[i] - j] ^ now) == 0 ) ans++;
+     if( j * j != x[i] && (SG[x[i] - x[i] / j] ^ now) == 0 ) ans++;
+    }
+   }
+  }
+  printf("%d", ans);
+ } 
+ return 0;
 } 
 ```
 
-
-
-## HDU1847 Bash博弈 + SG函数
+### HDU1847 Bash博弈 + SG函数
 
 > n个石子，每次可以抓取的数量是2的幂次，最后抓完牌的即是胜者。问先手是否必胜
 
 计算从1~1000的SG值，SG为0说明先手必败。
 
-## HDU2999 Nim函数变式 + SG函数
+### HDU2999 Nim函数变式 + SG函数
 
 > 一堆石子有n个，每次能抓取的个数只能为连续的$a_1,a_2,\dots,a_n$个，求先手是否必胜
 
@@ -381,49 +374,49 @@ int SG[1005], num[111], pos;
 set<int>S;
 
 int dfs(int x) {
-	if(SG[x] != -1) return SG[x];
-	bool flag[1005];
-	memset(flag, 0, sizeof(flag));
-	for(int i = 1; i <= pos && num[i] <= x; i++) {
-		for(int j = 1; j + num[i] - 1 <= x; j++) {
-			SG[j - 1] = dfs(j - 1);
-			SG[x - num[i] - j + 1] = dfs(x - num[i] - j + 1);
-			flag[SG[j - 1] ^ SG[x - num[i] - j + 1]] = true; 
-		}
-	}
-	for(int i = 0; i <= 1000; i++) {
-		if(!flag[i]) {
-			return SG[x] = i;
-		}
-	}
+ if(SG[x] != -1) return SG[x];
+ bool flag[1005];
+ memset(flag, 0, sizeof(flag));
+ for(int i = 1; i <= pos && num[i] <= x; i++) {
+  for(int j = 1; j + num[i] - 1 <= x; j++) {
+   SG[j - 1] = dfs(j - 1);
+   SG[x - num[i] - j + 1] = dfs(x - num[i] - j + 1);
+   flag[SG[j - 1] ^ SG[x - num[i] - j + 1]] = true; 
+  }
+ }
+ for(int i = 0; i <= 1000; i++) {
+  if(!flag[i]) {
+   return SG[x] = i;
+  }
+ }
 }
 
 int main() {
-	while(scanf("%d", &n) != EOF) {
-		S.clear();
-		for(int i = 1; i <= 1000; i++) SG[i] = -1;
-		SG[0] = 0;
-		pos = 0;
-		for(int i = 1; i <= n; i++) {
-			scanf("%d", &a);
-			S.insert(a);
-		}
-		for(auto now : S) num[++pos] = now;
-		scanf("%d", &m);
-		while(m--) {
-			scanf("%d", &k);
-			if(SG[k] == -1) SG[k] = dfs(k);
-			if(SG[k] == 0) puts("2");
-			else puts("1");
-		}
-	}
-	return 0;
+ while(scanf("%d", &n) != EOF) {
+  S.clear();
+  for(int i = 1; i <= 1000; i++) SG[i] = -1;
+  SG[0] = 0;
+  pos = 0;
+  for(int i = 1; i <= n; i++) {
+   scanf("%d", &a);
+   S.insert(a);
+  }
+  for(auto now : S) num[++pos] = now;
+  scanf("%d", &m);
+  while(m--) {
+   scanf("%d", &k);
+   if(SG[k] == -1) SG[k] = dfs(k);
+   if(SG[k] == 0) puts("2");
+   else puts("1");
+  }
+ }
+ return 0;
 }
 ```
 
-# 树上博弈
+## 树上博弈
 
-## Bamboo Stalks
+### Bamboo Stalks
 
 > n条线段的bamboo stalks游戏是具有n条边的线形图。一步合法的操作是移除任意一条边，玩家轮流进行操作，最后一个进行操作的玩家获胜。n条线段的bamboo stalks游戏能够移动到任意更小线段数(0到n-1)的bamboo stalks游戏局面当中。
 
@@ -431,7 +424,7 @@ int main() {
 
 可以看成nim博弈，例如，左边的三根竹竿构成的“森林”相当于具有石子数分别为3、4、5三堆石子的nim游戏。就我们所知，3^4^5=2，这是一个能够移动到P局面的N局面，办法是通过取走三根线段的竹竿上的第二根线段，留下一根。而结果变成右边的竹竿分布，而此时的SG值是0，是P局面。
 
-## HDU 3094 Green Tree（单棵树删边）
+### HDU 3094 Green Tree（单棵树删边）
 
 > 给定一棵有根树，A和B分别轮流删边，删边后不与根联通的子树也一并删去。判断当前必胜或者必败！
 
@@ -449,49 +442,49 @@ int n;
 vector<int> Edge[100005];
 
 int dfs(int now, int fa) {
-	int ans = 0;
-	for(int i = 0; i < Edge[now].size(); i++) {
-		int nxt = Edge[now][i];
-		if(nxt != fa) {
-			ans ^= dfs(nxt, now) + 1;
-		}
-	}
-	return ans;
+ int ans = 0;
+ for(int i = 0; i < Edge[now].size(); i++) {
+  int nxt = Edge[now][i];
+  if(nxt != fa) {
+   ans ^= dfs(nxt, now) + 1;
+  }
+ }
+ return ans;
 }
 
 int main() {
-	scanf("%d", &t);
-	while(t--) {
-		scanf("%d", &n);
-		for(int i = 1; i <= n; i++) Edge[i].clear();
-		while(n > 1) {
-			n--;
-			int x, y;
-			scanf("%d%d", &x, &y);
-			Edge[x].push_back(y);
-			Edge[y].push_back(x);
-		}
-		//printf("%d\n", dfs(1, -1));
-		if(dfs(1, -1) == 0) printf("Bob\n");
-		else printf("Alice\n");
-	}
-	return 0;
+ scanf("%d", &t);
+ while(t--) {
+  scanf("%d", &n);
+  for(int i = 1; i <= n; i++) Edge[i].clear();
+  while(n > 1) {
+   n--;
+   int x, y;
+   scanf("%d%d", &x, &y);
+   Edge[x].push_back(y);
+   Edge[y].push_back(x);
+  }
+  //printf("%d\n", dfs(1, -1));
+  if(dfs(1, -1) == 0) printf("Bob\n");
+  else printf("Alice\n");
+ }
+ return 0;
 } 
 ```
 
-## HDU 3197 多棵树删边
+### HDU 3197 多棵树删边
 
 在上题的基础上，多棵树的删除可以类似于Nim游戏，求出多棵树的SG值的异或和即可。
 
-## HDU 3590 多棵树删边 + Anti-Nim
+### HDU 3590 多棵树删边 + Anti-Nim
 
 在上题的基础上套用anti-nim的模型即可
 
-## 树上有环的删边
+### 树上有环的删边
 
  **The Fusion Principle**：任何环内的节点可以融合成一点而不会改变图的sg值。
 
--> 结论: 拥有**奇数条边的环**可简化为一条边，**偶数条边的环**可简化为一个节点。 
+-> 结论: 拥有**奇数条边的环**可简化为一条边，**偶数条边的环**可简化为一个节点。
 
 ![img](https://img2018.cnblogs.com/i-beta/1417592/201911/1417592-20191127195716328-1873340078.png)
 
@@ -499,7 +492,7 @@ int main() {
 
 ![fg7](C:\Users\22176\Desktop\fg7.jpeg)
 
-## NC 19799 树链博弈
+### NC 19799 树链博弈
 
 > 给定一棵 n 个点的树，其中 1 号结点是根，每个结点要么是黑色要么是白色
 > 现在小 Bo 和小 Biao 要进行博弈，他们两轮流操作，每次选择一个黑色的结点将它变白，之后可以选择任意多个(可以不选)该点的祖先(不包含自己)，然后将这些点的颜色翻转，不能进行操作的人输
@@ -517,7 +510,7 @@ int main() {
 
 如果树上的某条分支是全白色那么显然可以看做删去了这条边。 于是我们可以把这个
 
-## LightOJ 1355 边权大于1的删边
+### LightOJ 1355 边权大于1的删边
 
 > 给一个树，每条边都有边权，每次操作可以减一，如果边权为0则删除这条边及其子树，不能操作则为输。
 

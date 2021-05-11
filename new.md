@@ -1,16 +1,26 @@
-### 其他
-#### Java String 读入
+# New
+
+## 其他
+
+### Java String 读入
+
 ```java
 // 直接在主函数里面这样写
 BufferedReader inBuff = new BufferedReader(new InputStreamReader(System.in));
 String s = inBuff.readLine();
 System.out.println(s);
 ```
-### 动态规划
-### 数学
-### 计算几何
-### 图论
-#### 2-SAT
+
+## 动态规划
+
+## 数学
+
+## 计算几何
+
+## 图论
+
+### 2-SAT
+
 $i,j$不能同时选：选了$i$就要选$j′$，选$j$就要选$i′$。故$i→j′,j→i′$。一般操作即为$a_i\space xor\space a_j=1$
 $i,j$必须同时选：选了$i$就要选$j$，选$j$就要选$i$。故$i→j,j→i$。一般操作即为$a_i\space xor\space a_j=0$
 $i,j$任选（但至少选一个）选一个：选了$i$就要选$j′$，选$j$就要选$i′$，选$i′$就要选$j$，选$j′$就要选$i$。故$i→j′,j→i′,i′→j,j′→i$。一般操作即为$a_i\space or\space a_j=1$
@@ -103,5 +113,7 @@ int main() {
     } else puts("-1");
 }
 ```
-### 数据结构
-### 字符串
+
+## 数据结构
+
+## 字符串

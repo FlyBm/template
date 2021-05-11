@@ -1,8 +1,11 @@
-## 数据结构
+# 数据结构
 
 [TOC]
-### 莫队二次离线
+
+## 莫队二次离线
+
 子区间 or 区间对数一类满足区间减法的问题
+
 ```cpp
 vector<int> buc;
 
@@ -90,7 +93,9 @@ int main() {
     for (int i = 1; i <= m; ++i) ans[q[i].id] = q[i].ans;
 }
 ```
-### 线段树分裂合并 ODT树
+
+## 线段树分裂合并 ODT树
+
 ```cpp
 struct node {
     int l, r;
@@ -194,7 +199,9 @@ void assign(int l, int r, int flag) {
     sign[l] = flag;
 }
 ```
-### 线段树维护联通性
+
+## 线段树维护联通性
+
 ```cpp
 int dis(int x, int y) {
     return dep[x] + dep[y] - 2 * dep[lca(x, y)];
@@ -297,7 +304,9 @@ int main() {
     }
 }
 ```
-### 线段树优化建图
+
+## 线段树优化建图
+
 ```cpp
 struct node {
     int to, net, w;
@@ -379,7 +388,9 @@ int main() {
     }
 }
 ```
-### fhq Treap 区间操作（按大小分裂）
+
+## fhq Treap 区间操作（按大小分裂）
+
 ```cpp
 mt19937 rnd(233);
 struct fhqTreap {
@@ -454,7 +465,9 @@ struct fhqTreap {
     }
 }tree;
 ```
-### fhq Treap 平衡树基本操作（按值分裂）
+
+## fhq Treap 平衡树基本操作（按值分裂）
+
 ```cpp
 mt19937 rnd(time(0));
 
@@ -558,7 +571,8 @@ struct fhqTreap{
     
 } tree;
 ```
-### 吉司机线段树
+
+## 吉司机线段树
 
 吉司机线段树是一种势能线段树，可以实现区间取 $min/max$(给定 $l,r,x$ 把所有满足 $l≤i≤r$ 的 $a_i$ 改成 $min(a_i,x)$ 和区间求和
 
@@ -716,7 +730,8 @@ struct SegmentBeats {
 }tree;
 ```
 
-### 单调栈求以某个数为最大（最小）值的区间范围
+## 单调栈求以某个数为最大（最小）值的区间范围
+
 ```cpp
 // 此为单调递减栈 单调队列同理 灵活应用
 void solve(int l, int r) {
@@ -743,7 +758,8 @@ void solve(int l, int r) {
 }
 ```
 
-### 字典树+贪心求两数异或最大值
+## 字典树+贪心求两数异或最大值
+
 ```cpp
 // codeforces 282E
 // 给了一个长度为 n(1 ≤ n ≤ 1e5) 的数组，求一个不相交的前缀和后缀，使得这个前缀和后缀中的所有数的异或值最大
@@ -810,7 +826,7 @@ int main() {
 }
 ```
 
-### 树状数组维护前缀最大值
+## 树状数组维护前缀最大值
 
 ```cpp
 struct FenwickTree {
@@ -847,7 +863,7 @@ struct FenwickTree {
 } tree;
 ```
 
-### 点分序列 + 优先队列配合ST表求前K大
+## 点分序列 + 优先队列配合ST表求前K大
 
 ```cpp
 /*
@@ -993,7 +1009,7 @@ int main() {
 }
 ```
 
-### 树状数组套主席树 动态第K大
+## 树状数组套主席树 动态第K大
 
 ```cpp
 // Dynamic ChairmanTree
@@ -1109,7 +1125,7 @@ int main() {
 }
 ```
 
-### 平板电视 基础Splay
+## 平板电视 基础Splay
 
 ```cpp
 #include <bits/stdc++.h>
@@ -1175,7 +1191,7 @@ int main() {
 }
 ```
 
-### 线段树合并+CDQ分治统计答案
+## 线段树合并+CDQ分治统计答案
 
 ```cpp
 #include<bits/stdc++.h>
@@ -1294,7 +1310,7 @@ int main() {
 }
 ```
 
-### Splay解决区间翻转
+## Splay解决区间翻转
 
 ```cpp
 struct Splay {
@@ -1460,125 +1476,125 @@ int main() {
 }
 ```
 
-### Splay 备用
+## Splay 备用
 
 ```cpp
 struct SplayTree {
-	int fa[MAXN], ch[MAXN][2], val[MAXN], addv[MAXN], siz[MAXN], rev[MAXN], mn[MAXN], sum[MAXN];
-	int st[MAXN], root, tot;
-	void Rev(int x) {
-		if(!x) return;
-		swap(ch[x][0], ch[x][1]);
-		rev[x] ^= 1;
-	}
-	void Add(int x, int C) {
-		if(!x) return;
-		val[x] += C; mn[x] += C; addv[x] += C; 
-		sum[x] += C * siz[x];
-	}
-	void PushDown(int x) {
-		if(rev[x]) {
-			if(ch[x][0]) Rev(ch[x][0]);
-			if(ch[x][1]) Rev(ch[x][1]);
-			rev[x] ^= 1;
-		}
-		if(addv[x]) {
-			if(ch[x][0]) Add(ch[x][0], addv[x]);
-			if(ch[x][1]) Add(ch[x][1], addv[x]);
-			addv[x] = 0;
-		}
-	}
-	void PushUp(int x) {
-		siz[x] = 1; sum[x] = mn[x] = val[x]; 
-		if(ch[x][0]) siz[x] += siz[ch[x][0]], mn[x] = min(mn[x], mn[ch[x][0]]), sum[x] += sum[ch[x][0]];
-		if(ch[x][1]) siz[x] += siz[ch[x][1]], mn[x] = min(mn[x], mn[ch[x][1]]), sum[x] += sum[ch[x][1]];
-	}
-	void rotate(int x) {
-		int y = fa[x], z = fa[y], k = ch[y][1] == x, w = ch[x][!k];
-		if(fa[y]) ch[z][ch[z][1]==y] = x; 
-		ch[x][!k] = y; ch[y][k] = w;
-		if(w) fa[w] = y;
-		fa[x] = z; fa[y] = x; 
-		PushUp(y); PushUp(x);
-	}
-	void Splay(int x, int goal) {
-		int y = x, top = 0; st[++top] = y;
-		while(fa[y]) st[++top] = fa[y], y = fa[y];
-		while(top) PushDown(st[top--]);
-		while(fa[x] != goal) {
-			int y = fa[x], z = fa[y];
-			if(fa[y] != goal) rotate((ch[z][1]==y)^(ch[y][1]==x) ? x : y);
-			rotate(x);
-		}
-		if(!goal) root = x;
-		PushUp(x);
-	}
-	int kth(int k) {
-		int x = root, cur;
-		while(true) {
-			PushDown(x);
-			cur = siz[ch[x][0]] + 1;
-			if(cur == k) return x;
-			if(k < cur) x = ch[x][0];
-			else k -= cur, x = ch[x][1];
-		}
-	}
-	int Build(int l, int r, int pre, int *a) {
-		int x = ++tot, mid = (l + r) >> 1;
-		fa[x] = pre; val[x] = a[mid];
-		if(l < mid) ch[x][0] = Build(l, mid-1, x, a);
-		if(r > mid) ch[x][1] = Build(mid+1, r, x, a);
-		PushUp(x);
-		return x;
-	}
-	void Reverse(int x, int y) {
-		x = kth(x); y = kth(y+2);
-		Splay(x, 0); Splay(y, x); Rev(ch[y][0]);
-	}
-	void Insert(int pos, int x) {
-		int pos1 = kth(pos+1), pos2 = kth(pos+2);
-		Splay(pos1, 0); Splay(pos2, pos1);
-		val[++tot] = x; fa[tot] = pos2; ch[pos2][0] = tot;
-		PushUp(tot); PushUp(pos2); PushUp(pos1);
-	}
-	void Delete(int pos) {
-		int x = kth(pos), y = kth(pos+2);
-		Splay(x, 0); Splay(y, x);
-		ch[y][0] = 0; PushUp(y); PushUp(x);
-	}
-	void Add(int x, int y, int C) {
-		x = kth(x); y = kth(y+2);
-		Splay(x, 0); Splay(y, x); Add(ch[y][0], C);
-	}
-	int GetMin(int x, int y) {
-		x = kth(x); y = kth(y+2);
-		Splay(x, 0); Splay(y, x);
-		return mn[ch[y][0]];
-	}
-	int GetSum(int x, int y) {
-		x = kth(x); y = kth(y + 2);
-		Splay(x, 0); Splay(y, x);
-		return sum[ch[y][0]];
-	}
-	void OutPut(int x, vector<int> &vec) {
-		PushDown(x);
-		if(ch[x][0]) OutPut(ch[x][0], vec);
-		vec.push_back(val[x]);
-		if(ch[x][1]) OutPut(ch[x][1], vec);
-	}
-	void Build(int n, int *a) {
-		root = Build(0, n+1, 0, a);
-	}
+ int fa[MAXN], ch[MAXN][2], val[MAXN], addv[MAXN], siz[MAXN], rev[MAXN], mn[MAXN], sum[MAXN];
+ int st[MAXN], root, tot;
+ void Rev(int x) {
+  if(!x) return;
+  swap(ch[x][0], ch[x][1]);
+  rev[x] ^= 1;
+ }
+ void Add(int x, int C) {
+  if(!x) return;
+  val[x] += C; mn[x] += C; addv[x] += C; 
+  sum[x] += C * siz[x];
+ }
+ void PushDown(int x) {
+  if(rev[x]) {
+   if(ch[x][0]) Rev(ch[x][0]);
+   if(ch[x][1]) Rev(ch[x][1]);
+   rev[x] ^= 1;
+  }
+  if(addv[x]) {
+   if(ch[x][0]) Add(ch[x][0], addv[x]);
+   if(ch[x][1]) Add(ch[x][1], addv[x]);
+   addv[x] = 0;
+  }
+ }
+ void PushUp(int x) {
+  siz[x] = 1; sum[x] = mn[x] = val[x]; 
+  if(ch[x][0]) siz[x] += siz[ch[x][0]], mn[x] = min(mn[x], mn[ch[x][0]]), sum[x] += sum[ch[x][0]];
+  if(ch[x][1]) siz[x] += siz[ch[x][1]], mn[x] = min(mn[x], mn[ch[x][1]]), sum[x] += sum[ch[x][1]];
+ }
+ void rotate(int x) {
+  int y = fa[x], z = fa[y], k = ch[y][1] == x, w = ch[x][!k];
+  if(fa[y]) ch[z][ch[z][1]==y] = x; 
+  ch[x][!k] = y; ch[y][k] = w;
+  if(w) fa[w] = y;
+  fa[x] = z; fa[y] = x; 
+  PushUp(y); PushUp(x);
+ }
+ void Splay(int x, int goal) {
+  int y = x, top = 0; st[++top] = y;
+  while(fa[y]) st[++top] = fa[y], y = fa[y];
+  while(top) PushDown(st[top--]);
+  while(fa[x] != goal) {
+   int y = fa[x], z = fa[y];
+   if(fa[y] != goal) rotate((ch[z][1]==y)^(ch[y][1]==x) ? x : y);
+   rotate(x);
+  }
+  if(!goal) root = x;
+  PushUp(x);
+ }
+ int kth(int k) {
+  int x = root, cur;
+  while(true) {
+   PushDown(x);
+   cur = siz[ch[x][0]] + 1;
+   if(cur == k) return x;
+   if(k < cur) x = ch[x][0];
+   else k -= cur, x = ch[x][1];
+  }
+ }
+ int Build(int l, int r, int pre, int *a) {
+  int x = ++tot, mid = (l + r) >> 1;
+  fa[x] = pre; val[x] = a[mid];
+  if(l < mid) ch[x][0] = Build(l, mid-1, x, a);
+  if(r > mid) ch[x][1] = Build(mid+1, r, x, a);
+  PushUp(x);
+  return x;
+ }
+ void Reverse(int x, int y) {
+  x = kth(x); y = kth(y+2);
+  Splay(x, 0); Splay(y, x); Rev(ch[y][0]);
+ }
+ void Insert(int pos, int x) {
+  int pos1 = kth(pos+1), pos2 = kth(pos+2);
+  Splay(pos1, 0); Splay(pos2, pos1);
+  val[++tot] = x; fa[tot] = pos2; ch[pos2][0] = tot;
+  PushUp(tot); PushUp(pos2); PushUp(pos1);
+ }
+ void Delete(int pos) {
+  int x = kth(pos), y = kth(pos+2);
+  Splay(x, 0); Splay(y, x);
+  ch[y][0] = 0; PushUp(y); PushUp(x);
+ }
+ void Add(int x, int y, int C) {
+  x = kth(x); y = kth(y+2);
+  Splay(x, 0); Splay(y, x); Add(ch[y][0], C);
+ }
+ int GetMin(int x, int y) {
+  x = kth(x); y = kth(y+2);
+  Splay(x, 0); Splay(y, x);
+  return mn[ch[y][0]];
+ }
+ int GetSum(int x, int y) {
+  x = kth(x); y = kth(y + 2);
+  Splay(x, 0); Splay(y, x);
+  return sum[ch[y][0]];
+ }
+ void OutPut(int x, vector<int> &vec) {
+  PushDown(x);
+  if(ch[x][0]) OutPut(ch[x][0], vec);
+  vec.push_back(val[x]);
+  if(ch[x][1]) OutPut(ch[x][1], vec);
+ }
+ void Build(int n, int *a) {
+  root = Build(0, n+1, 0, a);
+ }
 }seq[MAXN];
 ```
 
-### 线段树合并（可解决树上问题 灵活运用）
+## 线段树合并（可解决树上问题 灵活运用）
 
 ```cpp
 struct SegmentTree {
     static const int maxn = 1e5 + 100;
-	#define lson(x) s[x].lc
-	#define rson(x) s[x].rc
+ #define lson(x) s[x].lc
+ #define rson(x) s[x].rc
     struct node {
         int lc, rc, sum;
     }s[maxn * 80];
@@ -1637,7 +1653,7 @@ void dfs(int node, int fa) {
 }
 ```
 
-### 基础splay（名次树）
+## 基础splay（名次树）
 
 ```cpp
 struct Splay {
@@ -1783,7 +1799,7 @@ struct Splay {
 } splay;
 ```
 
-### 带撤销并查集+离线
+## 带撤销并查集+离线
 
 ```cpp
 struct node {
@@ -1884,7 +1900,7 @@ int main() {
 }
 ```
 
-### 线段树离线维护$Mex$ （在线主席树 思路相同）
+## 线段树离线维护$Mex$ （在线主席树 思路相同）
 
 ```cpp
 constexpr int N = 1e5 + 100;
@@ -1943,7 +1959,7 @@ int main() {
 }
 ```
 
-### 线段树维护带权中位数
+## 线段树维护带权中位数
 
 ```cpp
 const int N = 2e5 + 100;
@@ -1952,73 +1968,73 @@ const int mod = 1e9 + 7;
 ll w[N];
 
 struct Segment {
-	static const int MAX = 2e5 + 100;
-	#define lson node << 1
-	#define rson node << 1 | 1
-	ll sum[MAX << 2];
+ static const int MAX = 2e5 + 100;
+ #define lson node << 1
+ #define rson node << 1 | 1
+ ll sum[MAX << 2];
 
-	void pushup(int node, int l, int r) {
-		sum[node] = sum[lson] + sum[rson];
-	}
+ void pushup(int node, int l, int r) {
+  sum[node] = sum[lson] + sum[rson];
+ }
 
-	void build(int node, int l, int r) {
-		if(l == r) {
-			sum[node] = w[l];
-			return ;
-		}
-		int mid = l + r >> 1;
-		build(lson, l, mid);
-		build(rson, mid + 1, r);
-		pushup(node, l, r);
-	}
+ void build(int node, int l, int r) {
+  if(l == r) {
+   sum[node] = w[l];
+   return ;
+  }
+  int mid = l + r >> 1;
+  build(lson, l, mid);
+  build(rson, mid + 1, r);
+  pushup(node, l, r);
+ }
 
-	void change(int node, int l, int r, int idx, int val) {
-		if(l == r) {
-			sum[node] = val;
-			return ;
-		}
-		int mid = l + r >> 1;
-		if(idx <= mid) change(lson, l, mid, idx, val);
-		else change(rson, mid + 1, r, idx, val);
-		pushup(node, l, r);
-	}
+ void change(int node, int l, int r, int idx, int val) {
+  if(l == r) {
+   sum[node] = val;
+   return ;
+  }
+  int mid = l + r >> 1;
+  if(idx <= mid) change(lson, l, mid, idx, val);
+  else change(rson, mid + 1, r, idx, val);
+  pushup(node, l, r);
+ }
 
-	int queryid(int node, int l, int r, int L, int R, ll val) {
-		if(l == r) return l;
-		int mid = l + r >> 1;
-		if(R <= mid) return queryid(lson, l, mid, L, R, val);
-		else if(L > mid) return queryid(rson, mid + 1, r, L, R, val);
-		else {
+ int queryid(int node, int l, int r, int L, int R, ll val) {
+  if(l == r) return l;
+  int mid = l + r >> 1;
+  if(R <= mid) return queryid(lson, l, mid, L, R, val);
+  else if(L > mid) return queryid(rson, mid + 1, r, L, R, val);
+  else {
             ll lsum = querysum(lson, l, mid, L, mid);
-			if(lsum >= val) return queryid(lson, l, mid, L, mid, val);
-			else return queryid(rson, mid + 1, r, mid + 1, R, val - lsum);
-		}
-	}
+   if(lsum >= val) return queryid(lson, l, mid, L, mid, val);
+   else return queryid(rson, mid + 1, r, mid + 1, R, val - lsum);
+  }
+ }
 
-	ll querysum(int node, int l, int r, int L, int R) {
-		if(L <= l && R >= r) {
-			return sum[node];
-		}
-		int mid = l + r >> 1;
-		ll val = 0;
-		if(L <= mid) val += querysum(lson, l, mid, L, R);
-		if(R > mid) val += querysum(rson, mid + 1, r, L, R);
-		return val;
-	}
+ ll querysum(int node, int l, int r, int L, int R) {
+  if(L <= l && R >= r) {
+   return sum[node];
+  }
+  int mid = l + r >> 1;
+  ll val = 0;
+  if(L <= mid) val += querysum(lson, l, mid, L, R);
+  if(R > mid) val += querysum(rson, mid + 1, r, L, R);
+  return val;
+ }
 } treeans;
 
 int main() {
-	treeans.build(1, 1, n);
-	for(int i = 1; i <= m; ++i) {
-		ll l = gl(), r = gl();
-        	ll k = treeans.querysum(1, 1, n, l, r);
-        	k = (k + 1) / 2;
-        	ll id = treeans.queryid(1, 1, n, l, r, k);
-	}
+ treeans.build(1, 1, n);
+ for(int i = 1; i <= m; ++i) {
+  ll l = gl(), r = gl();
+         ll k = treeans.querysum(1, 1, n, l, r);
+         k = (k + 1) / 2;
+         ll id = treeans.queryid(1, 1, n, l, r, k);
+ }
 }
 ```
 
-### 扩展域并查集
+## 扩展域并查集
 
 ```cpp
 // from 1 to n express good, from n + 1 to n + n express bad
@@ -2074,9 +2090,7 @@ int main(){
 }
 ```
 
-
-
-### 二维树状数组（区间修改 + 单点查询）
+## 二维树状数组（区间修改 + 单点查询）
 
 二维前缀和：$sum[i][j] = sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1] + a[i][j]$
 
@@ -2125,9 +2139,7 @@ struct TreeArray {
 };
 ```
 
-
-
-### 二维树状数组（单点修改 + 区间查询）
+## 二维树状数组（单点修改 + 区间查询）
 
 ```cpp
 struct TreeArray {
@@ -2165,9 +2177,7 @@ struct TreeArray {
 };
 ```
 
-
-
-### 线段树+字符串hash结合
+## 线段树+字符串hash结合
 
 ```cpp
 struct node {
@@ -2270,15 +2280,13 @@ int main() {
 }
 ```
 
-
-
-### 二维线段树（区间查询 + 单点修改）
+## 二维线段树（区间查询 + 单点修改）
 
 ```jsx
 struct SegmentTree {
     static const int M = 1050;
-	#define lson node << 1
-	#define rson node << 1 | 1
+ #define lson node << 1
+ #define rson node << 1 | 1
     // in tree begin
     struct InSegmentTree {
         int maxn[M << 2], minx[M << 2];
@@ -2385,11 +2393,11 @@ struct SegmentTree {
 } tr;
 ```
 
-### 二维线段树(查询)
+## 二维线段树(查询)
 
 ```jsx
 struct TwoSegment {
-	#define lson node << 1
+ #define lson node << 1
     #define rson node << 1 | 1
     // in tree begin
     struct Segment {
@@ -2470,7 +2478,7 @@ struct TwoSegment {
 } tr;
 ```
 
-### 区间修改
+## 区间修改
 
 ```cpp
 struct Segment {
@@ -2575,7 +2583,7 @@ struct Segment {
 }s1, s2;
 ```
 
-### 主席树统计区间里不同的个数
+## 主席树统计区间里不同的个数
 
 ```cpp
 const int N = 3e4 + 100;
@@ -2629,7 +2637,7 @@ int main() {
 }
 ```
 
-### 带修改莫队
+## 带修改莫队
 
 ```cpp
 int a[N], sum[N], num[N * 10];
@@ -2710,7 +2718,7 @@ int main() {
 }
 ```
 
-### 线段树最大子段和
+## 线段树最大子段和
 
 ```cpp
 struct star {
@@ -2754,7 +2762,7 @@ star query(int node, int l, int r, int L, int R) {
 }
 ```
 
-### 莫队+ST表
+## 莫队+ST表
 
 ```cpp
 constexpr int mod = 1e9 + 7;
@@ -2841,7 +2849,7 @@ int main() {
 }
 ```
 
-### 线段树左右区间前缀维护
+## 线段树左右区间前缀维护
 
 ```cpp
 //lp表示最左边的端点 rp表示最右端的端点 lsum左侧最大和 rsum右侧最大和
@@ -2904,7 +2912,7 @@ void change(int node,int l,int r,int idx){
 }
 ```
 
-### 树链剖分+线段树
+## 树链剖分+线段树
 
 ```cpp
 vector<int> v[N];
@@ -3089,7 +3097,7 @@ int main() {
 }
 ```
 
-### 扫描线
+## 扫描线
 
 ```jsx
 struct star{
@@ -3157,7 +3165,7 @@ int main(){
 }
 ```
 
-### 主席树
+## 主席树
 
 ```jsx
 int n, m;
