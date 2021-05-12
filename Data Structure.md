@@ -2834,7 +2834,7 @@ int main() {
                 if(pos[a.l] % 2) return  a.r < b.r;
                 return a.r > b.r;
             }
-            return pos[a.l] < pos[b.l];
+            return a.l < b.l;
       });
       int l = 1, r = 0;
       for(int i = 1; i <= m; ++i) {
