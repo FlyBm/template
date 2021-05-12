@@ -14,7 +14,27 @@ System.out.println(s);
 ## 动态规划
 
 ## 数学
+### exgcd求逆元
+```cpp
+template <class T>
+T exgcd(T a, T b, T &x, T &y) {
+    if (!b) {
+        x = 1, y = 0;
+        return a;
+    }
+    T t, ret;
+    ret = exgcd(b, a % b, x, y);
+    t = x, x = y, y = t - a / b * y;
+    return ret;
+}
 
+template<typename T>
+T inv(T num, T mod) {
+    T x, y;
+    exgcd(num, mod, x, y);
+    return x;
+}
+```
 ## 计算几何
 
 ## 图论
