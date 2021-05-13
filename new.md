@@ -21,7 +21,7 @@ System.out.println(s);
 const int N = 3e6 + 7;
 const double PI = acos(-1);
 
-int limit = 1, L, R[N];  // n < limit, 二进制位数, 蝴蝶变换 
+int limit = 1, L, R[N];  // n < limit, 二进制位数, 蝴蝶变换
 
 struct Complex {
   double x, y;
@@ -40,7 +40,7 @@ Complex operator+(Complex A, Complex B) {
 
 void FFT(Complex *A, int type) { // type:   1: DFT, -1: IDFT
   for (int i = 0; i < limit; ++i)
-    if (i < R[i]) swap(A[i], A[R[i]]);   // 防止重复 
+    if (i < R[i]) swap(A[i], A[R[i]]);   // 防止重复
 
   for (int mid = 1; mid < limit; mid <<= 1) {
     //待合并区间长度的一半，最开始是两个长度为1的序列合并,mid = 1;
@@ -87,7 +87,169 @@ int main() {
 
 ```
 
-### exgcd求逆元
+### NTT
+
+```cpp
+const int MOD = 998244353, G = 3, Gi = 332748118;  //这里的Gi是G的除法逆元
+const int N = 5000007;
+const double PI = acos(-1);
+
+int n, m, res, limit = 1;  //
+int L;          //二进制的位数
+int RR[N];
+ll a[N], b[N];
+
+void NTT(ll *A, int type) {
+  for (int i = 0; i < limit; ++i)
+    if (i < RR[i]) swap(A[i], A[RR[i]]);
+  for (int mid = 1; mid < limit; mid <<= 1) {  //原根代替单位根
+    // ll wn = qpow(type == 1 ? G : Gi, (MOD - 1) / (mid << 1));
+    ll wn = qpow(G, (MOD - 1) / (mid * 2));
+    if (type == -1) wn = qpow(wn, MOD - 2);
+    //逆变换则乘上逆元,因为我们算出来的公式中逆变换是(a^-ij)，也就是(a^ij)的逆元
+    for (int len = mid << 1, pos = 0; pos < limit; pos += len) {
+      ll w = 1;
+      for (int k = 0; k < mid; ++k, w = (w * wn) % MOD) {
+        int x = A[pos + k], y = w * A[pos + mid + k] % MOD;
+        A[pos + k] = (x + y) % MOD;
+        A[pos + k + mid] = (x - y + MOD) % MOD;
+      }
+    }
+  }
+
+  if (type == -1) {
+    ll limit_inv = inv(limit);  // N的逆元（N是limit, 指的是2的整数幂）
+    for (int i = 0; i < limit; ++i)
+      a[i] =
+          (a[i] * limit_inv) %
+          MOD;  // NTT还是要除以n的，但是这里把除换成逆元了，inv就是n在模MOD意义下的逆元
+  }
+}  //代码实现上和FFT相差无几
+//多项式乘法
+void poly_mul(ll *a, ll *b, int deg) {
+  for (limit = 1, L = 0; limit <= deg; limit <<= 1) L++;
+  for (int i = 0; i < limit; ++i) {
+    RR[i] = (RR[i >> 1] >> 1) | ((i & 1) << (L - 1));
+  }
+  NTT(a, 1);
+  NTT(b, 1);
+  for (int i = 0; i < limit; ++i) a[i] = a[i] * b[i] % MOD;
+  NTT(a, -1);
+}
+
+int main() {
+  n = gn(), m = gn();
+  for (int i = 0; i <= n; ++i) a[i] = (gn() + MOD) % MOD;  //取模好习惯
+  for (int i = 0; i <= m; ++i) b[i] = (gn() + MOD) % MOD;
+  poly_mul(a, b, n + m);
+  for (int i = 0; i <= n + m; ++i) printf("%d ", a[i]);
+  return 0;
+}
+
+```
+
+预处理版本
+
+```cpp
+const int N = 5e6+7;
+const int MOD = 998244353;
+
+int qpow(int a, int b) {
+  int res = 1;
+  while (b) {
+    if (b & 1) res = 1ll * res * a % MOD;
+    a = 1ll * a * a % MOD;
+    b >>= 1;
+  }
+  return res;
+}
+
+namespace Poly {
+  typedef vector<int> poly;
+  const int G = 3;
+  const int inv_G = qpow(G, MOD - 2);
+  int RR[N], deer[2][22][N], inv[N];
+
+  void init(const int t) {  //预处理出来NTT里需要的w和wn，砍掉了一个log的时间
+    for (int p = 1; p <= t; ++p) {
+      int buf1 = qpow(G, (MOD - 1) / (1 << p));
+      int buf0 = qpow(inv_G, (MOD - 1) / (1 << p));
+      deer[0][p][0] = deer[1][p][0] = 1;
+      for (int i = 1; i < (1 << p); ++i) {
+        deer[0][p][i] = 1ll * deer[0][p][i - 1] * buf0 % MOD;  //逆
+        deer[1][p][i] = 1ll * deer[1][p][i - 1] * buf1 % MOD;
+      }
+    }
+    inv[1] = 1;
+    for (int i = 2; i <= (1 << t); ++i)
+      inv[i] = 1ll * inv[MOD % i] * (MOD - MOD / i) % MOD;
+  }
+
+  int NTT_init(int n) {
+    int limit = 1, L = 0;
+    while (limit < n) limit <<= 1, L++;
+    for (int i = 0; i < limit; ++i)
+      RR[i] = (RR[i >> 1] >> 1) | ((i & 1) << (L - 1));
+    return limit;
+  }
+
+  #define ck(x) (x >= MOD ? x - MOD : x)
+
+  void NTT(poly &A, int type, int limit) { // 1: DFT, 0: IDFT
+    A.resize(limit);
+    for (int i = 0; i < limit; ++i)
+      if (i < RR[i]) swap(A[i], A[RR[i]]);
+    for (int mid = 2, j = 1; mid <= limit; mid <<= 1, ++j) {
+      int len = mid >> 1;
+      for (int pos = 0; pos < limit; pos += mid) {
+        int *wn = deer[type][j];
+        for (int i = pos; i < pos + len; ++i, ++wn) {
+          int tmp = 1ll * (*wn) * A[i + len] % MOD;
+          A[i + len] = ck(A[i] - tmp + MOD);
+          A[i] = ck(A[i] + tmp);
+        }
+      }
+    }
+    if (type == 0) {
+      int inv_limit = qpow(limit, MOD - 2);
+      for (int i = 0; i < limit; ++i) A[i] = 1ll * A[i] * inv_limit % MOD;
+    }
+  }
+
+  poly poly_mul(poly A, poly B) {
+    int deg = A.size() + B.size() - 1;
+    int limit = NTT_init(deg);
+    poly C(limit);
+    NTT(A, 1, limit);
+    NTT(B, 1, limit);
+    for (int i = 0; i < limit; ++i) C[i] = 1ll * A[i] * B[i] % MOD;
+    NTT(C, 0, limit);
+    C.resize(deg);
+    return C;
+  }
+}  // namespace Poly
+
+using Poly::poly;
+using Poly::poly_mul;
+
+int n, m, x;
+poly f, g;
+
+int main() {
+  Poly::init(21);
+  n = gn();
+  m = gn();
+  for (int i = 0; i < n + 1; ++i) x = gn(), f.push_back(x + MOD % MOD);
+  for (int i = 0; i < m + 1; ++i) x = gn(), g.push_back(x + MOD % MOD);
+
+  g = poly_mul(f, g);
+  for (int i = 0; i < n + m + 1; ++i) printf("%d ", g[i]);
+  return 0;
+}
+
+```
+
+### exgcd 求逆元
 
 ```cpp
 template <class T>
@@ -229,7 +391,7 @@ int main() {
 
 ## 数据结构
 
-### cdq分治
+### cdq 分治
 
 ```cpp
 void cdqmax(int l, int r) {
@@ -257,7 +419,7 @@ void cdqmax(int l, int r) {
             else ANS[s[i].id] = min(ANS[s[i].id], s[i].h - maxn);
         }
     }
-    
+
     // 消除影响
     for (int i = l; i <= r; ++i) {
         if (s[i].type == 0 && s[i].tim <= mid) {
