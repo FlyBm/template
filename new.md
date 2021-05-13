@@ -135,5 +135,41 @@ int main() {
 ```
 
 ## 数据结构
+### cdq分治
+```cpp
+void cdqmax(int l, int r) {
+    if (l == r) return ;
+    int mid = (l + r) >> 1;
+    // 递归处理左右
+    cdqmax(l, mid);
+    cdqmax(mid + 1, r);
+
+    // 合并
+    merge(s + l, s + mid + 1, s + mid + 1, s + r + 1, tem + l, cmpa);
+    for (int i = l; i <= r; ++i) {
+        s[i] = tem[i];
+    }
+
+    // 计算贡献
+    for (int i = l; i <= r; ++i) {
+        if (s[i].type == 0 && s[i].tim <= mid) {
+            tree.change(s[i].l, s[i].h);
+        }
+        if (s[i].type == 1 && s[i].tim > mid) {
+            int maxn = tree.querymax(s[i].l, s[i].r);
+            if (maxn == 0) continue;
+            if (ANS[s[i].id] == -1) ANS[s[i].id] = s[i].h - maxn;
+            else ANS[s[i].id] = min(ANS[s[i].id], s[i].h - maxn);
+        }
+    }
+    
+    // 消除影响
+    for (int i = l; i <= r; ++i) {
+        if (s[i].type == 0 && s[i].tim <= mid) {
+            tree.change(s[i].l, 0);
+        }
+    }
+}
+```
 
 ## 字符串
