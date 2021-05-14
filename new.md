@@ -11,6 +11,44 @@ String s = inBuff.readLine();
 System.out.println(s);
 ```
 
+### 二/三分查找
+```cpp
+// lower_bound   find the first num >= x
+//[l, mid], [mid + 1, r]
+int search_one(int l, int r) {
+    while (l < r) {
+        int mid = (l + r) >> 1;
+        if (check(mid)) r = mid;
+        else l = mid + 1;
+    }
+    return l;
+}
+
+// upper_bound  find the first num > x
+// [l, mid - 1], [mid, r]
+int search_two(int l, int r) {
+    while (l < r) {
+        int mid = (l + r + 1) >> 1;
+        if (check(mid)) l = mid;
+        else r = mid - 1;
+    }
+    return l;
+}
+
+int l = 1,r = 100;
+while(l < r) {
+    int lmid = l + (r - l) / 3;
+    int rmid = r - (r - l) / 3;
+    lans = f(lmid),rans = f(rmid);
+    // 求凹函数的极小值
+    if(lans <= rans) r = rmid - 1;
+    else l = lmid + 1;
+    // 求凸函数的极大值
+    if(lasn >= rans) l = lmid + 1;
+    else r = rmid - 1;
+}
+```
+
 ## 动态规划
 
 ## 数学
