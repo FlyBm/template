@@ -54,6 +54,32 @@ class Read {
 }
 
 ```
+### 整数读到文件末
+```cpp
+public class Main {
+    public static StreamTokenizer in = new StreamTokenizer(new BufferedReader(new InputStreamReader(System.in),32768));
+    public static PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
+
+    public static double nextDouble() throws IOException{
+        in.nextToken(); return in.nval;
+    }
+    public static float nextFloat() throws IOException{
+        in.nextToken(); return (float)in.nval;
+    }
+    public static int nextInt() throws IOException{
+        in.nextToken(); return (int)in.nval;
+    }
+    public static String next() throws IOException {
+        in.nextToken(); return in.sval;
+    }
+    public static void main(String[] args) throws IOException {
+        while (in.nextToken() != StreamTokenizer.TT_EOF) {
+            int h = (int) in.nval;
+            System.out.printf("%d\n", qpow(3, h) - 1);
+        }
+    }
+}
+```
 
 ### 二/三分查找
 ```cpp
