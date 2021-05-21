@@ -536,6 +536,119 @@ void cdqmax(int l, int r) {
     }
 }
 ```
+### KD-tree
+```cpp
+constexpr int N = 2e5 + 100;
+
+#define cmax(a, b) (a < b ? a = b : a)
+#define cmin(a, b) (a > b ? a = b : a)
+#define ls t[mid].s[0]
+#define rs t[mid].s[1]
+constexpr ll INF = 1e18;
+
+ll sqr(int x) {return 1ll * x * x;}
+
+int D, root;
+
+struct P {
+    int d[3], id;
+    bool operator < (const P & rhs) const {
+        return d[D] < rhs.d[D];
+    }
+}a[N];
+
+struct kd_node {
+    int d[3], s[2], x[2], y[2], z[2], id;
+} t[N];
+
+void update(int f, int x) {
+    cmin(t[f].x[0], t[x].x[0]), cmax(t[f].x[1], t[x].x[1]);
+    cmin(t[f].y[0], t[x].y[0]), cmax(t[f].y[1], t[x].y[1]);
+    cmin(t[f].z[0], t[x].z[0]), cmax(t[f].z[1], t[x].z[1]);
+}
+
+int build(int l, int r, int d) {
+    D = d; int mid = (l + r) >> 1;
+    nth_element(a + l, a + mid, a + r + 1);
+    t[mid].d[0] = t[mid].x[0] = t[mid].x[1] = a[mid].d[0];
+    t[mid].d[1] = t[mid].y[0] = t[mid].y[1] = a[mid].d[1];
+    t[mid].d[2] = t[mid].z[0] = t[mid].z[1] = a[mid].d[2];
+    t[mid].id = a[mid].id;
+    if (l < mid) ls = build(l, mid - 1, d ^ 1), update(mid, ls);
+    if (r > mid) rs = build(mid + 1, r, d ^ 1), update(mid, rs);
+    return mid;
+}
+
+ll getdist(int node, int x, int y, int z) {
+    // 曼哈顿距离 min
+//        return max(t[node].x[0] - x, 0) + max(x - t[node].x[1], 0) + max(t[node].y[0] - x, 0) + max(x - t[node].y[1], 0);
+    // max max(abs(x - t[node].x[1]), abs(t[node].x[0] - x)) + max(abs(y - t[node].y[1]), abs(t[node].y[0] - y))
+    // 欧几里得距离
+    // min sqr(max({x - t[node].x[1], t[node].x[0] - x, 0})) + sqr(max({y - t[node].y[1], t[node].y[0] - y, 0}))
+     if (t[node].z[0] > z) return 1e18;
+     return sqr(max({x - t[node].x[1], t[node].x[0] - x, 0})) + sqr(max({y - t[node].y[1], t[node].y[0] - y, 0}));
+    // max max(sqr(x - t[node].x[0]), sqr(t[node].x[0] - x)) + max(sqr(y - t[node].y[1]), sqr(t[node].y[0] - y))
+}
+
+void insert(int node, int x, int y, int z, int id) {
+    t[node].d[0] = t[node].x[0] = t[node].x[1] = x;
+    t[node].d[1] = t[node].y[0] = t[node].y[1] = y;
+    t[node].d[2] = t[node].z[0] = t[node].z[1] = z;
+    t[node].id = id;
+    for (int p = root, k = 0; p; k ^= 1) {
+        update(p, node);
+        int &nxt = t[p].s[t[node].d[k] > t[p].d[k]];
+        if (nxt == 0) {
+            nxt = node;
+            return;
+        } else p = nxt;
+    }
+}
+
+void query(int node, ll &ans, int &id, int x, int y, int z) {
+    ll tmp = t[node].d[2] <= z ? sqr(t[node].d[0] - x) + sqr(t[node].d[1] - y) : 1e18, d[2];
+//    cout << node << ' ' << t[node].d[0] << ' ' << t[node].d[1] << ' ' << t[node].d[2] << ' ' << ans << ' ' << tmp << endl;
+    if (t[node].s[0]) d[0] = getdist(t[node].s[0], x, y, z); else d[0] = INF;
+    if (t[node].s[1]) d[1] = getdist(t[node].s[1], x, y, z); else d[1] = INF;
+
+    if (tmp < ans) {
+        ans = tmp, id = t[node].id;
+    } else if (tmp == ans and id > t[node].id) id = t[node].id;
+
+    tmp = d[0] >= d[1];
+    if (d[tmp] <= ans) query(t[node].s[tmp], ans, id, x, y, z);
+    tmp ^= 1;
+    if (d[tmp] <= ans) query(t[node].s[tmp], ans, id, x, y, z);
+}
+
+struct node {
+    int x, y, c, id;
+}hotel[N], guest[N];
+
+void solve() {
+   int n = gn(), m = gn();
+   for (int i = 1; i <= n; ++i) {
+       int x = gn(), y = gn(), c = gn();
+       hotel[i] = {x, y, c, i};
+   }
+
+    for (int i = 1; i <= m; ++i) {
+        int x = gn(), y = gn(), c = gn();
+        guest[i] = {x, y, c, i};
+    }
+
+    for (int i = 1; i <= n; ++i) a[i] = {hotel[i].x, hotel[i].y, hotel[i].c, hotel[i].id};
+
+    ll val; int idx;
+    root = build(1, n, 0);
+
+    for (int i = 1; i <= m; ++i) {
+        val = INF, idx = 0x3f3f3f3f;
+        query(root, val, idx, guest[i].x, guest[i].y, guest[i].c);
+        cout << hotel[idx].x << ' ' << hotel[idx].y << ' ' << hotel[idx].c << '\n';
+    }
+}
+```
 
 ## 字符串
 
