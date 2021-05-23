@@ -122,6 +122,55 @@ while(l < r) {
 ## 动态规划
 
 ## 数学
+### 前缀线性基
+```cpp
+constexpr int N = 5e5 + 100;
+
+struct preLinear_Basis {
+    array<array<int, 30>, N> p;
+    array<array<int, 30>, N> pos;
+    bool ins (int id, int x) {
+        p[id] = p[id - 1];
+        pos[id] = pos[id - 1];
+        int ti = id;
+        for (int i = 24; i >= 0; --i) {
+            if ((x & (1 << i))) {
+                if (not p[id][i]) {
+                    p[id][i] = x;
+                    pos[id][i] = ti;
+                    break;
+                }
+                if (pos[id][i] < ti) {
+                    swap(p[id][i], x);
+                    swap(pos[id][i], ti);
+                }
+                x ^= p[id][i];
+            }
+        }
+
+        return x > 0;
+    }
+    int MAX (int x, int l, int r) {
+        for (int i = 24; i >= 0; --i) {
+            if ((x ^ p[r][i]) > x and pos[r][i] >= l) x ^= p[r][i];
+        }
+        return x;
+    }
+}LB;
+
+int main() {
+    int n = gn();
+    for (int i = 1; i <= n; ++i) {
+        int val = gn();
+        LB.ins(i, val);
+    }
+    int q = gn();
+    while (q--) {
+        int l = gn(), r = gn();
+        cout << LB.MAX(0, l, r) << endl;
+    }
+}
+```
 
 ### FFT
 
