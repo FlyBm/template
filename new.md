@@ -122,6 +122,33 @@ while(l < r) {
 ## 动态规划
 
 ## 数学
+### 1到n因子个数
+```cpp
+int val[N], vis[N], facnum[N], d[N];
+vector<int> prime;
+void get_facnum() {
+	int pnum = 0;
+	facnum[1] = 1;
+	for (int i = 2; i < N; ++i) {
+		if (not vis[i]) {
+			prime.push_back(i);
+			facnum[i] = 2;
+			d[i] = 1;
+		}
+		for (auto to : prime) {
+			if (to * i >= N) break;
+			vis[to * i] = true;
+			if (i % to == 0) {
+				facnum[i * to] = facnum[i] / (d[i] + 1) * (d[i] + 2);
+				d[i * to] = d[i] + 1;
+				break;
+			}
+			facnum[i * to] = facnum[i] * 2;
+			d[i * to] = 1;
+		}
+	}
+}
+```
 ### 前缀线性基
 ```cpp
 constexpr int N = 5e5 + 100;
