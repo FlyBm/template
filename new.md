@@ -432,6 +432,100 @@ int main() {
 }
 
 ```
+### 分治FFT
+```cpp
+constexpr int mod = 998244353, G = 3, Gi = 332748118;
+constexpr int N = 2e5 + 100;
+const double  PI = acos(-1);
+
+int limit = 1;
+int L, RR[N << 2];
+ll a[N << 2], b[N << 2], f[N << 2], g[N << 2];
+
+ll qpow(ll x, ll y) {
+    ll ans = 1;
+    while (y) {
+        if (y & 1) ans = ans * x % mod;
+        x = x * x % mod;
+        y >>= 1;
+    }
+    return ans;
+}
+
+ll inv(ll x) { return qpow(x, mod - 2); }
+
+void NTT(ll *A, int type) {
+    for (int i = 0; i < limit; ++i) {
+        if (i < RR[i]) swap(A[i], A[RR[i]]);
+    }
+    for (int mid = 1; mid < limit; mid <<= 1) {
+        ll wn = qpow(G, (mod - 1) / (mid * 2));
+        if (type == -1) wn = qpow(wn, mod - 2);
+        for (int len = mid << 1, pos = 0; pos < limit; pos += len) {
+            ll w = 1;
+            for (int k = 0; k < mid; ++k, w = (w * wn) % mod) {
+                ll x = A[pos + k], y = w * A[pos + mid + k] % mod;
+                A[pos + k] = (x + y) % mod;
+                A[pos + k + mid] = (x - y + mod) % mod;
+            }
+        }
+    }
+
+    if (type == -1) {
+        ll limit_inv = inv(limit);
+        for (int i = 0; i < limit; ++i) A[i] = (A[i] * limit_inv) % mod;
+    }
+}
+
+void getlimit(int deg) {
+    for (limit = 1, L = 0; limit <= deg; limit <<= 1) L ++;
+}
+
+void poly_mul(ll *ax, ll *bx) {
+    for (int i = 0; i < limit; ++i) {
+        RR[i] = (RR[i >> 1] >> 1) | ((i & 1) << (L - 1));
+    }
+    NTT(ax, 1);
+    NTT(bx, 1);
+    for (int i = 0; i < limit; ++i) ax[i] = (ax[i] * bx[i]) % mod;
+    NTT(ax, -1);
+}
+
+void CDQ_NTT(const int l, const int r) { // [l, r]
+    if (r - l < 1) return;
+    const int mid = (l + r) >> 1;
+    CDQ_NTT(l, mid);
+    // 用 f[l ~ mid] 与 g[0 ~ r - l] 进行卷积
+    // f[i] = \sum_{j = l}^{mid} f[j] * g[i - j]
+
+    int xlen = mid - l + 1, ylen = r - l + 1;
+    getlimit(xlen + ylen);
+    for (int i = l; i <= mid; ++i) a[i - l] = f[i];
+    for (int i = 0; i < r - l + 1; ++i) b[i] = g[i];
+
+    for (int i = mid - l + 1; i < limit; ++i) a[i] = 0;
+    for (int i = r - l + 1; i < limit; ++i) b[i] = 0;
+
+    poly_mul(a, b);
+
+
+    for (int i = mid + 1; i <= r; ++i) {
+        f[i] = (f[i] + a[i - l]) % mod;
+    }
+
+    CDQ_NTT(mid + 1, r);
+}
+
+int main() {
+    int n = gn();
+    f[0] = 1;
+    for (int i = 1; i < n; ++i) g[i] = gn();
+    CDQ_NTT(0, n - 1);
+    for (int i = 0; i < n; ++i) {
+        cout << f[i] % mod << " \n"[i == n - 1];
+    }
+}
+```
 
 ### exgcd 求逆元
 
