@@ -470,6 +470,45 @@ void insert(int u,int i){
 ### 后缀数组
 
 ```cpp
+int sa[N], rk[N], oldrk[N << 1], id[N], px[N], cnt[N], height[N];
+
+bool cmp(int x, int y, int w) {
+    return oldrk[x] == oldrk[y] and oldrk[x + w] == oldrk[y + w];
+}
+
+void SA(string s) {
+    int i, m = 300, p, w, k;
+    int n = s.length() - 1;
+    for (i = 1; i <= n; ++i) ++cnt[rk[i] = s[i]];
+    for (i = 1; i <= m; ++i) cnt[i] += cnt[i - 1];
+    for (i = n; i >= 1; --i) sa[cnt[rk[i]]--] = i;
+
+    for (w = 1; ; w <<= 1, m = p) {
+        for (p = 0, i = n; i > n - w; --i) id[++p] = i;
+        for (i = 1; i <= n; ++i) 
+            if (sa[i] > w) id[++p] = sa[i] - w;
+        memset(cnt, 0, sizeof cnt);
+        for (i = 1; i <= n; ++i) ++cnt[px[i] = rk[id[i]]];
+        for (i = 1; i <= m; ++i) cnt[i] += cnt[i - 1];
+        for (i = n; i >= 1; --i) sa[cnt[px[i]]--] = id[i];
+        memcpy(oldrk, rk, sizeof rk);
+        for (p = 0, i = 1; i <= n; ++i) 
+            rk[sa[i]] = cmp(sa[i], sa[i - 1], w) ? p : ++p;
+        if (p == n) {
+            for (i = 1; i <= n; ++i) sa[rk[i]] = i;
+            break; 
+        }
+    }
+
+    for (i = 1, k = 0; i <= n; ++i) {
+        if (k) --k;
+        while (s[i + k] == s[sa[rk[i] - 1] + k]) ++k;
+        height[rk[i]] = k; 
+    }
+}
+```
+
+```cpp
 #include <algorithm>
 #include <cstring>
 #include <cstdio>
