@@ -524,16 +524,16 @@ namespace SA {
 int sa[N], rk[N], ht[N], s[N<<1], t[N<<1], p[N], cnt[N], cur[N], mi[N][25];
 #define pushS(x) sa[cur[s[x]]--] = x
 #define pushL(x) sa[cur[s[x]]++] = x
-#define inducedSort(v) 
-    fill_n(sa, n, -1); fill_n(cnt, m, 0);                               
-    for (int i = 0; i < n; i++) cnt[s[i]]++;                             
-    for (int i = 1; i < m; i++) cnt[i] += cnt[i-1];                     
-    for (int i = 0; i < m; i++) cur[i] = cnt[i]-1;                       
-    for (int i = n1-1; ~i; i--) pushS(v[i]);                             
-    for (int i = 1; i < m; i++) cur[i] = cnt[i-1];                       
-    for (int i = 0; i < n; i++) if (sa[i] > 0 &&  t[sa[i]-1]) pushL(sa[i]-1); 
-    for (int i = 0; i < m; i++) cur[i] = cnt[i]-1;                       
-    for (int i = n-1;  ~i; i--) if (sa[i] > 0 && !t[sa[i]-1]) pushS(sa[i]-1);
+#define inducedSort(v) \
+    fill_n(sa, n, -1); fill_n(cnt, m, 0); \                           
+    for (int i = 0; i < n; i++) cnt[s[i]]++; \                          
+    for (int i = 1; i < m; i++) cnt[i] += cnt[i-1]; \            
+    for (int i = 0; i < m; i++) cur[i] = cnt[i]-1; \               
+    for (int i = n1-1; ~i; i--) pushS(v[i]); \                  
+    for (int i = 1; i < m; i++) cur[i] = cnt[i-1]; \             
+    for (int i = 0; i < n; i++) if (sa[i] > 0 &&  t[sa[i]-1]) pushL(sa[i]-1); \
+    for (int i = 0; i < m; i++) cur[i] = cnt[i]-1; \                    
+    for (int i = n-1;  ~i; i--) if (sa[i] > 0 && !t[sa[i]-1]) pushS(sa[i]-1); 
 void sais(int n, int m, int *s, int *t, int *p) {
     int n1 = t[n-1] = 0, ch = rk[0] = -1, *s1 = s+n;
     for (int i = n-2; ~i; i--) t[i] = s[i] == s[i+1] ? t[i+1] : s[i] > s[i+1];
