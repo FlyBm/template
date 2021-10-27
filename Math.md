@@ -412,12 +412,88 @@ struct Gauss {
 ### 卢卡斯定理
 
 $C(n, m) = (C(n \% mod, m \% mod) * C(n/mod, m/mod))%mod$
+要求模数p为素数。
+但当p不是素数时，可以将其分解质因数，将组合数按照卢卡斯定理的方法求p的质因数的模，然后用中国剩余定理合并即可。
 
 ```cpp
 ll Lucas(ll a, ll b) {
     if (b == 0) return 1;
     ll ret = (C(a % mod, b % mod, mod) * Lucas(a / mod, b / mod)) % mod;
     return ret;
+}
+```
+
+#### 拓展卢卡斯
+
+如果p不是质数，将其质因数分解，对这些带系数的质因数分别求余数，靠CRT取回原数。
+要求$C_n^m \equiv a_i\pmod {p^{q_i}}$，只需求$n!\equiv \pmod {p^{q_i}}$.
+
+
+```cpp
+// calc (n! % pk) (but no p^s !!!! )
+inline ll F(ll n, ll P, ll PK) {
+    if (n == 0)
+        return 1;
+    ll rou = 1; //循环节
+    ll rem = 1; //余项
+    for (ll i = 1; i <= PK; i++) {
+        if (i % P)
+            rou = rou * i % PK;
+    }
+    for (ll i = PK * (n / PK); i <= n; i++) {
+        if (i % P)
+            rem = rem * (i % PK) % PK;
+    }
+    return F(n / P, P, PK) % PK *
+           fast_pow(rou, n / PK, PK) % PK *
+           rem % PK;
+}
+
+// 返回n!中有多少p
+inline ll G(ll n, ll P) {
+    if (n < P)
+        return 0;
+    return G(n / P, P) + (n / P);
+}
+
+
+// Cnm % p^k
+inline ll C_PK(ll n, ll m, ll P, ll PK) {
+    ll fz = F(n, P, PK), fm1 = INV(F(m, P, PK), PK), fm2 = INV(F(n - m, P, PK), PK);
+    ll mi = fast_pow(P, G(n, P) - G(m, P) - G(n - m, P), PK); // num(p) in Cnm p^s
+    return fz * fm1 % PK * fm2 % PK * mi % PK;
+}
+
+
+
+ll A[1001], B[1001];
+//x=B(mod A)
+
+inline ll exLucas(ll n, ll m, ll P) {
+    ll ljc = P, tot = 0;
+    for (ll tmp = 2; tmp * tmp <= P; tmp++) {
+        if (!(ljc % tmp)) {
+            ll PK = 1;
+            while (!(ljc % tmp)) {
+                PK *= tmp;
+                ljc /= tmp;
+            }
+            A[++tot] = PK;
+            B[tot] = C_PK(n, m, tmp, PK);
+        }
+    }
+    // ljc is prime
+    if (ljc != 1) {
+        A[++tot] = ljc;
+        B[tot] = C_PK(n, m, ljc, ljc);
+    }
+    // CRT
+    ll ans = 0;
+    for (ll i = 1; i <= tot; i++) {
+        ll M = P / A[i], T = INV(M, A[i]);
+        ans = (ans + B[i] * M % P * T % P) % P;
+    }
+    return ans;
 }
 ```
 
@@ -673,7 +749,7 @@ void init() {
 }
 ```
 
-### 中国剩余定理
+### 中国剩余定理 CRT
 
 #### 算法流程
 
