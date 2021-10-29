@@ -2,8 +2,6 @@
 
 [TOC]
 
-## 模板
-
 ### 高斯消元求线性方程组和异或方程组
 
 线性方程组
@@ -456,15 +454,12 @@ inline ll G(ll n, ll P) {
     return G(n / P, P) + (n / P);
 }
 
-
 // Cnm % p^k
 inline ll C_PK(ll n, ll m, ll P, ll PK) {
     ll fz = F(n, P, PK), fm1 = INV(F(m, P, PK), PK), fm2 = INV(F(n - m, P, PK), PK);
     ll mi = fast_pow(P, G(n, P) - G(m, P) - G(n - m, P), PK); // num(p) in Cnm p^s
     return fz * fm1 % PK * fm2 % PK * mi % PK;
 }
-
-
 
 ll A[1001], B[1001];
 //x=B(mod A)
@@ -825,9 +820,9 @@ PS: $F(x)$函数具有**积性**是指当$\gcd(a, b)=1$,有$F(a \times b) = F(a)
     \end{aligned}
     $$
 
-## 常用公式
+### 常用公式
 
-### 泰勒公式和二项式展开定理的共同点
+#### 泰勒公式和二项式展开定理的共同点
 
 对于$f(x)=(1+x)^n$，采用泰勒展开法有：
 $f(x)=f_{k_0}(0)\times \frac{(x)^0}{0!}+f_{k_1}(0)\times \frac{(x)^1}{1!}+f_{k_2}(0)\times \frac{(x)^2}{2!}...$
@@ -839,7 +834,7 @@ $...$
 所以有$f(x)=1^n\times \frac{x^0}{0!}+1^{n-1}\times x^1\times \frac{n}{1!}+1^{n-2}\times x^2\times \frac {n\times (n-1)}{2!}...$
 联系二项式公式，可以得到上面式子与二项式展开一样。
 
-### 欧拉函数以及 Mobius 函数的性质
+#### 欧拉函数以及 Mobius 函数的性质
 
 欧拉函数 $\varphi(n)$ 表示小于$n$且与$n$互质的个数
 
@@ -859,7 +854,7 @@ $Mobius$函数的性质
 2. $\sum_{d|n} \frac{\mu(d)}{d}=\frac{\varphi(n)}{n}$
 3. $\mu(a\times b)=\mu(a)*\mu(b)$
 
-### 二项式定理以及指数推广到负数
+#### 二项式定理以及指数推广到负数
 
 $(x + 1)^n=\sum_{i=0}^{n}C(n,i)x^{i}$
 
@@ -869,7 +864,7 @@ $C(-n,m)=(-1)^{m}C(n+m-1,m)$
 
 $(1-x)^{-n}=\sum_{i=0}^{\infty}C(n+i-1,i)x^{i}$
 
-### 常用数列和公式
+#### 常用数列和公式
 
 前 n 项平方和公式: $\dfrac{n*(n + 1)*(2n + 1)}{6}$
 
@@ -877,14 +872,14 @@ $(1-x)^{-n}=\sum_{i=0}^{\infty}C(n+i-1,i)x^{i}$
 
 等差数列平方和 $n*a_{1}^{2}+n*(n-1)*a_{1}*d+\dfrac{n*(n-1)*(2*n-1)*d^{2}}{6}$
 
-### 划分问题
+#### 划分问题
 
 $n$个点最多把直线分成$C(n,0)+C(n,1)$份
 $n$条直线最多把平面分成$C(n,0)+C(n,1)+C(n,2)$份
 $n$个平面最多把空间分成$C(n,0)+C(n,1)+C(n,2)+C(n,3)=\dfrac{n^{3}+5*n+6}{6}$份
 $n$个空间最多把时空分成$C(n,0)+C(n,1)+C(n,2)+C(n,3)+C(n,4)$份
 
-### 约瑟夫环
+#### 约瑟夫环
 
 N 个人围成一圈，从第一个开始报数，第 M 个将被杀掉，最后剩下一个，其余人都将被杀掉
 
@@ -894,13 +889,13 @@ N 个人围成一圈，从第一个开始报数，第 M 个将被杀掉，最后
 
 $\begin{equation} \left\{                         \begin{array}{lr}                         f[1] = 0 &                    \\                         f[i]=(f[i-1]+m)\%i & i > 1                            \end{array} \right. \end{equation}$
 
-### 多边形面积
+#### 多边形面积
 
 点顺序给出：顺时针值为正 逆时针值为负
 
 $S=abs(x_{1}*y_{2}-y_{1}*x_{2}+x_{2}*y_{3}-y_{2}*x_{3}+...+x_{n}*y_{1}-y_{n}*x_{1})$
 
-### 斐波那契数列
+#### 斐波那契数列
 
 $\begin{bmatrix} F_{n+1}&F_{n}\\F_{n}&F_{n-1}\end{bmatrix}\quad={\begin{bmatrix} 1&1\\1&0\end{bmatrix}\quad}^{n}$
 
@@ -924,7 +919,7 @@ $f[2]+f[4]+f[6]+...+f[2n]=f[2n+1]-1$
 
 $f[0]^{2}+f[1]^{2}+f[2]^{2}+...+f[n]^{2}=f[n]*f[n+1]$
 
-### $(a/b)\%c$
+#### $(a/b)\%c$
 
 计算$(a/b)\%c$ 其中 b 能整除 a
 
@@ -934,7 +929,7 @@ $f[0]^{2}+f[1]^{2}+f[2]^{2}+...+f[n]^{2}=f[n]*f[n+1]$
 
 对于$b$与$c$互素和不互素都有$(a/b)\%c=(a\%bc)/b$成立
 
-### 因式分解
+#### 因式分解
 
 $a^{3}\pm b^{3}=(a\pm b)(a^{2}\mp ab+b^{2})$
 
@@ -942,7 +937,7 @@ $a^{n}-b^{n}=\left\{ \begin{array}{lr} (a-b)(a^{n-1}+a^{n-2}b+a^{n-3}b^{2}+...+a
 
 $a^{n}+b^{n}=(a+b)(a^{n-1}-a^{n-2}b+a^{n-3}b^{2}+...-ab^{n-2}+b^{n-1})    n为奇数$
 
-### 三角函数
+#### 三角函数
 
 $tan(\alpha \pm \beta)=\frac{tan\alpha \pm tan\beta}{1\mp tan\alpha tan\beta}$
 

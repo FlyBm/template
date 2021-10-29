@@ -338,7 +338,7 @@ public class Main {
 }
 ```
 
-### 二/三分查找
+### 二、三分查找
 ```cpp
 // lower_bound   find the first num >= x
 //[l, mid], [mid + 1, r]
