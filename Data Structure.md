@@ -2,7 +2,7 @@
 
 [TOC]
 
-## 莫队二次离线
+### 莫队二次离线
 
 子区间 or 区间对数一类满足区间减法的问题
 
@@ -94,7 +94,7 @@ int main() {
 }
 ```
 
-## 线段树分裂合并 ODT树
+### 线段树分裂合并 ODT树
 
 ```cpp
 struct node {
@@ -200,7 +200,7 @@ void assign(int l, int r, int flag) {
 }
 ```
 
-## 线段树维护联通性
+### 线段树维护联通性
 
 ```cpp
 int dis(int x, int y) {
@@ -305,7 +305,7 @@ int main() {
 }
 ```
 
-## 线段树优化建图
+### 线段树优化建图
 
 ```cpp
 struct node {
@@ -389,7 +389,7 @@ int main() {
 }
 ```
 
-## fhq Treap 区间操作（按大小分裂）
+### fhq Treap 区间操作（按大小分裂）
 
 ```cpp
 mt19937 rnd(233);
@@ -466,7 +466,7 @@ struct fhqTreap {
 }tree;
 ```
 
-## fhq Treap 平衡树基本操作（按值分裂）
+### fhq Treap 平衡树基本操作（按值分裂）
 
 ```cpp
 mt19937 rnd(time(0));
@@ -572,7 +572,7 @@ struct fhqTreap{
 } tree;
 ```
 
-## 吉司机线段树
+### 吉司机线段树
 
 吉司机线段树是一种势能线段树，可以实现区间取 $min/max$(给定 $l,r,x$ 把所有满足 $l≤i≤r$ 的 $a_i$ 改成 $min(a_i,x)$ 和区间求和
 
@@ -730,7 +730,7 @@ struct SegmentBeats {
 }tree;
 ```
 
-## 单调栈求以某个数为最大（最小）值的区间范围
+### 单调栈求以某个数为最大（最小）值的区间范围
 
 ```cpp
 // 此为单调递减栈 单调队列同理 灵活应用
@@ -758,7 +758,7 @@ void solve(int l, int r) {
 }
 ```
 
-## 字典树+贪心求两数异或最大值
+### 字典树+贪心求两数异或最大值
 
 ```cpp
 // codeforces 282E
@@ -826,7 +826,7 @@ int main() {
 }
 ```
 
-## 树状数组维护前缀最大值
+### 树状数组维护前缀最大值
 
 ```cpp
 struct FenwickTree {
@@ -863,7 +863,7 @@ struct FenwickTree {
 } tree;
 ```
 
-## 点分序列 + 优先队列配合ST表求前K大
+### 点分序列 + 优先队列配合ST表求前K大
 
 ```cpp
 /*
@@ -1009,7 +1009,7 @@ int main() {
 }
 ```
 
-## 树状数组套主席树 动态第K大
+### 树状数组套主席树 动态第K大
 
 ```cpp
 // Dynamic ChairmanTree
@@ -1125,7 +1125,7 @@ int main() {
 }
 ```
 
-## 平板电视 基础Splay
+### 平板电视 基础Splay
 
 ```cpp
 #include <bits/stdc++.h>
@@ -1191,7 +1191,7 @@ int main() {
 }
 ```
 
-## 线段树合并+CDQ分治统计答案
+### 线段树合并+CDQ分治统计答案
 
 ```cpp
 #include<bits/stdc++.h>
@@ -1310,7 +1310,7 @@ int main() {
 }
 ```
 
-## Splay解决区间翻转
+### Splay解决区间翻转
 
 ```cpp
 struct Splay {
@@ -1476,7 +1476,7 @@ int main() {
 }
 ```
 
-## Splay 备用
+### Splay 备用
 
 ```cpp
 struct SplayTree {
@@ -1588,7 +1588,7 @@ struct SplayTree {
 }seq[MAXN];
 ```
 
-## 线段树合并（可解决树上问题 灵活运用）
+### 线段树合并（可解决树上问题 灵活运用）
 
 ```cpp
 struct SegmentTree {
@@ -1653,7 +1653,7 @@ void dfs(int node, int fa) {
 }
 ```
 
-## 基础splay（名次树）
+### 基础splay（名次树）
 
 ```cpp
 struct Splay {
@@ -1799,7 +1799,7 @@ struct Splay {
 } splay;
 ```
 
-## 带撤销并查集+离线
+### 带撤销并查集+离线
 
 ```cpp
 struct node {
@@ -1900,7 +1900,7 @@ int main() {
 }
 ```
 
-## 线段树离线维护$Mex$ （在线主席树 思路相同）
+### 线段树离线维护$Mex$ （在线主席树 思路相同）
 
 ```cpp
 constexpr int N = 1e5 + 100;
@@ -1959,7 +1959,7 @@ int main() {
 }
 ```
 
-## 线段树维护带权中位数
+### 线段树维护带权中位数
 
 ```cpp
 const int N = 2e5 + 100;
@@ -2034,7 +2034,7 @@ int main() {
 }
 ```
 
-## 扩展域并查集
+### 扩展域并查集
 
 ```cpp
 // from 1 to n express good, from n + 1 to n + n express bad
@@ -2090,7 +2090,7 @@ int main(){
 }
 ```
 
-## 二维树状数组（区间修改 + 单点查询）
+### 二维树状数组（区间修改 + 单点查询）
 
 二维前缀和：$sum[i][j] = sum[i - 1][j] + sum[i][j - 1] - sum[i - 1][j - 1] + a[i][j]$
 
@@ -2139,7 +2139,7 @@ struct TreeArray {
 };
 ```
 
-## 二维树状数组（单点修改 + 区间查询）
+### 二维树状数组（单点修改 + 区间查询）
 
 ```cpp
 struct TreeArray {
@@ -2177,7 +2177,7 @@ struct TreeArray {
 };
 ```
 
-## 线段树+字符串hash结合
+### 线段树+字符串hash结合
 
 ```cpp
 struct node {
@@ -2280,7 +2280,7 @@ int main() {
 }
 ```
 
-## 二维线段树（区间查询 + 单点修改）
+### 二维线段树（区间查询 + 单点修改）
 
 ```jsx
 struct SegmentTree {
@@ -2393,7 +2393,7 @@ struct SegmentTree {
 } tr;
 ```
 
-## 二维线段树(查询)
+### 二维线段树(查询)
 
 ```jsx
 struct TwoSegment {
@@ -2478,7 +2478,7 @@ struct TwoSegment {
 } tr;
 ```
 
-## 区间修改
+### 区间修改
 
 ```cpp
 struct Segment {
@@ -2583,7 +2583,7 @@ struct Segment {
 }s1, s2;
 ```
 
-## 主席树统计区间里不同的个数
+### 主席树统计区间里不同的个数
 
 ```cpp
 const int N = 3e4 + 100;
@@ -2637,7 +2637,7 @@ int main() {
 }
 ```
 
-## 带修改莫队
+### 带修改莫队
 
 ```cpp
 int a[N], sum[N], num[N * 10];
@@ -2718,7 +2718,7 @@ int main() {
 }
 ```
 
-## 线段树最大子段和
+### 线段树最大子段和
 
 ```cpp
 struct star {
@@ -2762,7 +2762,7 @@ star query(int node, int l, int r, int L, int R) {
 }
 ```
 
-## 莫队+ST表
+### 莫队+ST表
 
 ```cpp
 constexpr int mod = 1e9 + 7;
@@ -2849,7 +2849,7 @@ int main() {
 }
 ```
 
-## 线段树左右区间前缀维护
+### 线段树左右区间前缀维护
 
 ```cpp
 //lp表示最左边的端点 rp表示最右端的端点 lsum左侧最大和 rsum右侧最大和
@@ -2912,7 +2912,7 @@ void change(int node,int l,int r,int idx){
 }
 ```
 
-## 树链剖分+线段树
+### 树链剖分+线段树
 
 ```cpp
 vector<int> v[N];
@@ -3097,7 +3097,7 @@ int main() {
 }
 ```
 
-## 扫描线
+### 扫描线
 
 ```jsx
 struct star{
@@ -3165,7 +3165,7 @@ int main(){
 }
 ```
 
-## 主席树
+### 主席树
 
 ```jsx
 int n, m;
