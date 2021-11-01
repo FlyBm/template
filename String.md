@@ -1,41 +1,6 @@
-## 字符串
+### 字符串哈希
 
-[TOC]
-
-### 常见题型总结
-
-#### 单字符串问题
-
-1.可重叠最长重复子串 
-
-解法：
-${height}$数组最大值。若需要输出则输出后缀子串$sa[i-1]$和$sa[i]$最长公共前缀
-
-2.不可重叠最长重复子串
-
-二分答案，每次check按照$height ≥ K$ 分组，判断组内的$sa$最大值与最小值之差是否大于等于K
-
-3.可重叠的至少出现K次的最长重复子串
-
-解法： 二分最长子串长度，每次check 按照$height >=K$的分组，判断是否出现K次。
-
-4.至少出现两次的子串个数
-
-$ans = \sum _{i = 2} ^ {n} max(height[i] - height[i - 1], 0)$
-
-5.字符串的不相同子串个数
-
-每个后缀k会产生$n - sa[k]$个前缀，但是由于重复计数所以需要$n - sa[k] - height[i]$
-
-6.字符串字典序排第K的子串
-
-7.最长回文串
-
-把原串倒过来接到原串上 两者之间插入特殊字符'#' 变成两个串的最长公共前缀问题
-
-### 字符串Hash
-
-#### 单Hash
+**单哈希**
 
 ```cpp
 /*
@@ -67,7 +32,7 @@ struct My_hash {
 };
 ```
 
-#### 双Hash法
+**双哈希**
 
 ```cpp
 struct My_hash {
@@ -99,10 +64,114 @@ struct My_hash {
         return {tmpone, tmptwo} ;
     }
 };
+```
+
+**手写哈希表**
+
+```cpp
+typedef unsigned long long ull;
+// 99991 , 3000017 , 7679977 , 19260817 , 7679977
+struct HashMap{
+    static const int mod = 12227; // 设置合适大小 不然memset可能会T掉
+    struct node {
+        int nxt;
+        ull w;
+    }e[N];
+    int etot = 0, head[mod], tot[N][2];
+    void init () {
+        etot = 0;
+        memset(head, -1, sizeof head);
+    }
+
+    void add(int x, ull val) {
+        e[++etot] = {head[x], val};
+        head[x] = etot;
+    }
+
+    bool insert (ull hashVal, bool tp) {
+        int x = hashVal % mod;
+        for (int i = head[x]; ~i; i = e[i].nxt){
+            if (hashVal == e[i].w){
+                tot[i][tp]++;
+                return true;
+            }
+        }
+        add(x, hashVal);
+        tot[etot][tp] = 1;
+        tot[etot][tp ^ 1] = 0;
+        return false;
+    }
+
+    bool check(){
+        for (int i = 1; i <= etot; ++i) {
+            if (tot[i][0]==tot[i][1] && tot[i][0] == 1) return true;
+        }
+        return false;
+    }
+}hashTable;
+```
+
+**线段树维护字符串哈希**
+
+```cpp
+struct Segment {
+    static const int maxn = 1e5 + 100;
+    static const ull base = 131;
+    ull lhs[maxn << 2], rhs[maxn << 2], p[maxn];
+    #define lson (node << 1)
+    #define rson (node << 1 | 1)
+    void getp() {
+        p[0] = 1;
+        for(int i = 1; i < maxn; ++i) {
+            p[i] = p[i - 1] * base;
+        }
+    }
+    void pushup(int node, int l, int r) {
+        int mid = l + r >> 1;
+        lhs[node] = lhs[lson] * p[r - mid] + lhs[rson];
+        rhs[node] = rhs[rson] * p[mid - l + 1] + rhs[lson];
+    }
+    void build(int node, int l, int r) {
+        if(l == r) {
+            lhs[node] = rhs[node] = (ull)s[l];
+            return ;
+        }
+        int mid = l + r >> 1;
+        build(lson, l, mid);
+        build(rson, mid + 1, r);
+        pushup(node, l, r);
+    }
+    void change(int node, int l, int r, int idx, char val) {
+        if(l == r) {
+            lhs[node] = rhs[node] = (ull)val;
+            return ;
+        }
+        int mid = l + r >> 1;
+        if(idx <= mid) change(lson, l, mid, idx, val);
+        else change(rson, mid + 1, r, idx, val);
+        pushup(node, l, r);
+    }
+    pair<ull, ull> query(int node, int l, int r, int L, int R) {
+        if(L == l && R == r) {
+            return {lhs[node], rhs[node]};
+        }
+        int mid = l + r >> 1;
+        if(R <= mid) return query(lson, l, mid, L, R);
+        if(L > mid) return query(rson, mid + 1, r, L, R);
+        else {
+            pair<ull, ull> lf, rg;
+            lf = query(lson, l, mid, L, mid);
+            rg = query(rson, mid + 1, r, mid + 1, R);
+            return {lf.first * p[R - mid] + rg.first, rg.second * p[mid - L + 1] + lf.second};
+        }
+    }
+} tree;
 
 ```
 
-### Trie树
+### 字典树
+
+应用：查询字符串是否在模式串里出现、维护异或极值、给定$a$，求序列中满足$a \bigoplus b \ge x$的$b$的数量
 
 ```cpp
 struct DictionaryTree {
@@ -135,7 +204,86 @@ struct DictionaryTree {
 };
 ```
 
+应用举例：给定$a$，求序列中满足$a \bigoplus b \le x$的$b$的数量
+```cpp
+struct node {
+    int type;
+    int x, nxt;
+    int tim;
+    int a, b, id;
+}s[N * 3], tmp[N * 3];
+
+int pre[N], ans[N];
+
+bool cmp(const node &a, const node &b) {
+    if (a.nxt == b.nxt) return a.type < b.type;
+    return a.nxt > b.nxt;
+}
+
+constexpr int M = 3e6 + 7;
+int val[M][2], cnt[M];
+int idx = 0;
+
+void cdq(int l, int r) {
+    if (l == r) return ;
+    int mid = (l + r) >> 1;
+    cdq(l, mid);
+    cdq(mid + 1, r);
+
+    merge(s + l, s + mid + 1, s + mid + 1, s + r + 1, tmp + l, cmp);
+
+    for (int i = l; i <= r; ++i) s[i] = tmp[i];
+
+    for (int i = l; i <= r; ++i) {
+        if (s[i].tim <= mid and s[i].type == 1) {
+        	// 插入
+            int now = 0;
+            for (int j = 29; j >= 0; --j) {
+                int w = (s[i].a >> j) & 1;
+                if (not val[now][w]) {
+                    val[now][w] = ++idx;
+                    val[idx][0] = val[idx][1] = 0;
+                    cnt[idx] = 1;
+                } else ++cnt[val[now][w]];
+                now = val[now][w];
+            }
+        }
+
+        if (s[i].tim > mid and s[i].type > 1) {
+        	// 计算答案
+            int num = 0, a = s[i].a, b = s[i].b, root = 0;
+            for (int j = 29; j >= 0; --j) {
+                int w = (a >> j) & 1;
+                if ((b >> j) & 1) {
+                    num += cnt[val[root][w]];
+                    root = val[root][w ^ 1];
+                } else {
+                    root = val[root][w];
+                }
+                if (not root) break;
+            }
+            if (root) num += cnt[root];
+
+            if (s[i].type == 2) {
+                ans[s[i].id] -= num;
+            } else {
+                ans[s[i].id] += num;
+            }
+        }
+    }
+    idx = 0; cnt[0] = 0; val[0][0] = val[0][1] = 0;
+}
+```
+
 ### KMP
+
+应用：字符串的周期
+
+对字符串$s$和$\ 0 < p \le |s|$ ，若$s$长度为$r$的前缀和长度为$r$的后缀相等，就称$s$长度为$r$的前缀是$s$的$border$。
+
+由$s$有长度为$r$的$border$可以推导出$|s| - r$是$s$的周期。
+
+根据前缀函数的定义，可以得到$s$所有的$border$长度，即$nxt[n], nxt[nxt[n]], ...$ 。其中，由于$nxt[n]$是$s$最长$border$的长度，所以$n - nxt[n]$是$s$的最小周期。
 
 ```cpp
 namespace KMP{
@@ -194,40 +342,53 @@ struct KMP {
 
 ```
 
-### manacher
+**统计每个前缀出现的次数**
 
 ```cpp
-struct Manacher {
-    vector<int> ans, str;
-    int build(const string &s) { 
-        int n = s.length(), m = (n + 1) << 1, ret = 0;
-        str.resize(m + 1), ans.resize(m + 1);
-        str[0] = '$', str[m] = '@', str[1] = '#';
-        ans[1] = 1;
-        for(int i = 1; i <= n; ++i) {
-            str[i << 1] = s[i - 1]; str[i << 1 | 1] = '#';
-        }
-        for(int r = 0, p = 0, i = 2; i < m; ++i) {
-            if(r > i) ans[i] = min(r - i, ans[p * 2 - i]);
-            else ans[i] = 1;
-            while(str[i - ans[i]] == str[i + ans[i]]) ++ans[i];
-            if(i + ans[i] > r) r = i + ans[i], p = i;
-            ret = max(ret, ans[i] - 1);
-        }
-        return ret;
-    }
-    int mid (int x, bool odd) {
-        if(odd) return ans[(x + 1) << 1] - 1;
-        return ans[(x + 1) << 1 | 1] - 1;
-    }
-};
+vector<int> ans(n + 1);
+for (int i = 0; i < n; i++) ans[pi[i]]++;
+for (int i = n - 1; i > 0; i--) ans[pi[i - 1]] += ans[i];
+for (int i = 0; i <= n; i++) ans[i]++;
+```
 
+### 马拉车算法
+
+```cpp
+struct Manacher {
+    vector<int> ans, str;
+    int build(const string &s) {
+        // ans[i] - 1 为原字符串中为此位置为中心的最长回文串的长度
+        int n = s.length(), m = (n + 1) << 1, ret = 0;
+        str.resize(m + 1), ans.resize(m + 1);
+        str[0] = '$', str[m] = '@', str[1] = '#';
+        ans[1] = 1;
+        for(int i = 1; i <= n; ++i) {
+            str[i << 1] = s[i - 1]; str[i << 1 | 1] = '#';
+        }
+        for(int r = 0, p = 0, i = 2; i < m; ++i) {
+            if(r > i) ans[i] = min(r - i, ans[p * 2 - i]);
+            else ans[i] = 1;
+            while(str[i - ans[i]] == str[i + ans[i]]) ++ans[i];
+            if(i + ans[i] > r) r = i + ans[i], p = i;
+            ret = max(ret, ans[i] - 1);
+        }
+        for (int i = 2; i < m; i += 2) {
+            cout << ans[i] << '\n';
+        }
+        return ret;// 最长回文子串
+    }
+    int mid (int x, bool odd) {
+        if(odd) return ans[(x + 1) << 1] - 1;
+        return ans[(x + 1) << 1 | 1] - 1;
+    }
+}manacher;
 ```
 
 ### AC自动机
 
+应用：匹配出现过的模式串：
+
 ```cpp
-//匹配出现过的模式串：
 struct ACAM {
     static const int maxn = 1e6 + 100;
     int tot = 0;
@@ -292,9 +453,9 @@ struct ACAM {
         return ans;
     }
 } aho;
-
-
-//计算每个模式串出现的次数：
+```
+应用：计算每个模式串出现的次数：
+```cpp
 struct ACAM {
     static const int maxn = 2e5 + 100;
     struct node {
@@ -367,8 +528,9 @@ struct ACAM {
         }
     }
 } aho;
-
-//计算出现最多次数的子串
+```
+应用：计算出现最多次数的子串
+```
 struct ACAM {
     static const int maxn = 1e6 + 100;
     int tot = 0;
@@ -420,8 +582,8 @@ struct ACAM {
         for(int i = 0, len = s.length(); i < len; ++i) {
             int id = s[i] - 'a';
             int k = trie[root].net[id];
-			// jump Fail
-            while(k) {
+	// jump Fail（暴力跳链）
+            while(k) { 
                 if(trie[k].id) {
                     ans[trie[k].id] ++;
                     MAX = max(ans[trie[k].id], MAX);
@@ -433,41 +595,43 @@ struct ACAM {
     }
 } aho;
 ```
-
-### 回文自动机
-
-```cpp
-char s[maxn];		//原串
-int fail[maxn];		//fail指针
-int len[maxn];		//该节点表示的字符串长度
-int tree[maxn][26];	//同Trie，指向儿子
-int trans[maxn];	//trans指针
-int tot,pre;		//tot代表节点数，pre代表上次插入字符后指向的回文树位置
-int getfail(int x,int i){		//从x开始跳fail，满足字符s[i]的节点
-	while(i-len[x]-1<0||s[i-len[x]-1]!=s[i])x=fail[x];
-	return x;
-}
-int gettrans(int x,int i){
-	while(((len[x]+2)<<1)>len[tot]||s[i-len[x]-1]!=s[i])x=fail[x];
-	return x;
-}
-void insert(int u,int i){
-	int Fail=getfail(pre,i);		//找到符合要求的点
-	if(!tree[Fail][u]){		//没建过就新建节点
-		len[++tot]=len[Fail]+2;	//长度自然是父亲长度+2
-		fail[tot]=tree[getfail(fail[Fail],i)][u];	//fail为满足条件的次短回文串+u
-		tree[Fail][u]=tot;		//指儿子
-		if(len[tot]<=2)trans[tot]=fail[tot];	//特殊trans
-		else{
-			int Trans=gettrans(trans[Fail],i);	//求trans
-			trans[tot]=tree[Trans][u];
-		}
-	}
-	pre=tree[Fail][u];		//更新pre
-}
-```
-
 ### 后缀数组
+应用：
+
+- $rak$数组：$rak[i]$表示$suffix(i)$的排名
+
+- $sa$数组：$sa[i]$表示排名为$i$的后缀的起始下标
+
+- $height$数组：排名$l-1$与排名$l$的子串的$lcp$
+
+1.可重叠最长重复子串 
+
+解法：
+${height}$数组最大值。若需要输出则输出后缀子串$sa[i-1]$和$sa[i]$最长公共前缀
+
+2.不可重叠最长重复子串
+
+二分答案，每次$check$按照$height ≥ K$ 分组，判断组内的$sa$最大值与最小值之差是否大于等于$K$
+
+3.可重叠的至少出现$K$次的最长重复子串
+
+解法： 二分最长子串长度，每次$check$按照$height >=K$的分组，判断是否出现$K$次。
+
+或者滑动窗口也可以
+
+4.至少出现两次的子串个数
+
+$ans = \sum _{i = 2} ^ {n} max(height[i] - height[i - 1], 0)$
+
+5.字符串的本质不同子串个数
+
+$ans = \frac{n\times (n + 1)}{2} - \sum_{i = 2}^{n}height[i] $
+
+7.最长回文串
+
+把原串倒过来接到原串上 两者之间插入特殊字符'#' 变成两个串的最长公共前缀问题
+
+枚举中心点，若长度为奇数，则求$lcp(suf(i), suf(N - i + 1))$；若长度为偶数，则求$lcp(suf(i), suf(N - i + 2))$。
 
 ```cpp
 int sa[N], rk[N], oldrk[N << 1], id[N], px[N], cnt[N], height[N];
@@ -507,7 +671,7 @@ void SA(string s) {
     }
 }
 ```
-
+诱导排序求后缀数组
 ```cpp
 #include <algorithm>
 #include <cstring>
@@ -602,8 +766,7 @@ void init(T *str){
 };
 
 //读入从0开始 
-int main()
-{
+int main() {
 	scanf("%s", s);
 	n = strlen(s);
 	s[n] = 'a' - 1;
@@ -619,3 +782,27 @@ int main()
 	return 0;
 }
 ```
+
+### Z函数（扩展KMP）
+
+$z[i]$表示$s$与$s_i$的最长公共前缀
+
+```cpp
+vector<int> z_function(string s) {
+  int n = (int)s.length();
+  vector<int> z(n);
+  for (int i = 1, l = 0, r = 0; i < n; ++i) {
+    if (i <= r && z[i - l] < r - i + 1) {
+      z[i] = z[i - l];
+    } else {
+      z[i] = max(0, r - i + 1);
+      while (i + z[i] < n && s[z[i]] == s[i + z[i]]) ++z[i];
+    }
+    if (i + z[i] - 1 > r) l = i, r = i + z[i] - 1;
+  }
+  return z;
+}
+```
+
+
+
