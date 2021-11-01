@@ -2,7 +2,7 @@
 
 [TOC]
 
-## 割点割边
+### 割点割边
 
 ```cpp
 struct node{
@@ -131,7 +131,7 @@ namespace v_dcc { // 割点
 }
 ```
 
-## 有源汇上下界最大流/最小流
+### 有源汇上下界最大流、最小流
 
 最小流最后一步改成减去汇点到源点的流就好
 
@@ -229,7 +229,7 @@ int main() {
 }
 ```
 
-## 无源汇上下界可行流
+### 无源汇上下界可行流
 
 有源汇的话加一条从T -> S [0, inf) 的边即可
 
@@ -270,7 +270,7 @@ void solve() {
 }
 ```
 
-## 最小斯坦纳树
+### 最小斯坦纳树
 
 ```cpp
 /*
@@ -327,7 +327,7 @@ int SteinerTree() {
 }
 ```
 
-## 点分治
+### 点分治
 
 处理树上路径问题
 
@@ -427,7 +427,7 @@ int divide(int node, int tot) {
 }
 ```
 
-## 次小生成树
+### 次小生成树
 
 ```cpp
 const int maxn = 1000 + 10, maxe = 1000 * 1000 / 2 + 5, INF = 0x3f3f3f3f;
@@ -497,7 +497,7 @@ int main() {
 }
 ```
 
-## 树上倍增求链上最大值
+### 树上倍增求链上最大值
 
 ```cpp
 void predfs(int node, int fa) {
@@ -547,7 +547,7 @@ int LCA(int x, int y) {
 }
 ```
 
-## 树上差分
+### 树上差分
 
 ```cpp
 vector<int> v[N];
@@ -611,7 +611,7 @@ int main() {
 }
 ```
 
-## 01MST
+### 01MST
 
 ```cpp
 constexpr int mod = 1e9 + 7;
@@ -653,7 +653,7 @@ int main() {
 }
 ```
 
-## 矩阵树定理
+### 矩阵树定理
 
 ```cpp
 #define MAXN 20
@@ -699,7 +699,7 @@ int main(){
 }
 ```
 
-## tarjan求点双连通分量
+### tarjan求点双连通分量
 
 ```jsx
 int dfn[N], low[N], vis[N];
@@ -736,7 +736,7 @@ void tarjan(int u, int fa) {
 }
 ```
 
-## 性质
+### 性质
 
 - 在一个无权图上求从起点到其他所有点的最短路径。
 - 在$O(n + m)$时间内求出所有连通块。(我们只需要从每个没有被访问过的节点开始做BFS，显然每次BFS会走完一个连通块)
@@ -758,7 +758,7 @@ void tarjan(int u, int fa) {
 - 计算(u,v)边的最短路经过次数 $sz[v]∗(n−sz[v])$,
 - 计算经过某点的最短路次数: 计算和这个点相连的所有边的被计算次数加上$n−1$(这个点自身和其他所有点)再除以2
 
-## 次短路
+### 次短路
 
 ```cpp
 struct edge{
@@ -802,7 +802,7 @@ void solve() {
 }
 ```
 
-## Johnson 全源最短路(适用于稀疏图）
+### Johnson 全源最短路(适用于稀疏图）
 
 ```cpp
 struct node{
@@ -904,7 +904,7 @@ int main() {
 }
 ```
 
-## 2-SAT 缩点解法
+### 2-SAT 缩点解法
 
 ```jsx
 struct node{
@@ -971,7 +971,7 @@ int main() {
 }
 ```
 
-## 费用流
+### 费用流
 
 ```cpp
 constexpr const ll LL_INF = 0x3f3f3f3f3f3f3f3f;
@@ -1291,7 +1291,7 @@ int main(){
 }
 ```
 
-## 树的直径(DP)
+### 树的直径(DP)
 
 ```jsx
 void dfs(int node,int fa){
@@ -1308,7 +1308,7 @@ void dfs(int node,int fa){
 }
 ```
 
-## 启发式合并
+### 启发式合并
 
 ```cpp
 //用于离线解决子树的一系列问题
@@ -1440,7 +1440,7 @@ void dsu(int node, int fa, bool sign) {
 }
 ```
 
-## LCA
+### LCA
 
 ```cpp
 void dfs(int node,int fa) {
@@ -1509,7 +1509,7 @@ int lca(int x, int y){
 }
 ```
 
-## 缩点
+### 缩点
 
 (缩完后可以跑dp)
 
@@ -1613,7 +1613,7 @@ int main(){
 }
 ```
 
-## tarjan求桥
+### tarjan求桥
 
 ```cpp
 const int MAXN = 1e5 + 10;
@@ -1677,7 +1677,7 @@ int main() {
 }
 ```
 
-## tarjan求强连通分量和割点
+### tarjan求强连通分量和割点
 
 ```cpp
 //tarjan求强连通分量
@@ -1747,7 +1747,7 @@ void tarjan(int node, int rt){
   
 ```
 
-## 网络流之hlpp
+### 网络流之hlpp
 
 (上下界卡的很紧 正常用Dinic即可
 
@@ -1843,7 +1843,7 @@ ll hlpp(){
 }
 ```
 
-## 网络流之Dinic
+### 网络流之Dinic
 
 Dinic板子：
 
@@ -1911,7 +1911,7 @@ int main(){
 }
 ```
 
-## 二分图
+### 二分图
 
 ```cpp
 //染色法判断二分图
@@ -2058,7 +2058,7 @@ void solve(){
 }
 ```
 
-## 欧拉回路
+### 欧拉回路
 
 对于欧拉回路的判断：
 无向图G存在欧拉通路的充要条件是：
@@ -2113,7 +2113,7 @@ void eular(int x){
 }
 ```
 
-## 拓扑排序
+### 拓扑排序
 
 ```cpp
 //BFS实现
