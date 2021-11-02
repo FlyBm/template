@@ -602,37 +602,6 @@ struct ACAM {
 
 - $sa$数组：$sa[i]$表示排名为$i$的后缀的起始下标
 
-```cpp
-char s[maxn];        //原串
-int fail[maxn];        //fail指针
-int len[maxn];        //该节点表示的字符串长度
-int tree[maxn][26];    //同Trie，指向儿子
-int trans[maxn];    //trans指针
-int tot,pre;        //tot代表节点数，pre代表上次插入字符后指向的回文树位置
-int getfail(int x,int i){        //从x开始跳fail，满足字符s[i]的节点
-    while(i-len[x]-1<0||s[i-len[x]-1]!=s[i])x=fail[x];
-    return x;
-}
-int gettrans(int x,int i){
-    while(((len[x]+2)<<1)>len[tot]||s[i-len[x]-1]!=s[i])x=fail[x];
-    return x;
-}
-void insert(int u,int i){
-    int Fail=getfail(pre,i);        //找到符合要求的点
-    if(!tree[Fail][u]){        //没建过就新建节点
-        len[++tot]=len[Fail]+2;    //长度自然是父亲长度+2
-        fail[tot]=tree[getfail(fail[Fail],i)][u];    //fail为满足条件的次短回文串+u
-        tree[Fail][u]=tot;        //指儿子
-        if(len[tot]<=2)trans[tot]=fail[tot];    //特殊trans
-        else{
-            int Trans=gettrans(trans[Fail],i);    //求trans
-            trans[tot]=tree[Trans][u];
-        }
-    }
-    pre=tree[Fail][u];        //更新pre
-}
-```
-
 - $height$数组：排名$l-1$与排名$l$的子串的$lcp$
 
 1.可重叠最长重复子串 
