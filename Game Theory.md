@@ -97,49 +97,45 @@ SJ定理为：对于任意一个 Anti-SG 游戏，如果我们规定当局面中
 查询时只需要不断减去最大的a[i]直到0，最后剩下的就是第一次取的值。
 
 ```cpp
-const int maxn=2000000;
-int a[maxn],b[maxn];
-int main()
-{
-    int t,n,k;
-    cin>>t;
-    for(int cas=1;cas<=t;cas++)
-    {
-        cin>>n>>k;
-        printf("Case %d: \n",cas);
-        if(n<=k+1)
-        {
-            printf("lose\n");
-            continue;
-        }
-        a[0]=b[0]=1;
-        int i=0,j=0;
-        while(a[i]<n)
-        {
-            i++;
-            a[i]=b[i-1]+1;
-            while(a[j+1]*k<a[i]) j++;
-            if(a[j]*k<a[i]) b[i]=b[j]+a[i];
-            else b[i]=a[i];
-        }
-        if(a[i]==n)printf("lose\n");
-        else
-        {
-            int ans=0;
-            while(n)
-            {
-                if(n>=a[i])
-                {
-                    n-=a[i];
-                    ans=a[i];
-                }
-                i--;
-            }
-            cout<<ans<<endl;
-        }
+const int maxn = 2000000;
+int a[maxn], b[maxn];
+int main() {
+  int t, n, k;
+  cin >> t;
+  for (int cas = 1; cas <= t; cas++) {
+    cin >> n >> k;
+    printf("Case %d: \n", cas);
+    if (n <= k + 1) {
+      printf("lose\n");
+      continue;
     }
+    a[0] = b[0] = 1;
+    int i = 0, j = 0;
+    while (a[i] < n) {
+      i++;
+      a[i] = b[i - 1] + 1;
+      while (a[j + 1] * k < a[i]) j++;
+      if (a[j] * k < a[i])
+        b[i] = b[j] + a[i];
+      else
+        b[i] = a[i];
+    }
+    if (a[i] == n)
+      printf("lose\n");
+    else {
+      int ans = 0;
+      while (n) {
+        if (n >= a[i]) {
+          n -= a[i];
+          ans = a[i];
+        }
+        i--;
+      }
+      cout << ans << endl;
+    }
+  }
 
-```
+  ```
 
 ### Nim积
 
@@ -152,62 +148,53 @@ int main()
 代码
 
 ```cpp
-#include<iostream>
-#include<cstdio>
+#include <cstdio>
+#include <iostream>
 using namespace std;
- 
-int m[2][2]={0,0,0,1};
-int Nim_Multi_Power(int x,int y)
-{
-    if(x<2)
-        return m[x][y];
-    int a=0;
-    for(;;a++)
-        if(x>=(1<<(1<<a))&&x<(1<<(1<<(a+1))))
-            break;
-    int m=1<<(1<<a);
-    int p=x/m,s=y/m,t=y%m;
-    int d1=Nim_Multi_Power(p,s);
-    int d2=Nim_Multi_Power(p,t);
-    return (m*(d1^d2))^Nim_Multi_Power(m/2,d1);
+
+int m[2][2] = {0, 0, 0, 1};
+int Nim_Multi_Power(int x, int y) {
+  if (x < 2) return m[x][y];
+  int a = 0;
+  for (;; a++)
+    if (x >= (1 << (1 << a)) && x < (1 << (1 << (a + 1)))) break;
+  int m = 1 << (1 << a);
+  int p = x / m, s = y / m, t = y % m;
+  int d1 = Nim_Multi_Power(p, s);
+  int d2 = Nim_Multi_Power(p, t);
+  return (m * (d1 ^ d2)) ^ Nim_Multi_Power(m / 2, d1);
 }
- 
-int Nim_Multi(int x,int y)
-{
-    if(x<y)
-        return Nim_Multi(y,x);
-    if(x<2)
-        return m[x][y];
-    int a=0;
-    for(;;a++)
-        if(x>=(1<<(1<<a))&&x<(1<<(1<<(a+1))))
-            break;
-    int  m=1<<(1<<a);
-    int p=x/m,q=x%m,s=y/m,t=y%m;
-    int c1=Nim_Multi(p,s);
-    int c2=Nim_Multi(p,t)^Nim_Multi(q,s);
-    int c3=Nim_Multi(q,t);
-    return (m*(c1^c2))^c3^Nim_Multi_Power(m/2,c1);
+
+int Nim_Multi(int x, int y) {
+  if (x < y) return Nim_Multi(y, x);
+  if (x < 2) return m[x][y];
+  int a = 0;
+  for (;; a++)
+    if (x >= (1 << (1 << a)) && x < (1 << (1 << (a + 1)))) break;
+  int m = 1 << (1 << a);
+  int p = x / m, q = x % m, s = y / m, t = y % m;
+  int c1 = Nim_Multi(p, s);
+  int c2 = Nim_Multi(p, t) ^ Nim_Multi(q, s);
+  int c3 = Nim_Multi(q, t);
+  return (m * (c1 ^ c2)) ^ c3 ^ Nim_Multi_Power(m / 2, c1);
 }
- 
-int main()
-{
-    int t,n,x,y;
-    scanf("%d",&t);
-    while(t--)
-    {
-        scanf("%d",&n);
-        int res=0;
-        while(n--)
-        {
-            scanf("%d%d",&x,&y);
-            res^=Nim_Multi(x,y);
-        }
-        if(res)
-            printf("Have a try, lxhgww.\n");
-        else printf("Don't waste your time.\n");
+
+int main() {
+  int t, n, x, y;
+  scanf("%d", &t);
+  while (t--) {
+    scanf("%d", &n);
+    int res = 0;
+    while (n--) {
+      scanf("%d%d", &x, &y);
+      res ^= Nim_Multi(x, y);
     }
-    return 0;
+    if (res)
+      printf("Have a try, lxhgww.\n");
+    else
+      printf("Don't waste your time.\n");
+  }
+  return 0;
 }
 ```
 
@@ -280,7 +267,7 @@ if n > p, then max(p,q) person win.
 与二维Nim不同之处在于多了一个
 
 ```cpp
-Nim_Multi(x,Nim_Multi(y,z));
+Nim_Multi(x, Nim_Multi(y, z));
 ```
 
 ### LightOj 1229
@@ -306,50 +293,50 @@ bool vis[100005];
 int SG[100005], x[100005];
 
 void getSG() {
- for(int i = 1; i <= 100000; i++) {
-  memset(vis, 0, sizeof(vis));
-  for(int j = 1; j * j <= i; j++) {
-   if(i % j == 0) {
-    vis[SG[i - j]] = true;
-    vis[SG[i - i / j]] = true;
-   }
+  for (int i = 1; i <= 100000; i++) {
+    memset(vis, 0, sizeof(vis));
+    for (int j = 1; j * j <= i; j++) {
+      if (i % j == 0) {
+        vis[SG[i - j]] = true;
+        vis[SG[i - i / j]] = true;
+      }
+    }
+    for (int j = 0;; j++) {
+      if (!vis[j]) {
+        SG[i] = j;
+        break;
+      }
+    }
   }
-  for(int j = 0; ; j++) {
-   if(!vis[j]) {
-    SG[i] = j;
-    break;
-   }
-  }
- }
- //for(int i = 1; i <= 100; i++) printf("sg[%d]:%d\n", i, SG[i]);
+  // for(int i = 1; i <= 100; i++) printf("sg[%d]:%d\n", i, SG[i]);
 }
 
-
 int main() {
- getSG();
- int n;
- scanf("%d", &n);
- int sum = 0;
- for(int i = 1; i <= n; i++) {
-  scanf("%d", &x[i]);
-  sum ^= SG[x[i]];
- }
- if(sum == 0) printf("0");
- else {
-  int ans = 0;
-  for(int i = 1; i <= n; i++) {
-   int now = sum ^ SG[x[i]];
-   for(int j = 1; j * j <= x[i]; j++) {
-    if(x[i] % j == 0) {
-     if( (SG[x[i] - j] ^ now) == 0 ) ans++;
-     if( j * j != x[i] && (SG[x[i] - x[i] / j] ^ now) == 0 ) ans++;
-    }
-   }
+  getSG();
+  int n;
+  scanf("%d", &n);
+  int sum = 0;
+  for (int i = 1; i <= n; i++) {
+    scanf("%d", &x[i]);
+    sum ^= SG[x[i]];
   }
-  printf("%d", ans);
- } 
- return 0;
-} 
+  if (sum == 0)
+    printf("0");
+  else {
+    int ans = 0;
+    for (int i = 1; i <= n; i++) {
+      int now = sum ^ SG[x[i]];
+      for (int j = 1; j * j <= x[i]; j++) {
+        if (x[i] % j == 0) {
+          if ((SG[x[i] - j] ^ now) == 0) ans++;
+          if (j * j != x[i] && (SG[x[i] - x[i] / j] ^ now) == 0) ans++;
+        }
+      }
+    }
+    printf("%d", ans);
+  }
+  return 0;
+}
 ```
 
 ### HDU1847 Bash博弈 + SG函数
@@ -370,46 +357,48 @@ using namespace std;
 
 int n, m, k, a;
 int SG[1005], num[111], pos;
-set<int>S;
+set<int> S;
 
 int dfs(int x) {
- if(SG[x] != -1) return SG[x];
- bool flag[1005];
- memset(flag, 0, sizeof(flag));
- for(int i = 1; i <= pos && num[i] <= x; i++) {
-  for(int j = 1; j + num[i] - 1 <= x; j++) {
-   SG[j - 1] = dfs(j - 1);
-   SG[x - num[i] - j + 1] = dfs(x - num[i] - j + 1);
-   flag[SG[j - 1] ^ SG[x - num[i] - j + 1]] = true; 
+  if (SG[x] != -1) return SG[x];
+  bool flag[1005];
+  memset(flag, 0, sizeof(flag));
+  for (int i = 1; i <= pos && num[i] <= x; i++) {
+    for (int j = 1; j + num[i] - 1 <= x; j++) {
+      SG[j - 1] = dfs(j - 1);
+      SG[x - num[i] - j + 1] = dfs(x - num[i] - j + 1);
+      flag[SG[j - 1] ^ SG[x - num[i] - j + 1]] = true;
+    }
   }
- }
- for(int i = 0; i <= 1000; i++) {
-  if(!flag[i]) {
-   return SG[x] = i;
+  for (int i = 0; i <= 1000; i++) {
+    if (!flag[i]) {
+      return SG[x] = i;
+    }
   }
- }
 }
 
 int main() {
- while(scanf("%d", &n) != EOF) {
-  S.clear();
-  for(int i = 1; i <= 1000; i++) SG[i] = -1;
-  SG[0] = 0;
-  pos = 0;
-  for(int i = 1; i <= n; i++) {
-   scanf("%d", &a);
-   S.insert(a);
+  while (scanf("%d", &n) != EOF) {
+    S.clear();
+    for (int i = 1; i <= 1000; i++) SG[i] = -1;
+    SG[0] = 0;
+    pos = 0;
+    for (int i = 1; i <= n; i++) {
+      scanf("%d", &a);
+      S.insert(a);
+    }
+    for (auto now : S) num[++pos] = now;
+    scanf("%d", &m);
+    while (m--) {
+      scanf("%d", &k);
+      if (SG[k] == -1) SG[k] = dfs(k);
+      if (SG[k] == 0)
+        puts("2");
+      else
+        puts("1");
+    }
   }
-  for(auto now : S) num[++pos] = now;
-  scanf("%d", &m);
-  while(m--) {
-   scanf("%d", &k);
-   if(SG[k] == -1) SG[k] = dfs(k);
-   if(SG[k] == 0) puts("2");
-   else puts("1");
-  }
- }
- return 0;
+  return 0;
 }
 ```
 
@@ -441,34 +430,36 @@ int n;
 vector<int> Edge[100005];
 
 int dfs(int now, int fa) {
- int ans = 0;
- for(int i = 0; i < Edge[now].size(); i++) {
-  int nxt = Edge[now][i];
-  if(nxt != fa) {
-   ans ^= dfs(nxt, now) + 1;
+  int ans = 0;
+  for (int i = 0; i < Edge[now].size(); i++) {
+    int nxt = Edge[now][i];
+    if (nxt != fa) {
+      ans ^= dfs(nxt, now) + 1;
+    }
   }
- }
- return ans;
+  return ans;
 }
 
 int main() {
- scanf("%d", &t);
- while(t--) {
-  scanf("%d", &n);
-  for(int i = 1; i <= n; i++) Edge[i].clear();
-  while(n > 1) {
-   n--;
-   int x, y;
-   scanf("%d%d", &x, &y);
-   Edge[x].push_back(y);
-   Edge[y].push_back(x);
+  scanf("%d", &t);
+  while (t--) {
+    scanf("%d", &n);
+    for (int i = 1; i <= n; i++) Edge[i].clear();
+    while (n > 1) {
+      n--;
+      int x, y;
+      scanf("%d%d", &x, &y);
+      Edge[x].push_back(y);
+      Edge[y].push_back(x);
+    }
+    // printf("%d\n", dfs(1, -1));
+    if (dfs(1, -1) == 0)
+      printf("Bob\n");
+    else
+      printf("Alice\n");
   }
-  //printf("%d\n", dfs(1, -1));
-  if(dfs(1, -1) == 0) printf("Bob\n");
-  else printf("Alice\n");
- }
- return 0;
-} 
+  return 0;
+}
 ```
 
 ### HDU 3197 多棵树删边
@@ -514,3 +505,4 @@ int main() {
 > 给一个树，每条边都有边权，每次操作可以减一，如果边权为0则删除这条边及其子树，不能操作则为输。
 
 结论： 如果边权为1则就是green 博弈。 当边权大于1时，若边权为偶数则对SG值无贡献，若为奇数则SG[u] ^= SG[v] ^ 1
+

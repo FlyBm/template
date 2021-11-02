@@ -14,224 +14,216 @@ const int N = 3000007;
 const int p = 998244353, gg = 3, ig = 332738118, img = 86583718;
 const int mod = 998244353;
 
-template <typename T>void read(T &x)
-{
-    x = 0;
-    register int f = 1;
-    register char ch = getchar();
-    while(ch < '0' || ch > '9') {if(ch == '-')f = -1;ch = getchar();}
-    while(ch >= '0' && ch <= '9') {x = x * 10 + ch - '0';ch = getchar();}
-    x *= f;
+template <typename T>
+void read(T &x) {
+  x = 0;
+  register int f = 1;
+  register char ch = getchar();
+  while (ch < '0' || ch > '9') {
+    if (ch == '-') f = -1;
+    ch = getchar();
+  }
+  while (ch >= '0' && ch <= '9') {
+    x = x * 10 + ch - '0';
+    ch = getchar();
+  }
+  x *= f;
 }
 
-int qpow(int a, int b)
-{
-    int res = 1;
-    while(b) {
-        if(b & 1) res = 1ll * res * a % mod;
-        a = 1ll * a * a % mod;
-        b >>= 1;
-    }
-    return res;
+int qpow(int a, int b) {
+  int res = 1;
+  while (b) {
+    if (b & 1) res = 1ll * res * a % mod;
+    a = 1ll * a * a % mod;
+    b >>= 1;
+  }
+  return res;
 }
 
-namespace Poly
-{
-    #define mul(x, y) (1ll * x * y >= mod ? 1ll * x * y % mod : 1ll * x * y)
-    #define minus(x, y) (1ll * x - y < 0 ? 1ll * x - y + mod : 1ll * x - y)
-    #define plus(x, y) (1ll * x + y >= mod ? 1ll * x + y - mod : 1ll * x + y)
-    #define ck(x) (x >= mod ? x - mod : x)//取模运算太慢了
+namespace Poly {
+#define mul(x, y) (1ll * x * y >= mod ? 1ll * x * y % mod : 1ll * x * y)
+#define minus(x, y) (1ll * x - y < 0 ? 1ll * x - y + mod : 1ll * x - y)
+#define plus(x, y) (1ll * x + y >= mod ? 1ll * x + y - mod : 1ll * x + y)
+#define ck(x) (x >= mod ? x - mod : x)  //取模运算太慢了
 
-    typedef vector<int> poly;
-    const int G = 3;//根据具体的模数而定，原根可不一定不一样！！！
-    //一般模数的原根为 2 3 5 7 10 6
-    const int inv_G = qpow(G, mod - 2);
-    int RR[N], deer[2][19][N], inv[N];
+typedef vector<int> poly;
+const int G = 3;  //根据具体的模数而定，原根可不一定不一样！！！
+//一般模数的原根为 2 3 5 7 10 6
+const int inv_G = qpow(G, mod - 2);
+int RR[N], deer[2][19][N], inv[N];
 
-    void init(const int t) {//预处理出来NTT里需要的w和wn，砍掉了一个log的时间
-        for(int p = 1; p <= t; ++ p) {
-            int buf1 = qpow(G, (mod - 1) / (1 << p));
-            int buf0 = qpow(inv_G, (mod - 1) / (1 << p));
-            deer[0][p][0] = deer[1][p][0] = 1;
-            for(int i = 1; i < (1 << p); ++ i) {
-                deer[0][p][i] = 1ll * deer[0][p][i - 1] * buf0 % mod;//逆
-                deer[1][p][i] = 1ll * deer[1][p][i - 1] * buf1 % mod;
-            }
-        }
-        inv[1] = 1;
-        for(int i = 2; i <= (1 << t); ++ i)
-            inv[i] = 1ll * inv[mod % i] * (mod - mod / i) % mod;
+void init(const int t) {  //预处理出来NTT里需要的w和wn，砍掉了一个log的时间
+  for (int p = 1; p <= t; ++p) {
+    int buf1 = qpow(G, (mod - 1) / (1 << p));
+    int buf0 = qpow(inv_G, (mod - 1) / (1 << p));
+    deer[0][p][0] = deer[1][p][0] = 1;
+    for (int i = 1; i < (1 << p); ++i) {
+      deer[0][p][i] = 1ll * deer[0][p][i - 1] * buf0 % mod;  //逆
+      deer[1][p][i] = 1ll * deer[1][p][i - 1] * buf1 % mod;
     }
-
-    int NTT_init(int n) {//快速数论变换预处理
-        int limit = 1, L = 0;
-        while(limit <= n) limit <<= 1, L ++ ;
-        for(int i = 0; i < limit; ++ i)
-            RR[i] = (RR[i >> 1] >> 1) | ((i & 1) << (L - 1));
-        return limit;
-    }
-
-    void NTT(poly &A, int type, int limit) {//快速数论变换
-        A.resize(limit);
-        for(int i = 0; i < limit; ++ i)
-            if(i < RR[i])
-                swap(A[i], A[RR[i]]);
-        for(int mid = 2, j = 1; mid <= limit; mid <<= 1, ++ j) {
-            int len = mid >> 1;
-            for(int pos = 0; pos < limit; pos += mid) {
-                int *wn = deer[type][j];
-                for(int i = pos; i < pos + len; ++ i, ++ wn) {
-                    int tmp = 1ll * (*wn) * A[i + len] % mod;
-                    A[i + len] = ck(A[i] - tmp + mod);
-                    A[i] = ck(A[i] + tmp);
-                }
-            }
-        }
-        if(type == 0) {
-            for(int i = 0; i < limit; ++ i)
-                A[i] = 1ll * A[i] * inv[limit] % mod;
-        }
-    }
-
-    poly poly_mul(poly A, poly B) {//多项式乘法
-        int deg = A.size() + B.size() - 1;
-        int limit = NTT_init(deg);
-        poly C(limit);
-        NTT(A, 1, limit);
-        NTT(B, 1, limit);
-        for(int i = 0; i < limit; ++ i)
-            C[i] = 1ll * A[i] * B[i] % mod;
-        NTT(C, 0, limit);
-        C.resize(deg);
-        return C;
-    }
-
-    poly poly_inv(poly &f, int deg) {//多项式求逆
-        if(deg == 1)
-            return poly(1, qpow(f[0], mod - 2));
-
-        poly A(f.begin(), f.begin() + deg);
-        poly B = poly_inv(f, (deg + 1) >> 1);
-        int limit = NTT_init(deg << 1);
-        NTT(A, 1, limit), NTT(B, 1, limit);
-        for(int i = 0; i < limit; ++ i)
-            A[i] = B[i] * (2 - 1ll * A[i] * B[i] % mod + mod) % mod;
-        NTT(A, 0, limit);
-        A.resize(deg);
-        return A;
-    }
-
-    poly poly_dev(poly f) {//多项式求导
-        int n = f.size();
-        for(int i = 1; i < n; ++ i) f[i - 1] = 1ll * f[i] * i % mod;
-        return f.resize(n - 1), f;//f[0] = 0，这里直接扔了,从1开始
-    }
-
-    poly poly_idev(poly f) {//多项式求积分
-        int n = f.size();
-        for(int i = n - 1; i ; -- i) f[i] = 1ll * f[i - 1] * inv[i] % mod;
-        return f[0] = 0, f;
-    }
-
-    poly poly_ln(poly f, int deg) {//多项式求对数
-        poly A = poly_idev(poly_mul(poly_dev(f), poly_inv(f, deg)));
-        return A.resize(deg), A;
-    }
-
-    poly poly_exp(poly &f, int deg) {//多项式求指数
-        if(deg == 1)
-            return poly(1, 1);
-
-        poly B = poly_exp(f, (deg + 1) >> 1);
-        B.resize(deg);
-        poly lnB = poly_ln(B, deg);
-        for(int i = 0; i < deg; ++ i)
-            lnB[i] = ck(f[i] - lnB[i] + mod);
-
-        int limit = NTT_init(deg << 1);//n -> n^2
-        NTT(B, 1, limit), NTT(lnB, 1, limit);
-        for(int i = 0; i < limit; ++ i)
-            B[i] = 1ll * B[i] * (1 + lnB[i]) % mod;
-        NTT(B, 0, limit);
-        B.resize(deg);
-        return B;
-    }
-
-    poly poly_sqrt(poly &f, int deg) {//多项式开方
-        if(deg == 1) return poly(1, 1);
-        poly A(f.begin(), f.begin() + deg);
-        poly B = poly_sqrt(f, (deg + 1) >> 1);
-        poly IB = poly_inv(B, deg);
-        int limit = NTT_init(deg << 1);
-        NTT(A, 1, limit), NTT(IB, 1, limit);
-        for(int i = 0; i < limit; ++ i)
-            A[i] = 1ll * A[i] * IB[i] % mod;
-        NTT(A, 0, limit);
-        for(int i =0; i < deg; ++ i)
-            A[i] = 1ll * (A[i] + B[i]) * inv[2] % mod;
-        A.resize(deg);
-        return A;
-    }
-
-    poly poly_pow(poly f, int k) {//多项式快速幂
-        f = poly_ln(f, f.size());
-        for(auto &x : f) x = 1ll * x * k % mod;
-        return poly_exp(f, f.size());
-    }
-
-    poly poly_cos(poly f, int deg) {//多项式三角函数（cos）
-        poly A(f.begin(), f.begin() + deg);
-        poly B(deg), C(deg);
-        for(int i = 0; i < deg; ++ i)
-            A[i] = 1ll * A[i] * img % mod;
-
-        B = poly_exp(A, deg);
-        C = poly_inv(B, deg);
-        int inv2 = qpow(2, mod - 2);
-        for(int i = 0; i < deg; ++ i)
-            A[i] = 1ll * (1ll * B[i] + C[i]) % mod * inv2 % mod;
-        return A;
-    }
-
-    poly poly_sin(poly f, int deg) {//多项式三角函数（sin）
-        poly A(f.begin(), f.begin() + deg);
-        poly B(deg), C(deg);
-        for(int i = 0; i < deg; ++ i)
-            A[i] = 1ll * A[i] * img % mod;
-
-        B = poly_exp(A, deg);
-        C = poly_inv(B, deg);
-        int inv2i = qpow(img << 1, mod - 2);
-        for(int i = 0; i < deg; ++ i)
-            A[i] = 1ll * (1ll * B[i] - C[i] + mod) % mod * inv2i % mod;
-        return A;
-    }
-
-    poly poly_arcsin(poly f, int deg) {
-        poly A(f.size()), B(f.size()), C(f.size());
-        A = poly_dev(f);
-        B = poly_mul(f, f);
-        for(int i = 0; i < deg; ++ i)
-            B[i] = minus(mod, B[i]);
-        B[0] = plus(B[0], 1);
-        C = poly_sqrt(B, deg);
-        C = poly_inv(C, deg);
-        C = poly_mul(A, C);
-        C = poly_idev(C);
-        return C;
-    }
-
-    poly poly_arctan(poly f, int deg) {
-        poly A(f.size()), B(f.size()), C(f.size());
-        A = poly_dev(f);
-        B = poly_mul(f, f);
-        B[0] = plus(B[0], 1);
-        C = poly_inv(B, deg);
-        C = poly_mul(A, C);
-        C = poly_idev(C);
-        return C;
-    }
+  }
+  inv[1] = 1;
+  for (int i = 2; i <= (1 << t); ++i)
+    inv[i] = 1ll * inv[mod % i] * (mod - mod / i) % mod;
 }
+
+int NTT_init(int n) {  //快速数论变换预处理
+  int limit = 1, L = 0;
+  while (limit <= n) limit <<= 1, L++;
+  for (int i = 0; i < limit; ++i)
+    RR[i] = (RR[i >> 1] >> 1) | ((i & 1) << (L - 1));
+  return limit;
+}
+
+void NTT(poly &A, int type, int limit) {  //快速数论变换
+  A.resize(limit);
+  for (int i = 0; i < limit; ++i)
+    if (i < RR[i]) swap(A[i], A[RR[i]]);
+  for (int mid = 2, j = 1; mid <= limit; mid <<= 1, ++j) {
+    int len = mid >> 1;
+    for (int pos = 0; pos < limit; pos += mid) {
+      int *wn = deer[type][j];
+      for (int i = pos; i < pos + len; ++i, ++wn) {
+        int tmp = 1ll * (*wn) * A[i + len] % mod;
+        A[i + len] = ck(A[i] - tmp + mod);
+        A[i] = ck(A[i] + tmp);
+      }
+    }
+  }
+  if (type == 0) {
+    for (int i = 0; i < limit; ++i) A[i] = 1ll * A[i] * inv[limit] % mod;
+  }
+}
+
+poly poly_mul(poly A, poly B) {  //多项式乘法
+  int deg = A.size() + B.size() - 1;
+  int limit = NTT_init(deg);
+  poly C(limit);
+  NTT(A, 1, limit);
+  NTT(B, 1, limit);
+  for (int i = 0; i < limit; ++i) C[i] = 1ll * A[i] * B[i] % mod;
+  NTT(C, 0, limit);
+  C.resize(deg);
+  return C;
+}
+
+poly poly_inv(poly &f, int deg) {  //多项式求逆
+  if (deg == 1) return poly(1, qpow(f[0], mod - 2));
+
+  poly A(f.begin(), f.begin() + deg);
+  poly B = poly_inv(f, (deg + 1) >> 1);
+  int limit = NTT_init(deg << 1);
+  NTT(A, 1, limit), NTT(B, 1, limit);
+  for (int i = 0; i < limit; ++i)
+    A[i] = B[i] * (2 - 1ll * A[i] * B[i] % mod + mod) % mod;
+  NTT(A, 0, limit);
+  A.resize(deg);
+  return A;
+}
+
+poly poly_dev(poly f) {  //多项式求导
+  int n = f.size();
+  for (int i = 1; i < n; ++i) f[i - 1] = 1ll * f[i] * i % mod;
+  return f.resize(n - 1), f;  // f[0] = 0，这里直接扔了,从1开始
+}
+
+poly poly_idev(poly f) {  //多项式求积分
+  int n = f.size();
+  for (int i = n - 1; i; --i) f[i] = 1ll * f[i - 1] * inv[i] % mod;
+  return f[0] = 0, f;
+}
+
+poly poly_ln(poly f, int deg) {  //多项式求对数
+  poly A = poly_idev(poly_mul(poly_dev(f), poly_inv(f, deg)));
+  return A.resize(deg), A;
+}
+
+poly poly_exp(poly &f, int deg) {  //多项式求指数
+  if (deg == 1) return poly(1, 1);
+
+  poly B = poly_exp(f, (deg + 1) >> 1);
+  B.resize(deg);
+  poly lnB = poly_ln(B, deg);
+  for (int i = 0; i < deg; ++i) lnB[i] = ck(f[i] - lnB[i] + mod);
+
+  int limit = NTT_init(deg << 1);  // n -> n^2
+  NTT(B, 1, limit), NTT(lnB, 1, limit);
+  for (int i = 0; i < limit; ++i) B[i] = 1ll * B[i] * (1 + lnB[i]) % mod;
+  NTT(B, 0, limit);
+  B.resize(deg);
+  return B;
+}
+
+poly poly_sqrt(poly &f, int deg) {  //多项式开方
+  if (deg == 1) return poly(1, 1);
+  poly A(f.begin(), f.begin() + deg);
+  poly B = poly_sqrt(f, (deg + 1) >> 1);
+  poly IB = poly_inv(B, deg);
+  int limit = NTT_init(deg << 1);
+  NTT(A, 1, limit), NTT(IB, 1, limit);
+  for (int i = 0; i < limit; ++i) A[i] = 1ll * A[i] * IB[i] % mod;
+  NTT(A, 0, limit);
+  for (int i = 0; i < deg; ++i) A[i] = 1ll * (A[i] + B[i]) * inv[2] % mod;
+  A.resize(deg);
+  return A;
+}
+
+poly poly_pow(poly f, int k) {  //多项式快速幂
+  f = poly_ln(f, f.size());
+  for (auto &x : f) x = 1ll * x * k % mod;
+  return poly_exp(f, f.size());
+}
+
+poly poly_cos(poly f, int deg) {  //多项式三角函数（cos）
+  poly A(f.begin(), f.begin() + deg);
+  poly B(deg), C(deg);
+  for (int i = 0; i < deg; ++i) A[i] = 1ll * A[i] * img % mod;
+
+  B = poly_exp(A, deg);
+  C = poly_inv(B, deg);
+  int inv2 = qpow(2, mod - 2);
+  for (int i = 0; i < deg; ++i)
+    A[i] = 1ll * (1ll * B[i] + C[i]) % mod * inv2 % mod;
+  return A;
+}
+
+poly poly_sin(poly f, int deg) {  //多项式三角函数（sin）
+  poly A(f.begin(), f.begin() + deg);
+  poly B(deg), C(deg);
+  for (int i = 0; i < deg; ++i) A[i] = 1ll * A[i] * img % mod;
+
+  B = poly_exp(A, deg);
+  C = poly_inv(B, deg);
+  int inv2i = qpow(img << 1, mod - 2);
+  for (int i = 0; i < deg; ++i)
+    A[i] = 1ll * (1ll * B[i] - C[i] + mod) % mod * inv2i % mod;
+  return A;
+}
+
+poly poly_arcsin(poly f, int deg) {
+  poly A(f.size()), B(f.size()), C(f.size());
+  A = poly_dev(f);
+  B = poly_mul(f, f);
+  for (int i = 0; i < deg; ++i) B[i] = minus(mod, B[i]);
+  B[0] = plus(B[0], 1);
+  C = poly_sqrt(B, deg);
+  C = poly_inv(C, deg);
+  C = poly_mul(A, C);
+  C = poly_idev(C);
+  return C;
+}
+
+poly poly_arctan(poly f, int deg) {
+  poly A(f.size()), B(f.size()), C(f.size());
+  A = poly_dev(f);
+  B = poly_mul(f, f);
+  B[0] = plus(B[0], 1);
+  C = poly_inv(B, deg);
+  C = poly_mul(A, C);
+  C = poly_idev(C);
+  return C;
+}
+}  // namespace Poly
 
 using Poly::poly;
 using Poly::poly_arcsin;
@@ -241,21 +233,22 @@ int n, m, x, k, type;
 poly f, g;
 char s[N];
 
-int main()
-{
-    Poly::init(18);//2^21 = 2,097,152,根据题目数据多项式项数的大小自由调整，注意大小需要跟deer数组同步(21+1=22)
+int main() {
+  Poly::init(
+      18);  // 2^21 =
+            // 2,097,152,根据题目数据多项式项数的大小自由调整，注意大小需要跟deer数组同步(21+1=22)
 
-    read(n), read(type);
+  read(n), read(type);
 
-    for(int i = 0; i < n; ++ i)
-        read(x), f.push_back(x);
+  for (int i = 0; i < n; ++i) read(x), f.push_back(x);
 
-    if(type == 0) g = poly_arcsin(f, n);
-    else g = poly_arctan(f, n);
+  if (type == 0)
+    g = poly_arcsin(f, n);
+  else
+    g = poly_arctan(f, n);
 
-    for(int i = 0; i < n; ++ i)
-        printf("%d ", g[i]);
-    return 0;
+  for (int i = 0; i < n; ++i) printf("%d ", g[i]);
+  return 0;
 }
 ```
 
@@ -263,78 +256,92 @@ int main()
 
 ```java
 class Read {
-    public BufferedReader reader;
-    public StringTokenizer tokenizer;
+ public
+  BufferedReader reader;
+ public
+  StringTokenizer tokenizer;
 
-    public Read() {
-        reader = new BufferedReader(new InputStreamReader(System.in));
-        tokenizer = null;
-    }
+ public
+  Read() {
+    reader = new BufferedReader(new InputStreamReader(System.in));
+    tokenizer = null;
+  }
 
-    public String next() {
-        while (tokenizer == null || !tokenizer.hasMoreTokens()) {
-            try {
-                tokenizer = new StringTokenizer(reader.readLine());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return tokenizer.nextToken();
+ public
+  String next() {
+    while (tokenizer == null || !tokenizer.hasMoreTokens()) {
+      try {
+        tokenizer = new StringTokenizer(reader.readLine());
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
+    return tokenizer.nextToken();
+  }
 
-    public String nextLine() {
-        String str = null;
-        try {
-            str = reader.readLine();
-        } catch (IOException e) {
-            // TODO 自动生成的 catch 块
-            e.printStackTrace();
-        }
-        return str;
+ public
+  String nextLine() {
+    String str = null;
+    try {
+      str = reader.readLine();
+    } catch (IOException e) {
+      // TODO 自动生成的 catch 块
+      e.printStackTrace();
     }
+    return str;
+  }
 
-    public int nextInt() {
-        return Integer.parseInt(next());
-    }
+ public
+  int nextInt() { return Integer.parseInt(next()); }
 
-    public long nextLong() {
-        return Long.parseLong(next());
-    }
+ public
+  long nextLong() { return Long.parseLong(next()); }
 
-    public Double nextDouble() {
-        return Double.parseDouble(next());
-    }
+ public
+  Double nextDouble() { return Double.parseDouble(next()); }
 
-    public BigInteger nextBigInteger() {
-        return new BigInteger(next());
-    }
+ public
+  BigInteger nextBigInteger() { return new BigInteger(next()); }
 }
 
 ```
 ### 整数读到文件末
 ```cpp
-public class Main {
-    public static StreamTokenizer in = new StreamTokenizer(new BufferedReader(new InputStreamReader(System.in),32768));
-    public static PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
+public
+class Main {
+ public
+  static StreamTokenizer in = new StreamTokenizer(
+      new BufferedReader(new InputStreamReader(System.in), 32768));
+ public
+  static PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
 
-    public static double nextDouble() throws IOException{
-        in.nextToken(); return in.nval;
+ public
+  static double nextDouble() throws IOException {
+    in.nextToken();
+    return in.nval;
+  }
+ public
+  static float nextFloat() throws IOException {
+    in.nextToken();
+    return (float)in.nval;
+  }
+ public
+  static int nextInt() throws IOException {
+    in.nextToken();
+    return (int)in.nval;
+  }
+ public
+  static String next() throws IOException {
+    in.nextToken();
+    return in.sval;
+  }
+ public
+  static void main(String[] args) throws IOException {
+    while (in.nextToken() != StreamTokenizer.TT_EOF) {
+      int h = (int)in.nval;
+      System.out.printf("%d\n", qpow(3, h) - 1);
     }
-    public static float nextFloat() throws IOException{
-        in.nextToken(); return (float)in.nval;
-    }
-    public static int nextInt() throws IOException{
-        in.nextToken(); return (int)in.nval;
-    }
-    public static String next() throws IOException {
-        in.nextToken(); return in.sval;
-    }
-    public static void main(String[] args) throws IOException {
-        while (in.nextToken() != StreamTokenizer.TT_EOF) {
-            int h = (int) in.nval;
-            System.out.printf("%d\n", qpow(3, h) - 1);
-        }
-    }
+  }
 }
 ```
 
@@ -343,36 +350,44 @@ public class Main {
 // lower_bound   find the first num >= x
 //[l, mid], [mid + 1, r]
 int search_one(int l, int r) {
-    while (l < r) {
-        int mid = (l + r) >> 1;
-        if (check(mid)) r = mid;
-        else l = mid + 1;
-    }
-    return l;
+  while (l < r) {
+    int mid = (l + r) >> 1;
+    if (check(mid))
+      r = mid;
+    else
+      l = mid + 1;
+  }
+  return l;
 }
 
 // upper_bound  find the first num > x
 // [l, mid - 1], [mid, r]
 int search_two(int l, int r) {
-    while (l < r) {
-        int mid = (l + r + 1) >> 1;
-        if (check(mid)) l = mid;
-        else r = mid - 1;
-    }
-    return l;
+  while (l < r) {
+    int mid = (l + r + 1) >> 1;
+    if (check(mid))
+      l = mid;
+    else
+      r = mid - 1;
+  }
+  return l;
 }
 
-int l = 1,r = 100;
-while(l < r) {
-    int lmid = l + (r - l) / 3;
-    int rmid = r - (r - l) / 3;
-    lans = f(lmid),rans = f(rmid);
-    // 求凹函数的极小值
-    if(lans <= rans) r = rmid - 1;
-    else l = lmid + 1;
-    // 求凸函数的极大值
-    if(lasn >= rans) l = lmid + 1;
-    else r = rmid - 1;
+int l = 1, r = 100;
+while (l < r) {
+  int lmid = l + (r - l) / 3;
+  int rmid = r - (r - l) / 3;
+  lans = f(lmid), rans = f(rmid);
+  // 求凹函数的极小值
+  if (lans <= rans)
+    r = rmid - 1;
+  else
+    l = lmid + 1;
+  // 求凸函数的极大值
+  if (lasn >= rans)
+    l = lmid + 1;
+  else
+    r = rmid - 1;
 }
 ```
 
@@ -384,26 +399,26 @@ while(l < r) {
 int val[N], vis[N], facnum[N], d[N];
 vector<int> prime;
 void get_facnum() {
-    int pnum = 0;
-    facnum[1] = 1;
-    for (int i = 2; i < N; ++i) {
-        if (not vis[i]) {
-            prime.push_back(i);
-            facnum[i] = 2;
-            d[i] = 1;
-        }
-        for (auto to : prime) {
-            if (to * i >= N) break;
-            vis[to * i] = true;
-            if (i % to == 0) {
-                facnum[i * to] = facnum[i] / (d[i] + 1) * (d[i] + 2);
-                d[i * to] = d[i] + 1;
-                break;
-            }
-            facnum[i * to] = facnum[i] * 2;
-            d[i * to] = 1;
-        }
+  int pnum = 0;
+  facnum[1] = 1;
+  for (int i = 2; i < N; ++i) {
+    if (not vis[i]) {
+      prime.push_back(i);
+      facnum[i] = 2;
+      d[i] = 1;
     }
+    for (auto to : prime) {
+      if (to * i >= N) break;
+      vis[to * i] = true;
+      if (i % to == 0) {
+        facnum[i * to] = facnum[i] / (d[i] + 1) * (d[i] + 2);
+        d[i * to] = d[i] + 1;
+        break;
+      }
+      facnum[i * to] = facnum[i] * 2;
+      d[i * to] = 1;
+    }
+  }
 }
 ```
 ### 前缀线性基
@@ -411,48 +426,48 @@ void get_facnum() {
 constexpr int N = 5e5 + 100;
 
 struct preLinear_Basis {
-    array<array<int, 30>, N> p;
-    array<array<int, 30>, N> pos;
-    bool ins (int id, int x) {
-        p[id] = p[id - 1];
-        pos[id] = pos[id - 1];
-        int ti = id;
-        for (int i = 24; i >= 0; --i) {
-            if ((x & (1 << i))) {
-                if (not p[id][i]) {
-                    p[id][i] = x;
-                    pos[id][i] = ti;
-                    break;
-                }
-                if (pos[id][i] < ti) {
-                    swap(p[id][i], x);
-                    swap(pos[id][i], ti);
-                }
-                x ^= p[id][i];
-            }
+  array<array<int, 30>, N> p;
+  array<array<int, 30>, N> pos;
+  bool ins(int id, int x) {
+    p[id] = p[id - 1];
+    pos[id] = pos[id - 1];
+    int ti = id;
+    for (int i = 24; i >= 0; --i) {
+      if ((x & (1 << i))) {
+        if (not p[id][i]) {
+          p[id][i] = x;
+          pos[id][i] = ti;
+          break;
         }
+        if (pos[id][i] < ti) {
+          swap(p[id][i], x);
+          swap(pos[id][i], ti);
+        }
+        x ^= p[id][i];
+      }
+    }
 
-        return x > 0;
+    return x > 0;
+  }
+  int MAX(int x, int l, int r) {
+    for (int i = 24; i >= 0; --i) {
+      if ((x ^ p[r][i]) > x and pos[r][i] >= l) x ^= p[r][i];
     }
-    int MAX (int x, int l, int r) {
-        for (int i = 24; i >= 0; --i) {
-            if ((x ^ p[r][i]) > x and pos[r][i] >= l) x ^= p[r][i];
-        }
-        return x;
-    }
-}LB;
+    return x;
+  }
+} LB;
 
 int main() {
-    int n = gn();
-    for (int i = 1; i <= n; ++i) {
-        int val = gn();
-        LB.ins(i, val);
-    }
-    int q = gn();
-    while (q--) {
-        int l = gn(), r = gn();
-        cout << LB.MAX(0, l, r) << endl;
-    }
+  int n = gn();
+  for (int i = 1; i <= n; ++i) {
+    int val = gn();
+    LB.ins(i, val);
+  }
+  int q = gn();
+  while (q--) {
+    int l = gn(), r = gn();
+    cout << LB.MAX(0, l, r) << endl;
+  }
 }
 ```
 
@@ -479,9 +494,9 @@ Complex operator+(Complex A, Complex B) {
   return Complex(A.x + B.x, A.y + B.y);
 }
 
-void FFT(Complex *A, int type) { // type:   1: DFT, -1: IDFT
+void FFT(Complex *A, int type) {  // type:   1: DFT, -1: IDFT
   for (int i = 0; i < limit; ++i)
-    if (i < R[i]) swap(A[i], A[R[i]]);   // 防止重复
+    if (i < R[i]) swap(A[i], A[R[i]]);  // 防止重复
 
   for (int mid = 1; mid < limit; mid <<= 1) {
     //待合并区间长度的一半，最开始是两个长度为1的序列合并,mid = 1;
@@ -536,7 +551,7 @@ const int N = 5000007;
 const double PI = acos(-1);
 
 int n, m, res, limit = 1;  //
-int L;          //二进制的位数
+int L;                     //二进制的位数
 int RR[N];
 ll a[N], b[N];
 
@@ -592,7 +607,7 @@ int main() {
 预处理版本
 
 ```cpp
-const int N = 5e6+7;
+const int N = 5e6 + 7;
 const int MOD = 998244353;
 
 int qpow(int a, int b) {
@@ -606,68 +621,68 @@ int qpow(int a, int b) {
 }
 
 namespace Poly {
-  typedef vector<int> poly;
-  const int G = 3;
-  const int inv_G = qpow(G, MOD - 2);
-  int RR[N], deer[2][22][N], inv[N];
+typedef vector<int> poly;
+const int G = 3;
+const int inv_G = qpow(G, MOD - 2);
+int RR[N], deer[2][22][N], inv[N];
 
-  void init(const int t) {  //预处理出来NTT里需要的w和wn，砍掉了一个log的时间
-    for (int p = 1; p <= t; ++p) {
-      int buf1 = qpow(G, (MOD - 1) / (1 << p));
-      int buf0 = qpow(inv_G, (MOD - 1) / (1 << p));
-      deer[0][p][0] = deer[1][p][0] = 1;
-      for (int i = 1; i < (1 << p); ++i) {
-        deer[0][p][i] = 1ll * deer[0][p][i - 1] * buf0 % MOD;  //逆
-        deer[1][p][i] = 1ll * deer[1][p][i - 1] * buf1 % MOD;
+void init(const int t) {  //预处理出来NTT里需要的w和wn，砍掉了一个log的时间
+  for (int p = 1; p <= t; ++p) {
+    int buf1 = qpow(G, (MOD - 1) / (1 << p));
+    int buf0 = qpow(inv_G, (MOD - 1) / (1 << p));
+    deer[0][p][0] = deer[1][p][0] = 1;
+    for (int i = 1; i < (1 << p); ++i) {
+      deer[0][p][i] = 1ll * deer[0][p][i - 1] * buf0 % MOD;  //逆
+      deer[1][p][i] = 1ll * deer[1][p][i - 1] * buf1 % MOD;
+    }
+  }
+  inv[1] = 1;
+  for (int i = 2; i <= (1 << t); ++i)
+    inv[i] = 1ll * inv[MOD % i] * (MOD - MOD / i) % MOD;
+}
+
+int NTT_init(int n) {
+  int limit = 1, L = 0;
+  while (limit < n) limit <<= 1, L++;
+  for (int i = 0; i < limit; ++i)
+    RR[i] = (RR[i >> 1] >> 1) | ((i & 1) << (L - 1));
+  return limit;
+}
+
+#define ck(x) (x >= MOD ? x - MOD : x)
+
+void NTT(poly &A, int type, int limit) {  // 1: DFT, 0: IDFT
+  A.resize(limit);
+  for (int i = 0; i < limit; ++i)
+    if (i < RR[i]) swap(A[i], A[RR[i]]);
+  for (int mid = 2, j = 1; mid <= limit; mid <<= 1, ++j) {
+    int len = mid >> 1;
+    for (int pos = 0; pos < limit; pos += mid) {
+      int *wn = deer[type][j];
+      for (int i = pos; i < pos + len; ++i, ++wn) {
+        int tmp = 1ll * (*wn) * A[i + len] % MOD;
+        A[i + len] = ck(A[i] - tmp + MOD);
+        A[i] = ck(A[i] + tmp);
       }
     }
-    inv[1] = 1;
-    for (int i = 2; i <= (1 << t); ++i)
-      inv[i] = 1ll * inv[MOD % i] * (MOD - MOD / i) % MOD;
   }
-
-  int NTT_init(int n) {
-    int limit = 1, L = 0;
-    while (limit < n) limit <<= 1, L++;
-    for (int i = 0; i < limit; ++i)
-      RR[i] = (RR[i >> 1] >> 1) | ((i & 1) << (L - 1));
-    return limit;
+  if (type == 0) {
+    int inv_limit = qpow(limit, MOD - 2);
+    for (int i = 0; i < limit; ++i) A[i] = 1ll * A[i] * inv_limit % MOD;
   }
+}
 
-  #define ck(x) (x >= MOD ? x - MOD : x)
-
-  void NTT(poly &A, int type, int limit) { // 1: DFT, 0: IDFT
-    A.resize(limit);
-    for (int i = 0; i < limit; ++i)
-      if (i < RR[i]) swap(A[i], A[RR[i]]);
-    for (int mid = 2, j = 1; mid <= limit; mid <<= 1, ++j) {
-      int len = mid >> 1;
-      for (int pos = 0; pos < limit; pos += mid) {
-        int *wn = deer[type][j];
-        for (int i = pos; i < pos + len; ++i, ++wn) {
-          int tmp = 1ll * (*wn) * A[i + len] % MOD;
-          A[i + len] = ck(A[i] - tmp + MOD);
-          A[i] = ck(A[i] + tmp);
-        }
-      }
-    }
-    if (type == 0) {
-      int inv_limit = qpow(limit, MOD - 2);
-      for (int i = 0; i < limit; ++i) A[i] = 1ll * A[i] * inv_limit % MOD;
-    }
-  }
-
-  poly poly_mul(poly A, poly B) {
-    int deg = A.size() + B.size() - 1;
-    int limit = NTT_init(deg);
-    poly C(limit);
-    NTT(A, 1, limit);
-    NTT(B, 1, limit);
-    for (int i = 0; i < limit; ++i) C[i] = 1ll * A[i] * B[i] % MOD;
-    NTT(C, 0, limit);
-    C.resize(deg);
-    return C;
-  }
+poly poly_mul(poly A, poly B) {
+  int deg = A.size() + B.size() - 1;
+  int limit = NTT_init(deg);
+  poly C(limit);
+  NTT(A, 1, limit);
+  NTT(B, 1, limit);
+  for (int i = 0; i < limit; ++i) C[i] = 1ll * A[i] * B[i] % MOD;
+  NTT(C, 0, limit);
+  C.resize(deg);
+  return C;
+}
 }  // namespace Poly
 
 using Poly::poly;
@@ -693,94 +708,93 @@ int main() {
 ```cpp
 constexpr int mod = 998244353, G = 3, Gi = 332748118;
 constexpr int N = 2e5 + 100;
-const double  PI = acos(-1);
+const double PI = acos(-1);
 
 int limit = 1;
 int L, RR[N << 2];
 ll a[N << 2], b[N << 2], f[N << 2], g[N << 2];
 
 ll qpow(ll x, ll y) {
-    ll ans = 1;
-    while (y) {
-        if (y & 1) ans = ans * x % mod;
-        x = x * x % mod;
-        y >>= 1;
-    }
-    return ans;
+  ll ans = 1;
+  while (y) {
+    if (y & 1) ans = ans * x % mod;
+    x = x * x % mod;
+    y >>= 1;
+  }
+  return ans;
 }
 
 ll inv(ll x) { return qpow(x, mod - 2); }
 
 void NTT(ll *A, int type) {
-    for (int i = 0; i < limit; ++i) {
-        if (i < RR[i]) swap(A[i], A[RR[i]]);
+  for (int i = 0; i < limit; ++i) {
+    if (i < RR[i]) swap(A[i], A[RR[i]]);
+  }
+  for (int mid = 1; mid < limit; mid <<= 1) {
+    ll wn = qpow(G, (mod - 1) / (mid * 2));
+    if (type == -1) wn = qpow(wn, mod - 2);
+    for (int len = mid << 1, pos = 0; pos < limit; pos += len) {
+      ll w = 1;
+      for (int k = 0; k < mid; ++k, w = (w * wn) % mod) {
+        ll x = A[pos + k], y = w * A[pos + mid + k] % mod;
+        A[pos + k] = (x + y) % mod;
+        A[pos + k + mid] = (x - y + mod) % mod;
+      }
     }
-    for (int mid = 1; mid < limit; mid <<= 1) {
-        ll wn = qpow(G, (mod - 1) / (mid * 2));
-        if (type == -1) wn = qpow(wn, mod - 2);
-        for (int len = mid << 1, pos = 0; pos < limit; pos += len) {
-            ll w = 1;
-            for (int k = 0; k < mid; ++k, w = (w * wn) % mod) {
-                ll x = A[pos + k], y = w * A[pos + mid + k] % mod;
-                A[pos + k] = (x + y) % mod;
-                A[pos + k + mid] = (x - y + mod) % mod;
-            }
-        }
-    }
+  }
 
-    if (type == -1) {
-        ll limit_inv = inv(limit);
-        for (int i = 0; i < limit; ++i) A[i] = (A[i] * limit_inv) % mod;
-    }
+  if (type == -1) {
+    ll limit_inv = inv(limit);
+    for (int i = 0; i < limit; ++i) A[i] = (A[i] * limit_inv) % mod;
+  }
 }
 
 void getlimit(int deg) {
-    for (limit = 1, L = 0; limit <= deg; limit <<= 1) L ++;
+  for (limit = 1, L = 0; limit <= deg; limit <<= 1) L++;
 }
 
 void poly_mul(ll *ax, ll *bx) {
-    for (int i = 0; i < limit; ++i) {
-        RR[i] = (RR[i >> 1] >> 1) | ((i & 1) << (L - 1));
-    }
-    NTT(ax, 1);
-    NTT(bx, 1);
-    for (int i = 0; i < limit; ++i) ax[i] = (ax[i] * bx[i]) % mod;
-    NTT(ax, -1);
+  for (int i = 0; i < limit; ++i) {
+    RR[i] = (RR[i >> 1] >> 1) | ((i & 1) << (L - 1));
+  }
+  NTT(ax, 1);
+  NTT(bx, 1);
+  for (int i = 0; i < limit; ++i) ax[i] = (ax[i] * bx[i]) % mod;
+  NTT(ax, -1);
 }
 
-void CDQ_NTT(const int l, const int r) { // [l, r]
-    if (r - l < 1) return;
-    const int mid = (l + r) >> 1;
-    CDQ_NTT(l, mid);
-    // 用 f[l ~ mid] 与 g[0 ~ r - l] 进行卷积
-    // f[i] = \sum_{j = l}^{mid} f[j] * g[i - j]
+void CDQ_NTT(const int l, const int r) {  // [l, r]
+  if (r - l < 1) return;
+  const int mid = (l + r) >> 1;
+  CDQ_NTT(l, mid);
+  // 用 f[l ~ mid] 与 g[0 ~ r - l] 进行卷积
+  // f[i] = \sum_{j = l}^{mid} f[j] * g[i - j]
 
-    int xlen = mid - l + 1, ylen = r - l + 1;
-    getlimit(xlen + ylen);
-    for (int i = l; i <= mid; ++i) a[i - l] = f[i];
-    for (int i = 0; i < r - l + 1; ++i) b[i] = g[i];
+  int xlen = mid - l + 1, ylen = r - l + 1;
+  getlimit(xlen + ylen);
+  for (int i = l; i <= mid; ++i) a[i - l] = f[i];
+  for (int i = 0; i < r - l + 1; ++i) b[i] = g[i];
 
-    for (int i = mid - l + 1; i < limit; ++i) a[i] = 0;
-    for (int i = r - l + 1; i < limit; ++i) b[i] = 0;
+  for (int i = mid - l + 1; i < limit; ++i) a[i] = 0;
+  for (int i = r - l + 1; i < limit; ++i) b[i] = 0;
 
-    poly_mul(a, b);
+  poly_mul(a, b);
 
+  for (int i = mid + 1; i <= r; ++i) {
+    f[i] = (f[i] + a[i - l]) % mod;
+  }
 
-    for (int i = mid + 1; i <= r; ++i) {
-        f[i] = (f[i] + a[i - l]) % mod;
-    }
-
-    CDQ_NTT(mid + 1, r);
+  CDQ_NTT(mid + 1, r);
 }
 
 int main() {
-    int n = gn();
-    f[0] = 1;
-    for (int i = 1; i < n; ++i) g[i] = gn();
-    CDQ_NTT(0, n - 1);
-    for (int i = 0; i < n; ++i) {
-        cout << f[i] % mod << " \n"[i == n - 1];
-    }
+  int n = gn();
+  f[0] = 1;
+  for (int i = 1; i < n; ++i) g[i] = gn();
+  CDQ_NTT(0, n - 1);
+  for (int i = 0; i < n; ++i) {
+    cout << f[i] % mod << " \n"[i == n - 1];
+  }
 }
 ```
 
@@ -789,21 +803,21 @@ int main() {
 ```cpp
 template <class T>
 T exgcd(T a, T b, T &x, T &y) {
-    if (!b) {
-        x = 1, y = 0;
-        return a;
-    }
-    T t, ret;
-    ret = exgcd(b, a % b, x, y);
-    t = x, x = y, y = t - a / b * y;
-    return ret;
+  if (!b) {
+    x = 1, y = 0;
+    return a;
+  }
+  T t, ret;
+  ret = exgcd(b, a % b, x, y);
+  t = x, x = y, y = t - a / b * y;
+  return ret;
 }
 
-template<typename T>
+template <typename T>
 T inv(T num, T mod) {
-    T x, y;
-    exgcd(num, mod, x, y);
-    return x;
+  T x, y;
+  exgcd(num, mod, x, y);
+  return x;
 }
 ```
 
@@ -814,16 +828,15 @@ T inv(T num, T mod) {
 ```cpp
 // 极坐标 极角 (-pi, pi]
 double theta(double x, double y) {
-    if (x > 0) return atan(y/x);
+  if (x > 0) return atan(y / x);
 
-    if (x == 0) {
-        if (y > 0) return pi/2;
-        return -pi/2;
-    } else {
-        if (y >= 0) return atan(y/x) + pi;
-        return atan(y/x) - pi;
-    }
-
+  if (x == 0) {
+    if (y > 0) return pi / 2;
+    return -pi / 2;
+  } else {
+    if (y >= 0) return atan(y / x) + pi;
+    return atan(y / x) - pi;
+  }
 }
 ```
 
@@ -843,44 +856,44 @@ int n, m;
 bool vis[N];
 
 struct node {
-    int to, nxt;
+  int to, nxt;
 } s[N];
 
 int head[N], tot = 0, id[N];
 
 void add(int x, int y) {
-    s[++tot] = {y, head[x]};
-    head[x] = tot;
+  s[++tot] = {y, head[x]};
+  head[x] = tot;
 }
 
 stack<int> st;
 
 bool dfs(int node) {
-    if (vis[node ^ 1]) return false;
-    if (vis[node]) return true;
-    vis[node] = true;
-    st.push(node);
-    for (int i = head[node]; ~i; i = s[i].nxt) {
-        if (not dfs(s[i].to)) return false;
-    }
-    return true;
+  if (vis[node ^ 1]) return false;
+  if (vis[node]) return true;
+  vis[node] = true;
+  st.push(node);
+  for (int i = head[node]; ~i; i = s[i].nxt) {
+    if (not dfs(s[i].to)) return false;
+  }
+  return true;
 }
 
 bool solve() {
-    for (int i = 2; i <= 2 * n; i += 2) {
-        if (not vis[i] and not vis[i ^ 1]) {
-            if (not dfs(i)) {
-                while (not st.empty()) {
-                    vis[st.top()] = false;
-                    st.pop();
-                }
-
-                if (not dfs(i + 1)) return false;
-            }
+  for (int i = 2; i <= 2 * n; i += 2) {
+    if (not vis[i] and not vis[i ^ 1]) {
+      if (not dfs(i)) {
+        while (not st.empty()) {
+          vis[st.top()] = false;
+          st.pop();
         }
-    }
 
-    return true;
+        if (not dfs(i + 1)) return false;
+      }
+    }
+  }
+
+  return true;
 }
 
 // 2 3  4 5
@@ -888,39 +901,42 @@ bool solve() {
 
 //有k个灯，n个嘉宾，每个嘉宾会选择3个灯进行猜颜色（只有红色和蓝色），猜中两个以上有奖，问怎么设置灯的颜色能使所有嘉宾都能得奖。
 int main() {
-    memset(head, -1, sizeof head);
-    n = gn(), m = gn();
-    for (int i = 1; i <= n; ++i) id[i] = 2 * i;
-    for (int i = 1; i <= m; ++i) {
-        vector<pair<int, char> > v;
-        for (int j = 0; j < 3; ++j) {
-            int val = gn(); char c;
-            scanf(" %c", &c);
-            v.emplace_back(val, c);
-        }
-
-        int nowid;
-        nowid = id[v[0].first] + (v[0].second == 'R');
-        add(nowid, id[v[1].first] + (v[1].second == 'B'));
-        add(nowid, id[v[2].first] + (v[2].second == 'B'));
-
-        nowid = id[v[1].first] + (v[1].second == 'R');
-        add(nowid, id[v[0].first] + (v[0].second == 'B'));
-        add(nowid, id[v[2].first] + (v[2].second == 'B'));
-
-        nowid = id[v[2].first] + (v[2].second == 'R');
-        add(nowid, id[v[1].first] + (v[1].second == 'B'));
-        add(nowid, id[v[0].first] + (v[0].second == 'B'));
-
+  memset(head, -1, sizeof head);
+  n = gn(), m = gn();
+  for (int i = 1; i <= n; ++i) id[i] = 2 * i;
+  for (int i = 1; i <= m; ++i) {
+    vector<pair<int, char> > v;
+    for (int j = 0; j < 3; ++j) {
+      int val = gn();
+      char c;
+      scanf(" %c", &c);
+      v.emplace_back(val, c);
     }
 
-    if (solve()) {
-        for (int i = 2; i <= 2 * n; i += 2) {
-            if (vis[i]) cout << 'R';
-            else cout << 'B';
-        }
-        cout << '\n';
-    } else puts("-1");
+    int nowid;
+    nowid = id[v[0].first] + (v[0].second == 'R');
+    add(nowid, id[v[1].first] + (v[1].second == 'B'));
+    add(nowid, id[v[2].first] + (v[2].second == 'B'));
+
+    nowid = id[v[1].first] + (v[1].second == 'R');
+    add(nowid, id[v[0].first] + (v[0].second == 'B'));
+    add(nowid, id[v[2].first] + (v[2].second == 'B'));
+
+    nowid = id[v[2].first] + (v[2].second == 'R');
+    add(nowid, id[v[1].first] + (v[1].second == 'B'));
+    add(nowid, id[v[0].first] + (v[0].second == 'B'));
+  }
+
+  if (solve()) {
+    for (int i = 2; i <= 2 * n; i += 2) {
+      if (vis[i])
+        cout << 'R';
+      else
+        cout << 'B';
+    }
+    cout << '\n';
+  } else
+    puts("-1");
 }
 ```
 
@@ -930,37 +946,39 @@ int main() {
 
 ```cpp
 void cdqmax(int l, int r) {
-    if (l == r) return ;
-    int mid = (l + r) >> 1;
-    // 递归处理左右
-    cdqmax(l, mid);
-    cdqmax(mid + 1, r);
+  if (l == r) return;
+  int mid = (l + r) >> 1;
+  // 递归处理左右
+  cdqmax(l, mid);
+  cdqmax(mid + 1, r);
 
-    // 合并
-    merge(s + l, s + mid + 1, s + mid + 1, s + r + 1, tem + l, cmpa);
-    for (int i = l; i <= r; ++i) {
-        s[i] = tem[i];
-    }
+  // 合并
+  merge(s + l, s + mid + 1, s + mid + 1, s + r + 1, tem + l, cmpa);
+  for (int i = l; i <= r; ++i) {
+    s[i] = tem[i];
+  }
 
-    // 计算贡献
-    for (int i = l; i <= r; ++i) {
-        if (s[i].type == 0 && s[i].tim <= mid) {
-            tree.change(s[i].l, s[i].h);
-        }
-        if (s[i].type == 1 && s[i].tim > mid) {
-            int maxn = tree.querymax(s[i].l, s[i].r);
-            if (maxn == 0) continue;
-            if (ANS[s[i].id] == -1) ANS[s[i].id] = s[i].h - maxn;
-            else ANS[s[i].id] = min(ANS[s[i].id], s[i].h - maxn);
-        }
+  // 计算贡献
+  for (int i = l; i <= r; ++i) {
+    if (s[i].type == 0 && s[i].tim <= mid) {
+      tree.change(s[i].l, s[i].h);
     }
+    if (s[i].type == 1 && s[i].tim > mid) {
+      int maxn = tree.querymax(s[i].l, s[i].r);
+      if (maxn == 0) continue;
+      if (ANS[s[i].id] == -1)
+        ANS[s[i].id] = s[i].h - maxn;
+      else
+        ANS[s[i].id] = min(ANS[s[i].id], s[i].h - maxn);
+    }
+  }
 
-    // 消除影响
-    for (int i = l; i <= r; ++i) {
-        if (s[i].type == 0 && s[i].tim <= mid) {
-            tree.change(s[i].l, 0);
-        }
+  // 消除影响
+  for (int i = l; i <= r; ++i) {
+    if (s[i].type == 0 && s[i].tim <= mid) {
+      tree.change(s[i].l, 0);
     }
+  }
 }
 ```
 ### KD-tree
@@ -973,107 +991,123 @@ constexpr int N = 2e5 + 100;
 #define rs t[mid].s[1]
 constexpr ll INF = 1e18;
 
-ll sqr(int x) {return 1ll * x * x;}
+ll sqr(int x) { return 1ll * x * x; }
 
 int D, root;
 
 struct P {
-    int d[3], id;
-    bool operator < (const P & rhs) const {
-        return d[D] < rhs.d[D];
-    }
-}a[N];
+  int d[3], id;
+  bool operator<(const P &rhs) const { return d[D] < rhs.d[D]; }
+} a[N];
 
 struct kd_node {
-    int d[3], s[2], x[2], y[2], z[2], id;
+  int d[3], s[2], x[2], y[2], z[2], id;
 } t[N];
 
 void update(int f, int x) {
-    cmin(t[f].x[0], t[x].x[0]), cmax(t[f].x[1], t[x].x[1]);
-    cmin(t[f].y[0], t[x].y[0]), cmax(t[f].y[1], t[x].y[1]);
-    cmin(t[f].z[0], t[x].z[0]), cmax(t[f].z[1], t[x].z[1]);
+  cmin(t[f].x[0], t[x].x[0]), cmax(t[f].x[1], t[x].x[1]);
+  cmin(t[f].y[0], t[x].y[0]), cmax(t[f].y[1], t[x].y[1]);
+  cmin(t[f].z[0], t[x].z[0]), cmax(t[f].z[1], t[x].z[1]);
 }
 
 int build(int l, int r, int d) {
-    D = d; int mid = (l + r) >> 1;
-    nth_element(a + l, a + mid, a + r + 1);
-    t[mid].d[0] = t[mid].x[0] = t[mid].x[1] = a[mid].d[0];
-    t[mid].d[1] = t[mid].y[0] = t[mid].y[1] = a[mid].d[1];
-    t[mid].d[2] = t[mid].z[0] = t[mid].z[1] = a[mid].d[2];
-    t[mid].id = a[mid].id;
-    if (l < mid) ls = build(l, mid - 1, d ^ 1), update(mid, ls);
-    if (r > mid) rs = build(mid + 1, r, d ^ 1), update(mid, rs);
-    return mid;
+  D = d;
+  int mid = (l + r) >> 1;
+  nth_element(a + l, a + mid, a + r + 1);
+  t[mid].d[0] = t[mid].x[0] = t[mid].x[1] = a[mid].d[0];
+  t[mid].d[1] = t[mid].y[0] = t[mid].y[1] = a[mid].d[1];
+  t[mid].d[2] = t[mid].z[0] = t[mid].z[1] = a[mid].d[2];
+  t[mid].id = a[mid].id;
+  if (l < mid) ls = build(l, mid - 1, d ^ 1), update(mid, ls);
+  if (r > mid) rs = build(mid + 1, r, d ^ 1), update(mid, rs);
+  return mid;
 }
 
 ll getdist(int node, int x, int y, int z) {
-    // 曼哈顿距离 min
-//        return max(t[node].x[0] - x, 0) + max(x - t[node].x[1], 0) + max(t[node].y[0] - x, 0) + max(x - t[node].y[1], 0);
-    // max max(abs(x - t[node].x[1]), abs(t[node].x[0] - x)) + max(abs(y - t[node].y[1]), abs(t[node].y[0] - y))
-    // 欧几里得距离
-    // min sqr(max({x - t[node].x[1], t[node].x[0] - x, 0})) + sqr(max({y - t[node].y[1], t[node].y[0] - y, 0}))
-     if (t[node].z[0] > z) return 1e18;
-     return sqr(max({x - t[node].x[1], t[node].x[0] - x, 0})) + sqr(max({y - t[node].y[1], t[node].y[0] - y, 0}));
-    // max max(sqr(x - t[node].x[0]), sqr(t[node].x[0] - x)) + max(sqr(y - t[node].y[1]), sqr(t[node].y[0] - y))
+  // 曼哈顿距离 min
+  //        return max(t[node].x[0] - x, 0) + max(x - t[node].x[1], 0) +
+  //        max(t[node].y[0] - x, 0) + max(x - t[node].y[1], 0);
+  // max max(abs(x - t[node].x[1]), abs(t[node].x[0] - x)) + max(abs(y -
+  // t[node].y[1]), abs(t[node].y[0] - y)) 欧几里得距离 min sqr(max({x -
+  // t[node].x[1], t[node].x[0] - x, 0})) + sqr(max({y - t[node].y[1],
+  // t[node].y[0] - y, 0}))
+  if (t[node].z[0] > z) return 1e18;
+  return sqr(max({x - t[node].x[1], t[node].x[0] - x, 0})) +
+         sqr(max({y - t[node].y[1], t[node].y[0] - y, 0}));
+  // max max(sqr(x - t[node].x[0]), sqr(t[node].x[0] - x)) + max(sqr(y -
+  // t[node].y[1]), sqr(t[node].y[0] - y))
 }
 
 void insert(int node, int x, int y, int z, int id) {
-    t[node].d[0] = t[node].x[0] = t[node].x[1] = x;
-    t[node].d[1] = t[node].y[0] = t[node].y[1] = y;
-    t[node].d[2] = t[node].z[0] = t[node].z[1] = z;
-    t[node].id = id;
-    for (int p = root, k = 0; p; k ^= 1) {
-        update(p, node);
-        int &nxt = t[p].s[t[node].d[k] > t[p].d[k]];
-        if (nxt == 0) {
-            nxt = node;
-            return;
-        } else p = nxt;
-    }
+  t[node].d[0] = t[node].x[0] = t[node].x[1] = x;
+  t[node].d[1] = t[node].y[0] = t[node].y[1] = y;
+  t[node].d[2] = t[node].z[0] = t[node].z[1] = z;
+  t[node].id = id;
+  for (int p = root, k = 0; p; k ^= 1) {
+    update(p, node);
+    int &nxt = t[p].s[t[node].d[k] > t[p].d[k]];
+    if (nxt == 0) {
+      nxt = node;
+      return;
+    } else
+      p = nxt;
+  }
 }
 
 void query(int node, ll &ans, int &id, int x, int y, int z) {
-    ll tmp = t[node].d[2] <= z ? sqr(t[node].d[0] - x) + sqr(t[node].d[1] - y) : 1e18, d[2];
-//    cout << node << ' ' << t[node].d[0] << ' ' << t[node].d[1] << ' ' << t[node].d[2] << ' ' << ans << ' ' << tmp << endl;
-    if (t[node].s[0]) d[0] = getdist(t[node].s[0], x, y, z); else d[0] = INF;
-    if (t[node].s[1]) d[1] = getdist(t[node].s[1], x, y, z); else d[1] = INF;
+  ll tmp = t[node].d[2] <= z ? sqr(t[node].d[0] - x) + sqr(t[node].d[1] - y)
+                             : 1e18,
+     d[2];
+  //    cout << node << ' ' << t[node].d[0] << ' ' << t[node].d[1] << ' ' <<
+  //    t[node].d[2] << ' ' << ans << ' ' << tmp << endl;
+  if (t[node].s[0])
+    d[0] = getdist(t[node].s[0], x, y, z);
+  else
+    d[0] = INF;
+  if (t[node].s[1])
+    d[1] = getdist(t[node].s[1], x, y, z);
+  else
+    d[1] = INF;
 
-    if (tmp < ans) {
-        ans = tmp, id = t[node].id;
-    } else if (tmp == ans and id > t[node].id) id = t[node].id;
+  if (tmp < ans) {
+    ans = tmp, id = t[node].id;
+  } else if (tmp == ans and id > t[node].id)
+    id = t[node].id;
 
-    tmp = d[0] >= d[1];
-    if (d[tmp] <= ans) query(t[node].s[tmp], ans, id, x, y, z);
-    tmp ^= 1;
-    if (d[tmp] <= ans) query(t[node].s[tmp], ans, id, x, y, z);
+  tmp = d[0] >= d[1];
+  if (d[tmp] <= ans) query(t[node].s[tmp], ans, id, x, y, z);
+  tmp ^= 1;
+  if (d[tmp] <= ans) query(t[node].s[tmp], ans, id, x, y, z);
 }
 
 struct node {
-    int x, y, c, id;
-}hotel[N], guest[N];
+  int x, y, c, id;
+} hotel[N], guest[N];
 
 void solve() {
-   int n = gn(), m = gn();
-   for (int i = 1; i <= n; ++i) {
-       int x = gn(), y = gn(), c = gn();
-       hotel[i] = {x, y, c, i};
-   }
+  int n = gn(), m = gn();
+  for (int i = 1; i <= n; ++i) {
+    int x = gn(), y = gn(), c = gn();
+    hotel[i] = {x, y, c, i};
+  }
 
-    for (int i = 1; i <= m; ++i) {
-        int x = gn(), y = gn(), c = gn();
-        guest[i] = {x, y, c, i};
-    }
+  for (int i = 1; i <= m; ++i) {
+    int x = gn(), y = gn(), c = gn();
+    guest[i] = {x, y, c, i};
+  }
 
-    for (int i = 1; i <= n; ++i) a[i] = {hotel[i].x, hotel[i].y, hotel[i].c, hotel[i].id};
+  for (int i = 1; i <= n; ++i)
+    a[i] = {hotel[i].x, hotel[i].y, hotel[i].c, hotel[i].id};
 
-    ll val; int idx;
-    root = build(1, n, 0);
+  ll val;
+  int idx;
+  root = build(1, n, 0);
 
-    for (int i = 1; i <= m; ++i) {
-        val = INF, idx = 0x3f3f3f3f;
-        query(root, val, idx, guest[i].x, guest[i].y, guest[i].c);
-        cout << hotel[idx].x << ' ' << hotel[idx].y << ' ' << hotel[idx].c << '\n';
-    }
+  for (int i = 1; i <= m; ++i) {
+    val = INF, idx = 0x3f3f3f3f;
+    query(root, val, idx, guest[i].x, guest[i].y, guest[i].c);
+    cout << hotel[idx].x << ' ' << hotel[idx].y << ' ' << hotel[idx].c << '\n';
+  }
 }
 ```
 
@@ -1087,31 +1121,35 @@ void solve() {
 int a[N];
 
 int min_show(int n) {
-    int i = 0, j = 1, k = 0;
-    while (i < n and j < n and k < n) {
-        if (a[(i + k) % n] == a[(j + k) % n]) ++k;
-        else {
-            if (a[(i + k) % n] > a[(j + k) % n]) i += k + 1;
-            else j += k + 1;
-            if (i == j) ++i;
-            k = 0;
-        }
+  int i = 0, j = 1, k = 0;
+  while (i < n and j < n and k < n) {
+    if (a[(i + k) % n] == a[(j + k) % n])
+      ++k;
+    else {
+      if (a[(i + k) % n] > a[(j + k) % n])
+        i += k + 1;
+      else
+        j += k + 1;
+      if (i == j) ++i;
+      k = 0;
     }
-    return min(i, j);
+  }
+  return min(i, j);
 }
 
 int main() {
-    int n = gn();
-    for (int i = 0; i < n; ++i) {
-        a[i] = gn();
-    }
-    int idx = min_show(n);
-//    cout << idx << endl;
-    int cnt = 0;
-    while (cnt < n) {
-        ++cnt;
-        cout << a[idx] << " \n"[cnt == n];
-        idx = (idx + 1) % n;
-    }
+  int n = gn();
+  for (int i = 0; i < n; ++i) {
+    a[i] = gn();
+  }
+  int idx = min_show(n);
+  //    cout << idx << endl;
+  int cnt = 0;
+  while (cnt < n) {
+    ++cnt;
+    cout << a[idx] << " \n"[cnt == n];
+    idx = (idx + 1) % n;
+  }
 }
 ```
+

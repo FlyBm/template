@@ -7,110 +7,103 @@
 线性方程组
 
 ```cpp
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 #define MAX_SIZE 1048
 int Matrix[MAX_SIZE][MAX_SIZE];
-int Free_x[MAX_SIZE]; //自由变元
-int X_Ans[MAX_SIZE]; //解集
-int Free_num=0;    //自由变元数
+int Free_x[MAX_SIZE];  //自由变元
+int X_Ans[MAX_SIZE];   //解集
+int Free_num = 0;      //自由变元数
 
 // 下标从0开始
-int Guass(int Row,int Column) //系数矩阵的行，列
+int Guass(int Row, int Column)  //系数矩阵的行，列
 {
-        int row = 0, col = 0, max_r;
-        for(row = 0; row < Row && col < Column; row++, col++) {
-                max_r = row;
-                for(int i = row + 1;i < Row; i++)        //找出当前列的最大值
-                        if(abs(Matrix[i][col]) > abs(Matrix[max_r][col]))
-                                max_r = i;
-                if(Matrix[max_r][col] == 0) {     //最大值为0，等价有自由元，记录
-                        row--;
-                        Free_x[++Free_num] = col + 1;
-                        continue;
-                }
-                if(max_r != row)     //将最大值换到当前行
-                        swap(Matrix[row], Matrix[max_r]);
-                for(int i = row + 1; i < Row; ++i) {
-                        if(Matrix[i][col] != 0) {
-                                int LCM = lcm(abs(Matrix[i][col]), abs(Matrix[row][col]));
-                                int ta = LCM / abs(Matrix[i][col]);
-                                int tb = LCM / abs(Matrix[row][col]);
-                                if(Matrix[i][col] * Matrix[row][col] < 0)//异号由减变加
-                                        tb = -tb;
-                                for(int j = col; j < Column + 1; ++j)
-                                        Matrix[i][j] = Matrix[i][j] * ta - Matrix[row][j] * tb;
-                        }
-                }
-        }
-        //row跳出时表示矩阵非零行数
+  int row = 0, col = 0, max_r;
+  for (row = 0; row < Row && col < Column; row++, col++) {
+    max_r = row;
+    for (int i = row + 1; i < Row; i++)  //找出当前列的最大值
+      if (abs(Matrix[i][col]) > abs(Matrix[max_r][col])) max_r = i;
+    if (Matrix[max_r][col] == 0) {  //最大值为0，等价有自由元，记录
+      row--;
+      Free_x[++Free_num] = col + 1;
+      continue;
+    }
+    if (max_r != row)  //将最大值换到当前行
+      swap(Matrix[row], Matrix[max_r]);
+    for (int i = row + 1; i < Row; ++i) {
+      if (Matrix[i][col] != 0) {
+        int LCM = lcm(abs(Matrix[i][col]), abs(Matrix[row][col]));
+        int ta = LCM / abs(Matrix[i][col]);
+        int tb = LCM / abs(Matrix[row][col]);
+        if (Matrix[i][col] * Matrix[row][col] < 0)  //异号由减变加
+          tb = -tb;
+        for (int j = col; j < Column + 1; ++j)
+          Matrix[i][j] = Matrix[i][j] * ta - Matrix[row][j] * tb;
+      }
+    }
+  }
+  // row跳出时表示矩阵非零行数
 
-        for(int i = row; i < Row; ++i)    //无解
-                if(Matrix[i][Column] != 0)
-                        return -1;
+  for (int i = row; i < Row; ++i)  //无解
+    if (Matrix[i][Column] != 0) return -1;
 
-        if(row < Column)     //无穷多解，返回自由变元数
-                return Column - row;
+  if (row < Column)  //无穷多解，返回自由变元数
+    return Column - row;
 
-        for(int i = Column - 1; i >= 0; --i) {
-                int temp = Matrix[i][Column];
-                for(int j = i + 1;j < Column; j++)
-                        if(Matrix[i][j] != 0)
-                                temp -= Matrix[i][j] * X_Ans[j];
-                X_Ans[i] = temp / Matrix[i][i];
-        }
-        return 0;
+  for (int i = Column - 1; i >= 0; --i) {
+    int temp = Matrix[i][Column];
+    for (int j = i + 1; j < Column; j++)
+      if (Matrix[i][j] != 0) temp -= Matrix[i][j] * X_Ans[j];
+    X_Ans[i] = temp / Matrix[i][i];
+  }
+  return 0;
 }
 ```
 
 异或方程组
 
 ```cpp
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 #define MAX_SIZE 350
 #define ll long long
 ll Matrix[MAX_SIZE][MAX_SIZE];
-ll Free_x[MAX_SIZE];     //自由变元
-ll X_Ans[MAX_SIZE];    //解集
-ll Free_num=0;    //自由变元数
+ll Free_x[MAX_SIZE];  //自由变元
+ll X_Ans[MAX_SIZE];   //解集
+ll Free_num = 0;      //自由变元数
 
-ll Guass(ll Row, ll Column)    //系数矩阵的行和列
+ll Guass(ll Row, ll Column)  //系数矩阵的行和列
 {
-        ll row = 0,col = 0, max_r;
-        for(row = 0; row < Row && col < Column; row++, col++) {
-                max_r = row;
-                for(ll i = row + 1;i < Row; ++i)     //找出当前列最大值
-                        if(abs(Matrix[i][col]) > abs(Matrix[max_r][col]))
-                                max_r = i;
-                if(Matrix[max_r][col] == 0) {
-                        row--;
-                        Free_x[Free_num++] = col + 1;
-                        continue;
-                }
-                if(max_r!=row)    //交换
-                        swap(Matrix[row], Matrix[max_r]);
-                for(ll i=row+1;i<Row;i++) {
-                        if(Matrix[i][col] != 0) {
-                                for(ll j = col; j < Column + 1; ++j)
-                                        Matrix[i][j]^=Matrix[row][j];
-                        }
-                }
-        }
-        for(ll i = row; i < Row; ++i)     //无解
-                if(Matrix[i][Column] != 0)
-                        return -1;
+  ll row = 0, col = 0, max_r;
+  for (row = 0; row < Row && col < Column; row++, col++) {
+    max_r = row;
+    for (ll i = row + 1; i < Row; ++i)  //找出当前列最大值
+      if (abs(Matrix[i][col]) > abs(Matrix[max_r][col])) max_r = i;
+    if (Matrix[max_r][col] == 0) {
+      row--;
+      Free_x[Free_num++] = col + 1;
+      continue;
+    }
+    if (max_r != row)  //交换
+      swap(Matrix[row], Matrix[max_r]);
+    for (ll i = row + 1; i < Row; i++) {
+      if (Matrix[i][col] != 0) {
+        for (ll j = col; j < Column + 1; ++j) Matrix[i][j] ^= Matrix[row][j];
+      }
+    }
+  }
+  for (ll i = row; i < Row; ++i)  //无解
+    if (Matrix[i][Column] != 0) return -1;
 
-        if(row < Column)     //无穷多解
-                return Column - row;
+  if (row < Column)  //无穷多解
+    return Column - row;
 
-        //唯一解
-        for(ll i = Column - 1; i >= 0; --i) {
-                X_Ans[i] = Matrix[i][Column];
-                for(ll j = i + 1; j < Column; ++j)
-                        X_Ans[i] ^= (Matrix[i][j] && X_Ans[j]);
-        }
-        return 0;
+  //唯一解
+  for (ll i = Column - 1; i >= 0; --i) {
+    X_Ans[i] = Matrix[i][Column];
+    for (ll j = i + 1; j < Column; ++j) X_Ans[i] ^= (Matrix[i][j] && X_Ans[j]);
+  }
+  return 0;
 }
 ```
 
@@ -118,92 +111,93 @@ ll Guass(ll Row, ll Column)    //系数矩阵的行和列
 
 ```cpp
 struct Linear_Basis {
-        ll p[65], d[65];
-        int cnt = 0;
-        Linear_Basis() {
-                memset(p, 0, sizeof p);
-        }
+  ll p[65], d[65];
+  int cnt = 0;
+  Linear_Basis() { memset(p, 0, sizeof p); }
 
-        //向线性基中插入一个数
-        bool ins(ll x) {
-                for (int i = 62; i >= 0; --i) {
-                        if (x & (1ll << i)) {
-                                if (not p[i]) {
-                                        p[i] = x; break;
-                                }
-                                x ^= p[i];
-                        }
-                }
-                return x > 0ll;
+  //向线性基中插入一个数
+  bool ins(ll x) {
+    for (int i = 62; i >= 0; --i) {
+      if (x & (1ll << i)) {
+        if (not p[i]) {
+          p[i] = x;
+          break;
         }
+        x ^= p[i];
+      }
+    }
+    return x > 0ll;
+  }
 
-        //将线性基改造成每一位相互独立，即对于二进制的某一位i，只有pi的这一位是1，其它都是0
-        void rebuild() {
-                cnt = 0;
-                for (int i = 62; i >= 0; --i) {
-                        for (int j = i - 1; j >= 0; --j) {
-                                if (p[i] & (1ll << j)) p[i] ^= p[j];
-                        }
-                }
-                for (int i = 0; i <= 62; ++i) {
-                        if (p[i]) d[++cnt] = p[i];
-                }
-        }
+  //将线性基改造成每一位相互独立，即对于二进制的某一位i，只有pi的这一位是1，其它都是0
+  void rebuild() {
+    cnt = 0;
+    for (int i = 62; i >= 0; --i) {
+      for (int j = i - 1; j >= 0; --j) {
+        if (p[i] & (1ll << j)) p[i] ^= p[j];
+      }
+    }
+    for (int i = 0; i <= 62; ++i) {
+      if (p[i]) d[++cnt] = p[i];
+    }
+  }
 
-        //求线性空间与ans异或的最大值
-        ll MAX(ll x) {
-                for (int i = 62; i >= 0; --i) {
-                        if ((x ^ p[i]) > x) x ^= p[i];
-                }
-                return x;
-        }
+  //求线性空间与ans异或的最大值
+  ll MAX(ll x) {
+    for (int i = 62; i >= 0; --i) {
+      if ((x ^ p[i]) > x) x ^= p[i];
+    }
+    return x;
+  }
 
-        //如果是求一个数与线性基的异或最小值，则需要先rebuild，再从高位向低位依次进行异或
-        ll MIN() {
-                for (int i = 0; i <= 62; ++i) {
-                        if (p[i]) return p[i];
-                }
-        }
+  //如果是求一个数与线性基的异或最小值，则需要先rebuild，再从高位向低位依次进行异或
+  ll MIN() {
+    for (int i = 0; i <= 62; ++i) {
+      if (p[i]) return p[i];
+    }
+  }
 
-        //求线性基能够组成的数中的第K大
-        ll kth(ll k) {
-                ll ret = 0;
-                if (k >= (1ll << cnt)) return -1;
-                for (int i = 62; i >= 0; --i) {
-                        if (k & (1ll << i)) ret ^= d[i];
-                }
-                return ret;
-        }
+  //求线性基能够组成的数中的第K大
+  ll kth(ll k) {
+    ll ret = 0;
+    if (k >= (1ll << cnt)) return -1;
+    for (int i = 62; i >= 0; --i) {
+      if (k & (1ll << i)) ret ^= d[i];
+    }
+    return ret;
+  }
 
-        //合并两个线性基
-        Linear_Basis &merge (const Linear_Basis &xx) {
-                for (int i = 62; i >= 0; --i) {
-                        if (xx.p[i]) ins(xx.p[i]);
-                }
-                return *this;
-        }
-}LB;
+  //合并两个线性基
+  Linear_Basis &merge(const Linear_Basis &xx) {
+    for (int i = 62; i >= 0; --i) {
+      if (xx.p[i]) ins(xx.p[i]);
+    }
+    return *this;
+  }
+} LB;
 
 //两个线性基求交 tmp不断构建A+(B\ans)
 Linear_Basis merge(Linear_Basis a, Linear_Basis b) {
-        Linear_Basis A = a, tmp = a, ans;
-        ll cur, d;
-        for (int i = 0; i <= 62; ++i) {
-                if (b.p[i]) {
-                        cur = 0; d = b.p[i];
-                        for (int j = i; j >= 0; --j) {
-                                if ((d << j) & 1) {
-                                        if (tmp.p[j]) {
-                                                d ^= tmp.p[j], cur ^= A.p[j];
-                                                if (d) continue;
-                                                ans.p[i] = cur;
-                                        } else tmp.p[j] = d, A.p[j] = cur;
-                                        break;
-                                }
-                        }
-                }
+  Linear_Basis A = a, tmp = a, ans;
+  ll cur, d;
+  for (int i = 0; i <= 62; ++i) {
+    if (b.p[i]) {
+      cur = 0;
+      d = b.p[i];
+      for (int j = i; j >= 0; --j) {
+        if ((d << j) & 1) {
+          if (tmp.p[j]) {
+            d ^= tmp.p[j], cur ^= A.p[j];
+            if (d) continue;
+            ans.p[i] = cur;
+          } else
+            tmp.p[j] = d, A.p[j] = cur;
+          break;
         }
-        return ans;
+      }
+    }
+  }
+  return ans;
 }
 ```
 
@@ -211,20 +205,20 @@ Linear_Basis merge(Linear_Basis a, Linear_Basis b) {
 
 ```cpp
 ll C(int x, int y) {
-
-        // prework
-        inv[1] = inv[0] = 1; fac[1] = fac[0] = 1;
-        for (int i = 2; i <= MAX; ++i) {
-                inv[i] = 1ll * (mod - mod / i) * inv[mod % i] % mod;
-                fac[i] = 1ll * fac[i - 1] * i % mod;
-        }
-        for(int i = 1; i <= MAX; ++i) {
-                inv[i] = 1ll * inv[i - 1] * inv[i] % mod;
-        }
-        // main work
-        if(y > x) return 0;
-        if(x == 0 or y == 0) return 1;
-        return 1ll * fac[x] * inv[y] % mod * inv[x - y] % mod;
+  // prework
+  inv[1] = inv[0] = 1;
+  fac[1] = fac[0] = 1;
+  for (int i = 2; i <= MAX; ++i) {
+    inv[i] = 1ll * (mod - mod / i) * inv[mod % i] % mod;
+    fac[i] = 1ll * fac[i - 1] * i % mod;
+  }
+  for (int i = 1; i <= MAX; ++i) {
+    inv[i] = 1ll * inv[i - 1] * inv[i] % mod;
+  }
+  // main work
+  if (y > x) return 0;
+  if (x == 0 or y == 0) return 1;
+  return 1ll * fac[x] * inv[y] % mod * inv[x - y] % mod;
 }
 ```
 
@@ -232,8 +226,8 @@ ll C(int x, int y) {
 
 ```cpp
 for (int l = 1, r, len = min(a, b); l <= len; l = r + 1) {
-        r = min(a / (a / l), b / (b / l));
-        ans += 1ll * (mo[r] - mo[l - 1]) * (a / l) * (b / l);
+  r = min(a / (a / l), b / (b / l));
+  ans += 1ll * (mo[r] - mo[l - 1]) * (a / l) * (b / l);
 }
 ```
 
@@ -243,41 +237,43 @@ for (int l = 1, r, len = min(a, b); l <= len; l = r + 1) {
 // 给定整数N，求1<=x,y<=N且Gcd(x,y)为素数的数对(x,y)有多少对.
 int vis[N], prime[N], num = 0, sum[N], mo[N];
 void getprime() {
-        mo[1] = 1;
-        for (int i = 2; i <= MAX; ++i) {
-                if(not vis[i]) {
-                        prime[++num] = i; mo[i] = -1;
-                }
-                vis[i] = 1;
-                for (int j = 1; j <= num and i * prime[j] <= MAX; ++j) {
-                        vis[i * prime[j]] = 1;
-                        if(i % prime[j] == 0) {
-                                mo[i * prime[j]] = 0; break;
-                        }
-                        mo[i * prime[j]] = -mo[i];
-                }
-        }
+  mo[1] = 1;
+  for (int i = 2; i <= MAX; ++i) {
+    if (not vis[i]) {
+      prime[++num] = i;
+      mo[i] = -1;
+    }
+    vis[i] = 1;
+    for (int j = 1; j <= num and i * prime[j] <= MAX; ++j) {
+      vis[i * prime[j]] = 1;
+      if (i % prime[j] == 0) {
+        mo[i * prime[j]] = 0;
+        break;
+      }
+      mo[i * prime[j]] = -mo[i];
+    }
+  }
 }
 int main() {
-        int n = gn();
-        getprime();
+  int n = gn();
+  getprime();
 
-        // O(n) 处理 \simga p|T u(T/p) 并求前缀和
-        for (int j = 1; j <= num; ++j) {
-                for(int i = prime[j]; i <= MAX; i += prime[j]) {
-                        sum[i] += mo[i / prime[j]];
-                }
-        }
+  // O(n) 处理 \simga p|T u(T/p) 并求前缀和
+  for (int j = 1; j <= num; ++j) {
+    for (int i = prime[j]; i <= MAX; i += prime[j]) {
+      sum[i] += mo[i / prime[j]];
+    }
+  }
 
-        for(int i = 1; i <= n; ++i) {
-                sum[i] += sum[i - 1];
-        }
+  for (int i = 1; i <= n; ++i) {
+    sum[i] += sum[i - 1];
+  }
 
-        ll ans = 0;
-        for(int l = 1, r; l <= n; l = r + 1) {
-                r = min(n, n / (n / l));
-                ans += 1ll * (n / l) * (n / l) * (sum[r] - sum[l - 1]);
-        }
+  ll ans = 0;
+  for (int l = 1, r; l <= n; l = r + 1) {
+    r = min(n, n / (n / l));
+    ans += 1ll * (n / l) * (n / l) * (sum[r] - sum[l - 1]);
+  }
 }
 ```
 
@@ -285,14 +281,14 @@ int main() {
 
 ```cpp
 for (int l = 1, r; l <= n; l = r + 1) {
-    r = n / (n / l);
-    // do something with [l, r]...
+  r = n / (n / l);
+  // do something with [l, r]...
 }
 
 // 二维:
 for (int l = 1, r; l <= min(n, m); l = r + 1) {
-    r = min(n / (n / l), m / (m / l));
-    // do something with [l, r]...
+  r = min(n / (n / l), m / (m / l));
+  // do something with [l, r]...
 }
 ```
 
@@ -304,51 +300,51 @@ const int maxn = 2e5 + 30;
 const int mod = 1e9 + 7;
 
 struct M {
-        array<ll, 3>a[3];
-        explicit M() {
-                for (int i = 0; i < 3; i++) a[i].fill(0);
-        }
+  array<ll, 3> a[3];
+  explicit M() {
+    for (int i = 0; i < 3; i++) a[i].fill(0);
+  }
 
-        static M normal() {
-                M(m);
-                for (int i = 0; i < 3; i++) {
-                        m.a[i][i] = 1;
-                }
-                return m;
+  static M normal() {
+    M(m);
+    for (int i = 0; i < 3; i++) {
+      m.a[i][i] = 1;
+    }
+    return m;
+  }
+  M operator*(const M b) {
+    M(m);
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        for (int k = 0; k < 3; k++) {
+          m.a[i][j] += a[i][k] * b.a[k][j];
+          m.a[i][j] %= mod;
         }
-        M operator * (const M b) {
-                M(m);
-                for (int i = 0; i < 3; i++ ) {
-                        for (int j = 0; j < 3; j++) {
-                                for (int k = 0; k < 3; k++) {
-                                        m.a[i][j] += a[i][k] * b.a[k][j];
-                                        m.a[i][j] %= mod;
-                                }
-                        }
-                }
-                return m;
-        }
-        M operator ^(int k) {
-                M res = normal();
-                M t = *this;
-                while (k) {
-                        if (k & 1) res = res * t;
-                        k >>= 1;
-                        t = t * t;
-                }
-                return res;
-        }
+      }
+    }
+    return m;
+  }
+  M operator^(int k) {
+    M res = normal();
+    M t = *this;
+    while (k) {
+      if (k & 1) res = res * t;
+      k >>= 1;
+      t = t * t;
+    }
+    return res;
+  }
 };
 
-array<ll, 3> operator * (M a, const array<ll, 3>    b) {
-        array<ll, 3> m{};
-        for (int j = 0; j < 3; j++) {
-                for (int k = 0; k < 3; k++) {
-                        m[j] += a.a[j][k] * b[k];
-                        m[j] %= mod;
-                }
-        }
-        return m;
+array<ll, 3> operator*(M a, const array<ll, 3> b) {
+  array<ll, 3> m{};
+  for (int j = 0; j < 3; j++) {
+    for (int k = 0; k < 3; k++) {
+      m[j] += a.a[j][k] * b[k];
+      m[j] %= mod;
+    }
+  }
+  return m;
 }
 ```
 
@@ -361,15 +357,15 @@ int prime[N], vis[N];
 int tot = 0;
 
 void Euler() {
-        vis[1] = 1;
-        for(int i = 2; i < N; ++i) {
-                if(!vis[i]) prime[++tot] = i;
-                for(int j = 1; j <= tot; ++j) {
-                        if(i * prime[j] > N) break;
-                        vis[i * prime[j]] = 1;
-                        if(i % prime[j] == 0) break;
-                }
-        }
+  vis[1] = 1;
+  for (int i = 2; i < N; ++i) {
+    if (!vis[i]) prime[++tot] = i;
+    for (int j = 1; j <= tot; ++j) {
+      if (i * prime[j] > N) break;
+      vis[i * prime[j]] = 1;
+      if (i % prime[j] == 0) break;
+    }
+  }
 }
 ```
 
@@ -377,33 +373,31 @@ void Euler() {
 
 ```cpp
 struct Gauss {
-        int n;
+  int n;
 
-        void getn(int n) {
-                this->n = n;
-        }
+  void getn(int n) { this->n = n; }
 
-        double gauss () {
-                for(int i = 1; i <= n; ++i) {
-                        int pos = i;
-                        for(int j = i + 1; j <= n; ++j) {
-                                if(fabs(a[j][i]) > fabs(a[pos][i])) pos = j;
-                        }
-                        if(fabs(a[pos][i]) <= 1e-6) return 0;
-                        if(pos != i) swap(a[pos], a[i]);
-                        for(int j = i + 1; j <= n; ++j) {
-                                double tmp = a[j][i] / a[i][i];
-                                for(int k = 1; k <= n; ++k) {
-                                        a[j][k] -= a[i][k] * tmp;
-                                }
-                        }
-                }
-                double ret = 1;
-                for(int i = 1; i <= n; ++i) {
-                        ret *= a[i][i];
-                }
-                return fabs(ret);
+  double gauss() {
+    for (int i = 1; i <= n; ++i) {
+      int pos = i;
+      for (int j = i + 1; j <= n; ++j) {
+        if (fabs(a[j][i]) > fabs(a[pos][i])) pos = j;
+      }
+      if (fabs(a[pos][i]) <= 1e-6) return 0;
+      if (pos != i) swap(a[pos], a[i]);
+      for (int j = i + 1; j <= n; ++j) {
+        double tmp = a[j][i] / a[i][i];
+        for (int k = 1; k <= n; ++k) {
+          a[j][k] -= a[i][k] * tmp;
         }
+      }
+    }
+    double ret = 1;
+    for (int i = 1; i <= n; ++i) {
+      ret *= a[i][i];
+    }
+    return fabs(ret);
+  }
 };
 ```
 
@@ -420,9 +414,9 @@ $$
 
 ```cpp
 ll Lucas(ll a, ll b) {
-    if (b == 0) return 1;
-    ll ret = (C(a % mod, b % mod, mod) * Lucas(a / mod, b / mod)) % mod;
-    return ret;
+  if (b == 0) return 1;
+  ll ret = (C(a % mod, b % mod, mod) * Lucas(a / mod, b / mod)) % mod;
+  return ret;
 }
 ```
 
@@ -434,104 +428,102 @@ ll Lucas(ll a, ll b) {
 ```cpp
 // calc (n! % pk) (but no p^s !!!! )
 inline ll F(ll n, ll P, ll PK) {
-    if (n == 0)
-        return 1;
-    ll rou = 1; //循环节
-    ll rem = 1; //余项
-    for (ll i = 1; i <= PK; i++) {
-        if (i % P)
-            rou = rou * i % PK;
-    }
-    for (ll i = PK * (n / PK); i <= n; i++) {
-        if (i % P)
-            rem = rem * (i % PK) % PK;
-    }
-    return F(n / P, P, PK) % PK *
-           fast_pow(rou, n / PK, PK) % PK *
-           rem % PK;
+  if (n == 0) return 1;
+  ll rou = 1;  //循环节
+  ll rem = 1;  //余项
+  for (ll i = 1; i <= PK; i++) {
+    if (i % P) rou = rou * i % PK;
+  }
+  for (ll i = PK * (n / PK); i <= n; i++) {
+    if (i % P) rem = rem * (i % PK) % PK;
+  }
+  return F(n / P, P, PK) % PK * fast_pow(rou, n / PK, PK) % PK * rem % PK;
 }
 
 // 返回n!中有多少p
 inline ll G(ll n, ll P) {
-    if (n < P)
-        return 0;
-    return G(n / P, P) + (n / P);
+  if (n < P) return 0;
+  return G(n / P, P) + (n / P);
 }
 
 // Cnm % p^k
 inline ll C_PK(ll n, ll m, ll P, ll PK) {
-    ll fz = F(n, P, PK), fm1 = INV(F(m, P, PK), PK), fm2 = INV(F(n - m, P, PK), PK);
-    ll mi = fast_pow(P, G(n, P) - G(m, P) - G(n - m, P), PK); // num(p) in Cnm p^s
-    return fz * fm1 % PK * fm2 % PK * mi % PK;
+  ll fz = F(n, P, PK), fm1 = INV(F(m, P, PK), PK),
+     fm2 = INV(F(n - m, P, PK), PK);
+  ll mi =
+      fast_pow(P, G(n, P) - G(m, P) - G(n - m, P), PK);  // num(p) in Cnm p^s
+  return fz * fm1 % PK * fm2 % PK * mi % PK;
 }
 
 ll A[1001], B[1001];
-//x=B(mod A)
+// x=B(mod A)
 
 inline ll exLucas(ll n, ll m, ll P) {
-    ll ljc = P, tot = 0;
-    for (ll tmp = 2; tmp * tmp <= P; tmp++) {
-        if (!(ljc % tmp)) {
-            ll PK = 1;
-            while (!(ljc % tmp)) {
-                PK *= tmp;
-                ljc /= tmp;
-            }
-            A[++tot] = PK;
-            B[tot] = C_PK(n, m, tmp, PK);
-        }
+  ll ljc = P, tot = 0;
+  for (ll tmp = 2; tmp * tmp <= P; tmp++) {
+    if (!(ljc % tmp)) {
+      ll PK = 1;
+      while (!(ljc % tmp)) {
+        PK *= tmp;
+        ljc /= tmp;
+      }
+      A[++tot] = PK;
+      B[tot] = C_PK(n, m, tmp, PK);
     }
-    // ljc is prime
-    if (ljc != 1) {
-        A[++tot] = ljc;
-        B[tot] = C_PK(n, m, ljc, ljc);
-    }
-    // CRT
-    ll ans = 0;
-    for (ll i = 1; i <= tot; i++) {
-        ll M = P / A[i], T = INV(M, A[i]);
-        ans = (ans + B[i] * M % P * T % P) % P;
-    }
-    return ans;
+  }
+  // ljc is prime
+  if (ljc != 1) {
+    A[++tot] = ljc;
+    B[tot] = C_PK(n, m, ljc, ljc);
+  }
+  // CRT
+  ll ans = 0;
+  for (ll i = 1; i <= tot; i++) {
+    ll M = P / A[i], T = INV(M, A[i]);
+    ans = (ans + B[i] * M % P * T % P) % P;
+  }
+  return ans;
 }
 ```
 
 ### 快速幂取模
 
 ```cpp
-template < typename T >
+template <typename T>
 T qpow(T a, T b, T m) {
-    a %= m;
-    T res = 1;
-    while (b > 0) {
-        if (b & 1) res = res * a % m;
-        a = a * a % m;
-        b >>= 1;
-    }
-    return res;
+  a %= m;
+  T res = 1;
+  while (b > 0) {
+    if (b & 1) res = res * a % m;
+    a = a * a % m;
+    b >>= 1;
+  }
+  return res;
 }
 ```
 
 ### GCD和exGCD
 
 ```cpp
-template < typename T >
+template <typename T>
 T GCD(T a, T b) {
-  if(b) while((a %= b) && (b %= a));
+  if (b)
+    while ((a %= b) && (b %= a))
+      ;
   return a + b;
 }
 
-template < typename T >
-T gcd(T a, T b){
+template <typename T>
+T gcd(T a, T b) {
   return b == 0 ? a : gcd(b, a % b);
 }
 
-template < typename T >
-void ex_gcd(T a, T b, T &x, T &y){
-    if(b == 0)
-        x = 1, y = 0; return;
-    ex_gcd(b, a % b, y, x);
-    y -= (a / b) * x;
+template <typename T>
+void ex_gcd(T a, T b, T &x, T &y) {
+  if (b == 0) x = 1, y = 0;
+  return;
+  ex_gcd(b, a % b, y, x);
+  y -= (a / b) * x;
 }
 ```
 
@@ -543,9 +535,8 @@ void ex_gcd(T a, T b, T &x, T &y){
 
 ```cpp
 void init() {
-        inv[1] = 1;
-        for (int i = 2; i <= n; ++i)
-                inv[i] = (ll)(p - p / i) * inv[p % i] % p;
+  inv[1] = 1;
+  for (int i = 2; i <= n; ++i) inv[i] = (ll)(p - p / i) * inv[p % i] % p;
 }
 ```
 
@@ -563,21 +554,21 @@ $$
 ```cpp
 template <class T>
 T exgcd(T a, T b, T &x, T &y) {
-    if (!b) {
-        x = 1, y = 0;
-        return a;
-    }
-    T t, ret;
-    ret = exgcd(b, a % b, x, y);
-    t = x, x = y, y = t - a / b * y;
-    return ret;
+  if (!b) {
+    x = 1, y = 0;
+    return a;
+  }
+  T t, ret;
+  ret = exgcd(b, a % b, x, y);
+  t = x, x = y, y = t - a / b * y;
+  return ret;
 }
 
-template<typename T>
+template <typename T>
 T inv(T num, T mod) {
-    T x, y;
-    exgcd(num, mod, x, y);
-    return x;
+  T x, y;
+  exgcd(num, mod, x, y);
+  return x;
 }
 ```
 
@@ -598,73 +589,73 @@ T inv(T num, T mod) {
 
 ```cpp
 bool millerRabbin(int n) {
-    if (n < 3) return n == 2;
-    int a = n - 1, b = 0;
-    while (a % 2 == 0) a /= 2, ++b;
-    // test_time 为测试次数,建议设为不小于 8
-    // 的整数以保证正确率,但也不宜过大,否则会影响效率
-    for (int i = 1, j; i <= test_time; ++i) {
-        int x = rand() % (n - 2) + 2, v = quickPow(x, a, n);
-        if (v == 1 || v == n - 1) continue;
-        for (j = 0; j < b; ++j) {
-            v = (ll) v * v % n;
-            if (v == n - 1) break;
-        }
-        if (j >= b) return 0;
+  if (n < 3) return n == 2;
+  int a = n - 1, b = 0;
+  while (a % 2 == 0) a /= 2, ++b;
+  // test_time 为测试次数,建议设为不小于 8
+  // 的整数以保证正确率,但也不宜过大,否则会影响效率
+  for (int i = 1, j; i <= test_time; ++i) {
+    int x = rand() % (n - 2) + 2, v = quickPow(x, a, n);
+    if (v == 1 || v == n - 1) continue;
+    for (j = 0; j < b; ++j) {
+      v = (ll)v * v % n;
+      if (v == n - 1) break;
     }
-    return 1;
+    if (j >= b) return 0;
+  }
+  return 1;
 }
 
 //****************************************************************
 // Miller_Rabin 算法进行素数测试
 //速度快，而且可以判断 <2^63的数
 //****************************************************************
-const int S = 20; //随机算法判定次数，S越大，判错概率越小
+const int S = 20;  //随机算法判定次数，S越大，判错概率越小
 
 //计算 (a*b)%c.     a,b都是ll的数，直接相乘可能溢出的
 //    a,b,c <2^63
 ll mult_mod(ll a, ll b, ll c) {
-    a %= c;
-    b %= c;
-    ll ret = 0;
-    while (b) {
-        if (b & 1) {
-            ret += a;
-            ret %= c;
-        }
-        a <<= 1; //别手残，这里是a<<=1,不是快速幂的a=a*a;
-        if (a >= c) a %= c;
-        b >>= 1;
+  a %= c;
+  b %= c;
+  ll ret = 0;
+  while (b) {
+    if (b & 1) {
+      ret += a;
+      ret %= c;
     }
-    return ret;
+    a <<= 1;  //别手残，这里是a<<=1,不是快速幂的a=a*a;
+    if (a >= c) a %= c;
+    b >>= 1;
+  }
+  return ret;
 }
 
 //计算    x^n %c
-ll pow_mod(ll x, ll n, ll mod) { //x^n%c
-    if (n == 1) return x % mod;
-    x %= mod;
-    ll tmp = x;
-    ll ret = 1;
-    while (n) {
-        if (n & 1) ret = mult_mod(ret, tmp, mod);
-        tmp = mult_mod(tmp, tmp, mod);
-        n >>= 1;
-    }
-    return ret;
+ll pow_mod(ll x, ll n, ll mod) {  // x^n%c
+  if (n == 1) return x % mod;
+  x %= mod;
+  ll tmp = x;
+  ll ret = 1;
+  while (n) {
+    if (n & 1) ret = mult_mod(ret, tmp, mod);
+    tmp = mult_mod(tmp, tmp, mod);
+    n >>= 1;
+  }
+  return ret;
 }
 
 //以a为基,n-1=x*2^t            a^(n-1)=1(mod n)    验证n是不是合数
 //一定是合数返回true,不一定返回false
 bool check(ll a, ll n, ll x, ll t) {
-    ll ret = pow_mod(a, x, n);
-    ll last = ret;
-    for (int i = 1; i <= t; i++) {
-        ret = mult_mod(ret, ret, n);
-        if (ret == 1 && last != 1 && last != n - 1) return true; //合数
-        last = ret;
-    }
-    if (ret != 1) return true;
-    return false;
+  ll ret = pow_mod(a, x, n);
+  ll last = ret;
+  for (int i = 1; i <= t; i++) {
+    ret = mult_mod(ret, ret, n);
+    if (ret == 1 && last != 1 && last != n - 1) return true;  //合数
+    last = ret;
+  }
+  if (ret != 1) return true;
+  return false;
 }
 
 // Miller_Rabin()算法素数判定
@@ -672,65 +663,64 @@ bool check(ll a, ll n, ll x, ll t) {
 //合数返回false;
 
 bool Miller_Rabin(ll n) {
-    if (n < 2) return false;
-    if (n == 2) return true;
-    if ((n & 1) == 0) return false; //偶数
-    ll x = n - 1;
-    ll t = 0;
-    while ((x & 1) == 0) {
-        x >>= 1;
-        t++;
-    }
-    for (int i = 0; i < S; i++) {
-        ll a = rand() % (n - 1) + 1; //rand()需要stdlib.h头文件
-        if (check(a, n, x, t))
-            return false; //合数
-    }
-    return true;
+  if (n < 2) return false;
+  if (n == 2) return true;
+  if ((n & 1) == 0) return false;  //偶数
+  ll x = n - 1;
+  ll t = 0;
+  while ((x & 1) == 0) {
+    x >>= 1;
+    t++;
+  }
+  for (int i = 0; i < S; i++) {
+    ll a = rand() % (n - 1) + 1;          // rand()需要stdlib.h头文件
+    if (check(a, n, x, t)) return false;  //合数
+  }
+  return true;
 }
 
 //************************************************
-//pollard_rho 算法进行质因数分解
+// pollard_rho 算法进行质因数分解
 //************************************************
-ll factor[100]; //质因数分解结果（刚返回时是无序的）
-int tol; //质因数的个数。数组小标从0开始
+ll factor[100];  //质因数分解结果（刚返回时是无序的）
+int tol;         //质因数的个数。数组小标从0开始
 
 ll gcd(ll a, ll b) {
-    if (a == 0) return 1; //???????
-    if (a < 0) return gcd(-a, b);
-    while (b) {
-        ll t = a % b;
-        a = b;
-        b = t;
-    }
-    return a;
+  if (a == 0) return 1;  //???????
+  if (a < 0) return gcd(-a, b);
+  while (b) {
+    ll t = a % b;
+    a = b;
+    b = t;
+  }
+  return a;
 }
 
 ll Pollard_rho(ll x, ll c) {
-    ll i = 1, k = 2, x0 = rand() % x, y = x0;
-    while (1) {
-        i++;
-        x0 = (mult_mod(x0, x0, x) + c) % x;
-        ll d = gcd(y - x0, x);
-        if (d != 1 && d != x) return d;
-        if (y == x0) return x;
-        if (i == k) {
-            y = x0;
-            k += k;
-        }
+  ll i = 1, k = 2, x0 = rand() % x, y = x0;
+  while (1) {
+    i++;
+    x0 = (mult_mod(x0, x0, x) + c) % x;
+    ll d = gcd(y - x0, x);
+    if (d != 1 && d != x) return d;
+    if (y == x0) return x;
+    if (i == k) {
+      y = x0;
+      k += k;
     }
+  }
 }
 
 //对n进行素因子分解
 void findfac(ll n) {
-    if (Miller_Rabin(n)) { //素数
-        factor[tol++] = n;
-        return;
-    }
-    ll p = n;
-    while (p >= n) p = Pollard_rho(p, rand() % (n - 1) + 1);
-    findfac(p);
-    findfac(n / p);
+  if (Miller_Rabin(n)) {  //素数
+    factor[tol++] = n;
+    return;
+  }
+  ll p = n;
+  while (p >= n) p = Pollard_rho(p, rand() % (n - 1) + 1);
+  findfac(p);
+  findfac(n / p);
 }
 
 // srand(time(NULL));//需要time.h头文件    //POJ上G++要去掉这句话
@@ -754,28 +744,28 @@ void findfac(ll n) {
 
 ```cpp
 void init() {
-    phi[1] = 1;
-    for (int i = 2; i < MAXN; ++i) {
-        if (!vis[i]) {
-            phi[i] = i - 1;
-            pri[cnt++] = i;
-        }
-        for (int j = 0; j < cnt; ++j) {
-            if (1ll * i * pri[j] >= MAXN) break;
-            vis[i * pri[j]] = 1;
-            if (i % pri[j]) {
-                phi[i * pri[j]] = phi[i] * (pri[j] - 1);
-            } else {
-                // i % pri[j] == 0
-                // 换言之，i 之前被 pri[j] 筛过了
-                // 由于 pri 里面质数是从小到大的，所以 i 乘上其他的质数的结果一定也是
-                // pri[j] 的倍数 它们都被筛过了，就不需要再筛了，所以这里直接 break
-                // 掉就好了
-                phi[i * pri[j]] = phi[i] * pri[j];
-                break;
-            }
-        }
+  phi[1] = 1;
+  for (int i = 2; i < MAXN; ++i) {
+    if (!vis[i]) {
+      phi[i] = i - 1;
+      pri[cnt++] = i;
     }
+    for (int j = 0; j < cnt; ++j) {
+      if (1ll * i * pri[j] >= MAXN) break;
+      vis[i * pri[j]] = 1;
+      if (i % pri[j]) {
+        phi[i * pri[j]] = phi[i] * (pri[j] - 1);
+      } else {
+        // i % pri[j] == 0
+        // 换言之，i 之前被 pri[j] 筛过了
+        // 由于 pri 里面质数是从小到大的，所以 i 乘上其他的质数的结果一定也是
+        // pri[j] 的倍数 它们都被筛过了，就不需要再筛了，所以这里直接 break
+        // 掉就好了
+        phi[i * pri[j]] = phi[i] * pri[j];
+        break;
+      }
+    }
+  }
 }
 ```
 
@@ -805,18 +795,18 @@ $$
 
 ```cpp
 void pre() {
-    mu[1] = 1;
-    for (int i = 2; i <= 1e7; ++i) {
-        if (!v[i]) mu[i] = -1, p[++tot] = i;
-        for (int j = 1; j <= tot && i <= 1e7 / p[j]; ++j) {
-            v[i * p[j]] = 1;
-            if (i % p[j] == 0) {
-                mu[i * p[j]] = 0;
-                break;
-            }
-            mu[i * p[j]] = -mu[i];
-        }
+  mu[1] = 1;
+  for (int i = 2; i <= 1e7; ++i) {
+    if (!v[i]) mu[i] = -1, p[++tot] = i;
+    for (int j = 1; j <= tot && i <= 1e7 / p[j]; ++j) {
+      v[i * p[j]] = 1;
+      if (i % p[j] == 0) {
+        mu[i * p[j]] = 0;
+        break;
+      }
+      mu[i * p[j]] = -mu[i];
     }
+  }
 }
 ```
 
@@ -890,48 +880,48 @@ void get_facnum() {
 constexpr int N = 5e5 + 100;
 
 struct preLinear_Basis {
-    array<array<int, 30>, N> p;
-    array<array<int, 30>, N> pos;
-    bool ins (int id, int x) {
-        p[id] = p[id - 1];
-        pos[id] = pos[id - 1];
-        int ti = id;
-        for (int i = 24; i >= 0; --i) {
-            if ((x & (1 << i))) {
-                if (not p[id][i]) {
-                    p[id][i] = x;
-                    pos[id][i] = ti;
-                    break;
-                }
-                if (pos[id][i] < ti) {
-                    swap(p[id][i], x);
-                    swap(pos[id][i], ti);
-                }
-                x ^= p[id][i];
-            }
+  array<array<int, 30>, N> p;
+  array<array<int, 30>, N> pos;
+  bool ins(int id, int x) {
+    p[id] = p[id - 1];
+    pos[id] = pos[id - 1];
+    int ti = id;
+    for (int i = 24; i >= 0; --i) {
+      if ((x & (1 << i))) {
+        if (not p[id][i]) {
+          p[id][i] = x;
+          pos[id][i] = ti;
+          break;
         }
+        if (pos[id][i] < ti) {
+          swap(p[id][i], x);
+          swap(pos[id][i], ti);
+        }
+        x ^= p[id][i];
+      }
+    }
 
-        return x > 0;
+    return x > 0;
+  }
+  int MAX(int x, int l, int r) {
+    for (int i = 24; i >= 0; --i) {
+      if ((x ^ p[r][i]) > x and pos[r][i] >= l) x ^= p[r][i];
     }
-    int MAX (int x, int l, int r) {
-        for (int i = 24; i >= 0; --i) {
-            if ((x ^ p[r][i]) > x and pos[r][i] >= l) x ^= p[r][i];
-        }
-        return x;
-    }
-}LB;
+    return x;
+  }
+} LB;
 
 int main() {
-    int n = gn();
-    for (int i = 1; i <= n; ++i) {
-        int val = gn();
-        LB.ins(i, val);
-    }
-    int q = gn();
-    while (q--) {
-        int l = gn(), r = gn();
-        cout << LB.MAX(0, l, r) << endl;
-    }
+  int n = gn();
+  for (int i = 1; i <= n; ++i) {
+    int val = gn();
+    LB.ins(i, val);
+  }
+  int q = gn();
+  while (q--) {
+    int l = gn(), r = gn();
+    cout << LB.MAX(0, l, r) << endl;
+  }
 }
 ```
 
@@ -1007,9 +997,9 @@ Complex operator+(Complex A, Complex B) {
   return Complex(A.x + B.x, A.y + B.y);
 }
 
-void FFT(Complex *A, int type) { // type:   1: DFT, -1: IDFT
+void FFT(Complex *A, int type) {  // type:   1: DFT, -1: IDFT
   for (int i = 0; i < limit; ++i)
-    if (i < R[i]) swap(A[i], A[R[i]]);   // 防止重复
+    if (i < R[i]) swap(A[i], A[R[i]]);  // 防止重复
 
   for (int mid = 1; mid < limit; mid <<= 1) {
     //待合并区间长度的一半，最开始是两个长度为1的序列合并,mid = 1;
@@ -1064,7 +1054,7 @@ const int N = 5000007;
 const double PI = acos(-1);
 
 int n, m, res, limit = 1;  //
-int L;          //二进制的位数
+int L;                     //二进制的位数
 int RR[N];
 ll a[N], b[N];
 
@@ -1120,7 +1110,7 @@ int main() {
 预处理版本
 
 ```cpp
-const int N = 5e6+7;
+const int N = 5e6 + 7;
 const int MOD = 998244353;
 
 int qpow(int a, int b) {
@@ -1134,68 +1124,68 @@ int qpow(int a, int b) {
 }
 
 namespace Poly {
-  typedef vector<int> poly;
-  const int G = 3;
-  const int inv_G = qpow(G, MOD - 2);
-  int RR[N], deer[2][22][N], inv[N];
+typedef vector<int> poly;
+const int G = 3;
+const int inv_G = qpow(G, MOD - 2);
+int RR[N], deer[2][22][N], inv[N];
 
-  void init(const int t) {  //预处理出来NTT里需要的w和wn，砍掉了一个log的时间
-    for (int p = 1; p <= t; ++p) {
-      int buf1 = qpow(G, (MOD - 1) / (1 << p));
-      int buf0 = qpow(inv_G, (MOD - 1) / (1 << p));
-      deer[0][p][0] = deer[1][p][0] = 1;
-      for (int i = 1; i < (1 << p); ++i) {
-        deer[0][p][i] = 1ll * deer[0][p][i - 1] * buf0 % MOD;  //逆
-        deer[1][p][i] = 1ll * deer[1][p][i - 1] * buf1 % MOD;
+void init(const int t) {  //预处理出来NTT里需要的w和wn，砍掉了一个log的时间
+  for (int p = 1; p <= t; ++p) {
+    int buf1 = qpow(G, (MOD - 1) / (1 << p));
+    int buf0 = qpow(inv_G, (MOD - 1) / (1 << p));
+    deer[0][p][0] = deer[1][p][0] = 1;
+    for (int i = 1; i < (1 << p); ++i) {
+      deer[0][p][i] = 1ll * deer[0][p][i - 1] * buf0 % MOD;  //逆
+      deer[1][p][i] = 1ll * deer[1][p][i - 1] * buf1 % MOD;
+    }
+  }
+  inv[1] = 1;
+  for (int i = 2; i <= (1 << t); ++i)
+    inv[i] = 1ll * inv[MOD % i] * (MOD - MOD / i) % MOD;
+}
+
+int NTT_init(int n) {
+  int limit = 1, L = 0;
+  while (limit < n) limit <<= 1, L++;
+  for (int i = 0; i < limit; ++i)
+    RR[i] = (RR[i >> 1] >> 1) | ((i & 1) << (L - 1));
+  return limit;
+}
+
+#define ck(x) (x >= MOD ? x - MOD : x)
+
+void NTT(poly &A, int type, int limit) {  // 1: DFT, 0: IDFT
+  A.resize(limit);
+  for (int i = 0; i < limit; ++i)
+    if (i < RR[i]) swap(A[i], A[RR[i]]);
+  for (int mid = 2, j = 1; mid <= limit; mid <<= 1, ++j) {
+    int len = mid >> 1;
+    for (int pos = 0; pos < limit; pos += mid) {
+      int *wn = deer[type][j];
+      for (int i = pos; i < pos + len; ++i, ++wn) {
+        int tmp = 1ll * (*wn) * A[i + len] % MOD;
+        A[i + len] = ck(A[i] - tmp + MOD);
+        A[i] = ck(A[i] + tmp);
       }
     }
-    inv[1] = 1;
-    for (int i = 2; i <= (1 << t); ++i)
-      inv[i] = 1ll * inv[MOD % i] * (MOD - MOD / i) % MOD;
   }
-
-  int NTT_init(int n) {
-    int limit = 1, L = 0;
-    while (limit < n) limit <<= 1, L++;
-    for (int i = 0; i < limit; ++i)
-      RR[i] = (RR[i >> 1] >> 1) | ((i & 1) << (L - 1));
-    return limit;
+  if (type == 0) {
+    int inv_limit = qpow(limit, MOD - 2);
+    for (int i = 0; i < limit; ++i) A[i] = 1ll * A[i] * inv_limit % MOD;
   }
+}
 
-  #define ck(x) (x >= MOD ? x - MOD : x)
-
-  void NTT(poly &A, int type, int limit) { // 1: DFT, 0: IDFT
-    A.resize(limit);
-    for (int i = 0; i < limit; ++i)
-      if (i < RR[i]) swap(A[i], A[RR[i]]);
-    for (int mid = 2, j = 1; mid <= limit; mid <<= 1, ++j) {
-      int len = mid >> 1;
-      for (int pos = 0; pos < limit; pos += mid) {
-        int *wn = deer[type][j];
-        for (int i = pos; i < pos + len; ++i, ++wn) {
-          int tmp = 1ll * (*wn) * A[i + len] % MOD;
-          A[i + len] = ck(A[i] - tmp + MOD);
-          A[i] = ck(A[i] + tmp);
-        }
-      }
-    }
-    if (type == 0) {
-      int inv_limit = qpow(limit, MOD - 2);
-      for (int i = 0; i < limit; ++i) A[i] = 1ll * A[i] * inv_limit % MOD;
-    }
-  }
-
-  poly poly_mul(poly A, poly B) {
-    int deg = A.size() + B.size() - 1;
-    int limit = NTT_init(deg);
-    poly C(limit);
-    NTT(A, 1, limit);
-    NTT(B, 1, limit);
-    for (int i = 0; i < limit; ++i) C[i] = 1ll * A[i] * B[i] % MOD;
-    NTT(C, 0, limit);
-    C.resize(deg);
-    return C;
-  }
+poly poly_mul(poly A, poly B) {
+  int deg = A.size() + B.size() - 1;
+  int limit = NTT_init(deg);
+  poly C(limit);
+  NTT(A, 1, limit);
+  NTT(B, 1, limit);
+  for (int i = 0; i < limit; ++i) C[i] = 1ll * A[i] * B[i] % MOD;
+  NTT(C, 0, limit);
+  C.resize(deg);
+  return C;
+}
 }  // namespace Poly
 
 using Poly::poly;
@@ -1223,94 +1213,93 @@ int main() {
 ```cpp
 constexpr int mod = 998244353, G = 3, Gi = 332748118;
 constexpr int N = 2e5 + 100;
-const double  PI = acos(-1);
+const double PI = acos(-1);
 
 int limit = 1;
 int L, RR[N << 2];
 ll a[N << 2], b[N << 2], f[N << 2], g[N << 2];
 
 ll qpow(ll x, ll y) {
-    ll ans = 1;
-    while (y) {
-        if (y & 1) ans = ans * x % mod;
-        x = x * x % mod;
-        y >>= 1;
-    }
-    return ans;
+  ll ans = 1;
+  while (y) {
+    if (y & 1) ans = ans * x % mod;
+    x = x * x % mod;
+    y >>= 1;
+  }
+  return ans;
 }
 
 ll inv(ll x) { return qpow(x, mod - 2); }
 
 void NTT(ll *A, int type) {
-    for (int i = 0; i < limit; ++i) {
-        if (i < RR[i]) swap(A[i], A[RR[i]]);
+  for (int i = 0; i < limit; ++i) {
+    if (i < RR[i]) swap(A[i], A[RR[i]]);
+  }
+  for (int mid = 1; mid < limit; mid <<= 1) {
+    ll wn = qpow(G, (mod - 1) / (mid * 2));
+    if (type == -1) wn = qpow(wn, mod - 2);
+    for (int len = mid << 1, pos = 0; pos < limit; pos += len) {
+      ll w = 1;
+      for (int k = 0; k < mid; ++k, w = (w * wn) % mod) {
+        ll x = A[pos + k], y = w * A[pos + mid + k] % mod;
+        A[pos + k] = (x + y) % mod;
+        A[pos + k + mid] = (x - y + mod) % mod;
+      }
     }
-    for (int mid = 1; mid < limit; mid <<= 1) {
-        ll wn = qpow(G, (mod - 1) / (mid * 2));
-        if (type == -1) wn = qpow(wn, mod - 2);
-        for (int len = mid << 1, pos = 0; pos < limit; pos += len) {
-            ll w = 1;
-            for (int k = 0; k < mid; ++k, w = (w * wn) % mod) {
-                ll x = A[pos + k], y = w * A[pos + mid + k] % mod;
-                A[pos + k] = (x + y) % mod;
-                A[pos + k + mid] = (x - y + mod) % mod;
-            }
-        }
-    }
+  }
 
-    if (type == -1) {
-        ll limit_inv = inv(limit);
-        for (int i = 0; i < limit; ++i) A[i] = (A[i] * limit_inv) % mod;
-    }
+  if (type == -1) {
+    ll limit_inv = inv(limit);
+    for (int i = 0; i < limit; ++i) A[i] = (A[i] * limit_inv) % mod;
+  }
 }
 
 void getlimit(int deg) {
-    for (limit = 1, L = 0; limit <= deg; limit <<= 1) L ++;
+  for (limit = 1, L = 0; limit <= deg; limit <<= 1) L++;
 }
 
 void poly_mul(ll *ax, ll *bx) {
-    for (int i = 0; i < limit; ++i) {
-        RR[i] = (RR[i >> 1] >> 1) | ((i & 1) << (L - 1));
-    }
-    NTT(ax, 1);
-    NTT(bx, 1);
-    for (int i = 0; i < limit; ++i) ax[i] = (ax[i] * bx[i]) % mod;
-    NTT(ax, -1);
+  for (int i = 0; i < limit; ++i) {
+    RR[i] = (RR[i >> 1] >> 1) | ((i & 1) << (L - 1));
+  }
+  NTT(ax, 1);
+  NTT(bx, 1);
+  for (int i = 0; i < limit; ++i) ax[i] = (ax[i] * bx[i]) % mod;
+  NTT(ax, -1);
 }
 
-void CDQ_NTT(const int l, const int r) { // [l, r]
-    if (r - l < 1) return;
-    const int mid = (l + r) >> 1;
-    CDQ_NTT(l, mid);
-    // 用 f[l ~ mid] 与 g[0 ~ r - l] 进行卷积
-    // f[i] = \sum_{j = l}^{mid} f[j] * g[i - j]
+void CDQ_NTT(const int l, const int r) {  // [l, r]
+  if (r - l < 1) return;
+  const int mid = (l + r) >> 1;
+  CDQ_NTT(l, mid);
+  // 用 f[l ~ mid] 与 g[0 ~ r - l] 进行卷积
+  // f[i] = \sum_{j = l}^{mid} f[j] * g[i - j]
 
-    int xlen = mid - l + 1, ylen = r - l + 1;
-    getlimit(xlen + ylen);
-    for (int i = l; i <= mid; ++i) a[i - l] = f[i];
-    for (int i = 0; i < r - l + 1; ++i) b[i] = g[i];
+  int xlen = mid - l + 1, ylen = r - l + 1;
+  getlimit(xlen + ylen);
+  for (int i = l; i <= mid; ++i) a[i - l] = f[i];
+  for (int i = 0; i < r - l + 1; ++i) b[i] = g[i];
 
-    for (int i = mid - l + 1; i < limit; ++i) a[i] = 0;
-    for (int i = r - l + 1; i < limit; ++i) b[i] = 0;
+  for (int i = mid - l + 1; i < limit; ++i) a[i] = 0;
+  for (int i = r - l + 1; i < limit; ++i) b[i] = 0;
 
-    poly_mul(a, b);
+  poly_mul(a, b);
 
+  for (int i = mid + 1; i <= r; ++i) {
+    f[i] = (f[i] + a[i - l]) % mod;
+  }
 
-    for (int i = mid + 1; i <= r; ++i) {
-        f[i] = (f[i] + a[i - l]) % mod;
-    }
-
-    CDQ_NTT(mid + 1, r);
+  CDQ_NTT(mid + 1, r);
 }
 
 int main() {
-    int n = gn();
-    f[0] = 1;
-    for (int i = 1; i < n; ++i) g[i] = gn();
-    CDQ_NTT(0, n - 1);
-    for (int i = 0; i < n; ++i) {
-        cout << f[i] % mod << " \n"[i == n - 1];
-    }
+  int n = gn();
+  f[0] = 1;
+  for (int i = 1; i < n; ++i) g[i] = gn();
+  CDQ_NTT(0, n - 1);
+  for (int i = 0; i < n; ++i) {
+    cout << f[i] % mod << " \n"[i == n - 1];
+  }
 }
 ```
 
@@ -1334,10 +1323,12 @@ int main() {
 
 ```cpp
 void Wythoff(int n, int m) {
-    if(n > m) swap(n, m);
-    int tmp = (m - n) * (sqrt(5) + 1.0) / 2;
-    if(n == tmp) puts("B");
-    else puts("A");
+  if (n > m) swap(n, m);
+  int tmp = (m - n) * (sqrt(5) + 1.0) / 2;
+  if (n == tmp)
+    puts("B");
+  else
+    puts("A");
 }
 ```
 
@@ -1490,3 +1481,4 @@ $\frac{a}{sinA}=\frac{b}{sinB}=\frac{c}{sinC}=2R$
 $a^{2}=b^{2}+c^{2}-2bc*cosA$
 
 $S=\frac{a*b*sinC}{2}$
+
