@@ -703,7 +703,7 @@ int main() {
 
 ### tarjan求点双连通分量
 
-```jsx
+```cpp
 int dfn[N], low[N], vis[N];
 int tim = 0, colornum = 0;
 stack<int> q;
@@ -911,7 +911,7 @@ int main() {
 
 ### 2-SAT 缩点解法
 
-```jsx
+```cpp
 struct node {
   int to, net, w;
 } s[N << 1];
@@ -1286,7 +1286,7 @@ int main() {
 
 ### 树的直径(DP)
 
-```jsx
+```cpp
 void dfs(int node, int fa) {
   f[node] = h[node];
   ll maxn = 0, minx = 0;

@@ -41,7 +41,7 @@ ll mulmod(ll a, ll b) {
 
 ### 快速幂
 
-```jsx
+```cpp
 ll qpow(ll b) {
   ll ans = 1, sign = 2;
   while (b) {
@@ -1806,7 +1806,7 @@ int main() {
 
 ### tarjan求点双连通分量
 
-```jsx
+```cpp
 int dfn[N], low[N], vis[N];
 int tim = 0, colornum = 0;
 stack<int> q;
@@ -2014,7 +2014,7 @@ int main() {
 
 ### 2-SAT 缩点解法
 
-```jsx
+```cpp
 struct node {
   int to, net, w;
 } s[N << 1];
@@ -2083,7 +2083,7 @@ int main() {
 
 ### 费用流
 
-```jsx
+```cpp
 int n, m, S, T, tot = -1;
 int head[N], dis[N], vis[N], pre[N];
 ll max_flow = 0, min_cost = 0, incf[N];
@@ -2151,7 +2151,7 @@ int main() {
 
 ### 树的直径(DP)
 
-```jsx
+```cpp
 void dfs(int node, int fa) {
   f[node] = h[node];
   ll maxn = 0, minx = 0;
@@ -3115,7 +3115,7 @@ bool dfs(int n) {
 
 ### 分组背包
 
-```jsx
+```cpp
 struct EulerSieve {
   static const int N = 3e4 + 50;
   int vis[N], prime[N];
@@ -4505,7 +4505,7 @@ int main() {
 
 ### 二维线段树（区间修改 + 单点查询）
 
-```jsx
+```cpp
 struct SegmentTree {
   static const int M = 1050;
 #define lson node << 1
@@ -4630,7 +4630,7 @@ struct SegmentTree {
 
 ### 二维线段树(查询)
 
-```jsx
+```cpp
 struct TwoSegment {
 #define lson node << 1
 #define rson node << 1 | 1
@@ -5149,7 +5149,7 @@ void change(int node, int l, int r, int idx) {
 
 ### 树链剖分+线段树
 
-```jsx
+```cpp
 int n, m, r, p;
 vector<int> v[N];
 int dep[N], f[N], siz[N], son[N], top[N];
@@ -5286,7 +5286,7 @@ int main() {
 
 ### 扫描线
 
-```jsx
+```cpp
 struct star {
   ll x, y, h, val;
 } t[N];
@@ -5353,7 +5353,7 @@ int main() {
 
 ### 主席树
 
-```jsx
+```cpp
 int n, m;
 vector<int> v;
 struct node {

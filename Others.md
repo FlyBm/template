@@ -120,7 +120,7 @@ ll mulmod(ll a, ll b) {
 
 ### 快速幂
 
-```jsx
+```cpp
 ll qpow(ll b) {
   ll ans = 1, sign = 2;
   while (b) {

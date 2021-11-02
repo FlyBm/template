@@ -2377,7 +2377,7 @@ int main() {
 
 ### 二维线段树（区间查询 + 单点修改）
 
-```jsx
+```cpp
 struct SegmentTree {
   static const int M = 1050;
 #define lson node << 1
@@ -2502,7 +2502,7 @@ struct SegmentTree {
 
 ### 二维线段树(查询)
 
-```jsx
+```cpp
 struct TwoSegment {
 #define lson node << 1
 #define rson node << 1 | 1
@@ -3222,7 +3222,7 @@ int main() {
 
 ### 扫描线
 
-```jsx
+```cpp
 struct star {
   ll x, y, h, val;
 } t[N];
@@ -3289,7 +3289,7 @@ int main() {
 
 ### 主席树
 
-```jsx
+```cpp
 int n, m;
 vector<int> v;
 struct node {
