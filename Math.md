@@ -512,18 +512,18 @@ T qpow(T a, T b, T m) {
 }
 ```
 
-### gcd和exgcd
+### GCD和exGCD
 
 ```cpp
 template < typename T >
 T GCD(T a, T b) {
-	if(b) while((a %= b) && (b %= a));
-	return a + b;
+  if(b) while((a %= b) && (b %= a));
+  return a + b;
 }
 
 template < typename T >
 T gcd(T a, T b){
-    return b == 0 ? a : gcd(b, a % b);
+  return b == 0 ? a : gcd(b, a % b);
 }
 
 template < typename T >
@@ -861,26 +861,26 @@ PS: $F(x)$函数具有**积性**是指当$\gcd(a, b)=1$,有$F(a \times b) = F(a)
 int val[N], vis[N], facnum[N], d[N];
 vector<int> prime;
 void get_facnum() {
-	int pnum = 0;
-	facnum[1] = 1;
-	for (int i = 2; i < N; ++i) {
-		if (not vis[i]) {
-			prime.push_back(i);
-			facnum[i] = 2;
-			d[i] = 1;
-		}
-		for (auto to : prime) {
-			if (to * i >= N) break;
-			vis[to * i] = true;
-			if (i % to == 0) {
-				facnum[i * to] = facnum[i] / (d[i] + 1) * (d[i] + 2);
-				d[i * to] = d[i] + 1;
-				break;
-			}
-			facnum[i * to] = facnum[i] * 2;
-			d[i * to] = 1;
-		}
-	}
+  int pnum = 0;
+  facnum[1] = 1;
+  for (int i = 2; i < N; ++i) {
+    if (not vis[i]) {
+      prime.push_back(i);
+      facnum[i] = 2;
+      d[i] = 1;
+    }
+    for (auto to : prime) {
+      if (to * i >= N) break;
+      vis[to * i] = true;
+      if (i % to == 0) {
+        facnum[i * to] = facnum[i] / (d[i] + 1) * (d[i] + 2);
+        d[i * to] = d[i] + 1;
+        break;
+      }
+      facnum[i * to] = facnum[i] * 2;
+      d[i * to] = 1;
+    }
+  }
 }
 ```
 

@@ -119,96 +119,96 @@ import java.math.BigDecimal;
 import java.util.*;
 public class Main {
 
-	public static void main(String[] args) {
-		//创建方式
-		//方式1 Scanner读入
-		Scanner in = new Scanner(System.in); 
-		while(in.hasNext()) //等同于!=EOF
-		{
-		    BigInteger a;
-		    a = in.nextBigInteger();
-		    System.out.print(a.toString());
-		}
-		//方式2 初始化创建
-		String str = "123";
-		BigInteger a = BigInteger.valueOf(str);
+    public static void main(String[] args) {
+        //创建方式
+        //方式1 Scanner读入
+        Scanner in = new Scanner(System.in); 
+        while(in.hasNext()) //等同于!=EOF
+        {
+            BigInteger a;
+            a = in.nextBigInteger();
+            System.out.print(a.toString());
+        }
+        //方式2 初始化创建
+        String str = "123";
+        BigInteger a = BigInteger.valueOf(str);
 
-		int num = 456;
-		BigInteger a = BigInteger.valueOf(num);
-		
-		//p进制输出
-		int p;
-		System.out.print(a.toString(p)); // 输出a的p进制，不填默认10进制
+        int num = 456;
+        BigInteger a = BigInteger.valueOf(num);
+        
+        //p进制输出
+        int p;
+        System.out.print(a.toString(p)); // 输出a的p进制，不填默认10进制
 
-		//比较
-		BigInteger a = new BigInteger("123");
-		BigInteger b = new BigInteger("456");
+        //比较
+        BigInteger a = new BigInteger("123");
+        BigInteger b = new BigInteger("456");
 
-		System.out.println(a.equals(b)); // a == b 时为 true 否则为 false
-		if(a.compareTo(b) == 0) System.out.println("a == b"); // a == b
-		else if(a.compareTo(b) > 0) System.out.println("a > b"); // a > b
-		else if(a.compareTo(b) < 0) System.out.println("a < b"); // a < b
+        System.out.println(a.equals(b)); // a == b 时为 true 否则为 false
+        if(a.compareTo(b) == 0) System.out.println("a == b"); // a == b
+        else if(a.compareTo(b) > 0) System.out.println("a > b"); // a > b
+        else if(a.compareTo(b) < 0) System.out.println("a < b"); // a < b
 
-		BigInteger c = a.add(b); //加法 记得赋值
-		BigInteger c = a.subtract(b); //减法
-		BigInteger c = a.multiply(b); //乘法
-		BigInteger c = a.divide(b);//除法
-		BigInteger c = b.remainder(a);//取余
-		BigInteger c = a.abs();//取绝对值
-		BigInteger c = a.negate();//取负数
-		BigInteger POW = a.pow();//幂
-		BigInteger GCD = a.gcd()//最大公约数
-		
-		//创建对象
-		BigDecimal b1 = new BigDecimal("1.34");//1.34
-		BigDecimal b2 = BigDecimal.valueOf(1.34);//1.34
+        BigInteger c = a.add(b); //加法 记得赋值
+        BigInteger c = a.subtract(b); //减法
+        BigInteger c = a.multiply(b); //乘法
+        BigInteger c = a.divide(b);//除法
+        BigInteger c = b.remainder(a);//取余
+        BigInteger c = a.abs();//取绝对值
+        BigInteger c = a.negate();//取负数
+        BigInteger POW = a.pow();//幂
+        BigInteger GCD = a.gcd()//最大公约数
+        
+        //创建对象
+        BigDecimal b1 = new BigDecimal("1.34");//1.34
+        BigDecimal b2 = BigDecimal.valueOf(1.34);//1.34
 
-		//读入
+        //读入
 
-		BigDecimal b3 = in.nextBigDecimal();
-		//加,减，乘，除，转换
+        BigDecimal b3 = in.nextBigDecimal();
+        //加,减，乘，除，转换
 
-		BigDecimal c4 = b1.add(b2);
-		BigDecimal c4 = b1.subtract(b2);
-		BigDecimal c4 = b1.multiply(b2);
-		BigDecimal c4 = b1.divide(b2);
-		double d = b1.doubleValue();
-		String s = b1.toString();
-		long num = b1.longValue();
-		int num = b1.longValue();
+        BigDecimal c4 = b1.add(b2);
+        BigDecimal c4 = b1.subtract(b2);
+        BigDecimal c4 = b1.multiply(b2);
+        BigDecimal c4 = b1.divide(b2);
+        double d = b1.doubleValue();
+        String s = b1.toString();
+        long num = b1.longValue();
+        int num = b1.longValue();
 
-		//比较
-		int a = bigdemical.compareTo(bigdemical2);
-		//-1表示bigdemical < bigdemical2
-		//0表示bigdemical == bigdemical2
-		//1表示bigdemical > bigdemical2
+        //比较
+        int a = bigdemical.compareTo(bigdemical2);
+        //-1表示bigdemical < bigdemical2
+        //0表示bigdemical == bigdemical2
+        //1表示bigdemical > bigdemical2
 
-		//设置精度
-		//scale表示精度几位 
-		//ROUND_HALF_UP 四舍五入
-		//ROUND_DOWN 直接截断
-		//ROUND_UP 向上取
-		b.setScale(scale, BigDecimal.ROUND_HALF_UP);
-		
-		//快读
-		public static StreamTokenizer in = new StreamTokenizer(new BufferedReader(new InputStreamReader(System.in),32768));
-		public static PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
+        //设置精度
+        //scale表示精度几位 
+        //ROUND_HALF_UP 四舍五入
+        //ROUND_DOWN 直接截断
+        //ROUND_UP 向上取
+        b.setScale(scale, BigDecimal.ROUND_HALF_UP);
+        
+        //快读
+        public static StreamTokenizer in = new StreamTokenizer(new BufferedReader(new InputStreamReader(System.in),32768));
+        public static PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
 
-		public static double nextDouble() throws IOException{ 
+        public static double nextDouble() throws IOException{ 
             in.nextToken(); return in.nval; 
         }
-		public static float nextFloat() throws IOException{ 
+        public static float nextFloat() throws IOException{ 
             in.nextToken(); return (float)in.nval; 
         }
-		public static int nextInt() throws IOException{ 
+        public static int nextInt() throws IOException{ 
             in.nextToken(); return (int)in.nval; 
         }
-		public static String next() throws IOException{ 
+        public static String next() throws IOException{ 
             in.nextToken(); return in.sval;
         }
 
-		public static void main(String[] args) throws IOException{
-		//		获取输入
+        public static void main(String[] args) throws IOException{
+        //        获取输入
             while(in.nextToken()!=StreamTokenizer.TT_EOF){
                 break;
             }
@@ -510,7 +510,7 @@ namespace KMP{
     }
 
     vector<int> match(const string &pattern, const string &text){
-    	//res返回所有匹配位置 
+        //res返回所有匹配位置 
         vector<int> res;
         int n = pattern.length(), m = text.length();
         build(pattern);
@@ -602,7 +602,7 @@ struct ACAM {
         }
         tot = 0;
     }
-	// build Trie Tree
+    // build Trie Tree
     void insert(const string &s, int cnt) {
         int root = 0;
         for(int i = 0, len = s.length(); i < len; ++i) {
@@ -613,7 +613,7 @@ struct ACAM {
         }
         trie[root].cnt += cnt;
     }
-	// build Fail
+    // build Fail
     void build() {
         trie[0].fail = -1;
         queue<int> q;
@@ -636,7 +636,7 @@ struct ACAM {
             }
         }
     }
-	// jump Fail
+    // jump Fail
     int query(const string &s) {
         int root = 0, ans = 0;
         for(int i = 0, len = s.length(); i < len; ++i) {
@@ -704,7 +704,7 @@ struct ACAM {
             }
         }
     }
-	// Fail is a DAG 
+    // Fail is a DAG 
     void query(const string &s) {
         int root = 0;
         for(int i = 0, len = s.length(); i < len; ++i) {
@@ -780,7 +780,7 @@ struct ACAM {
         for(int i = 0, len = s.length(); i < len; ++i) {
             int id = s[i] - 'a';
             int k = trie[root].net[id];
-			// jump Fail
+            // jump Fail
             while(k) {
                 if(trie[k].id) {
                     ans[trie[k].id] ++;
@@ -797,33 +797,33 @@ struct ACAM {
 ### 回文自动机
 
 ```cpp
-char s[maxn];		//原串
-int fail[maxn];		//fail指针
-int len[maxn];		//该节点表示的字符串长度
-int tree[maxn][26];	//同Trie，指向儿子
-int trans[maxn];	//trans指针
-int tot,pre;		//tot代表节点数，pre代表上次插入字符后指向的回文树位置
-int getfail(int x,int i){		//从x开始跳fail，满足字符s[i]的节点
-	while(i-len[x]-1<0||s[i-len[x]-1]!=s[i])x=fail[x];
-	return x;
+char s[maxn];        //原串
+int fail[maxn];        //fail指针
+int len[maxn];        //该节点表示的字符串长度
+int tree[maxn][26];    //同Trie，指向儿子
+int trans[maxn];    //trans指针
+int tot,pre;        //tot代表节点数，pre代表上次插入字符后指向的回文树位置
+int getfail(int x,int i){        //从x开始跳fail，满足字符s[i]的节点
+    while(i-len[x]-1<0||s[i-len[x]-1]!=s[i])x=fail[x];
+    return x;
 }
 int gettrans(int x,int i){
-	while(((len[x]+2)<<1)>len[tot]||s[i-len[x]-1]!=s[i])x=fail[x];
-	return x;
+    while(((len[x]+2)<<1)>len[tot]||s[i-len[x]-1]!=s[i])x=fail[x];
+    return x;
 }
 void insert(int u,int i){
-	int Fail=getfail(pre,i);		//找到符合要求的点
-	if(!tree[Fail][u]){		//没建过就新建节点
-		len[++tot]=len[Fail]+2;	//长度自然是父亲长度+2
-		fail[tot]=tree[getfail(fail[Fail],i)][u];	//fail为满足条件的次短回文串+u
-		tree[Fail][u]=tot;		//指儿子
-		if(len[tot]<=2)trans[tot]=fail[tot];	//特殊trans
-		else{
-			int Trans=gettrans(trans[Fail],i);	//求trans
-			trans[tot]=tree[Trans][u];
-		}
-	}
-	pre=tree[Fail][u];		//更新pre
+    int Fail=getfail(pre,i);        //找到符合要求的点
+    if(!tree[Fail][u]){        //没建过就新建节点
+        len[++tot]=len[Fail]+2;    //长度自然是父亲长度+2
+        fail[tot]=tree[getfail(fail[Fail],i)][u];    //fail为满足条件的次短回文串+u
+        tree[Fail][u]=tot;        //指儿子
+        if(len[tot]<=2)trans[tot]=fail[tot];    //特殊trans
+        else{
+            int Trans=gettrans(trans[Fail],i);    //求trans
+            trans[tot]=tree[Trans][u];
+        }
+    }
+    pre=tree[Fail][u];        //更新pre
 }
 ```
 
@@ -894,50 +894,50 @@ void suffixArray(int n, const T *str) {
 }
 
 void RMQ_init() {
-	for(int i = 0; i < n; ++i) mi[i][0] = ht[i + 1];
-	for(int j = 1; (1 << j) <= n; ++j){
-		for(int i = 0; i + ( 1 << j) <= n; ++i){
-			mi[i][j] = min(mi[i][j - 1], mi[i + (1 << (j - 1))][j - 1]);
-		}
-	}
+    for(int i = 0; i < n; ++i) mi[i][0] = ht[i + 1];
+    for(int j = 1; (1 << j) <= n; ++j){
+        for(int i = 0; i + ( 1 << j) <= n; ++i){
+            mi[i][j] = min(mi[i][j - 1], mi[i + (1 << (j - 1))][j - 1]);
+        }
+    }
 }
 
 int RMQ(int L, int R) {
-	int k = 0, len = R - L + 1;
-	while( ( 1 << (k + 1)) <= len) ++k;
-	return min(mi[L][k], mi[R - (1 << k) + 1][k]);
+    int k = 0, len = R - L + 1;
+    while( ( 1 << (k + 1)) <= len) ++k;
+    return min(mi[L][k], mi[R - (1 << k) + 1][k]);
 }
 
 int LCP(int i, int j) {
-	if(rk[i] > rk[j]) swap(i, j);
-	return RMQ(rk[i], rk[j] - 1);
+    if(rk[i] > rk[j]) swap(i, j);
+    return RMQ(rk[i], rk[j] - 1);
 }
 
 template<typename T>
 void init(T *str){
-	n = strlen(str);
-	str[n] = 0;
-	suffixArray(n, str);
-	RMQ_init();
+    n = strlen(str);
+    str[n] = 0;
+    suffixArray(n, str);
+    RMQ_init();
 }
 };
 
 //读入从0开始 
 int main()
 {
-	scanf("%s", s);
-	n = strlen(s);
-	s[n] = 'a' - 1;
+    scanf("%s", s);
+    n = strlen(s);
+    s[n] = 'a' - 1;
 
-	SA::suffixArray(n, s);
+    SA::suffixArray(n, s);
 
-	for (int i = 1; i <= n; ++i)
-		printf("%d ", SA::sa[i] + 1);
-	printf("\n");
-	for (int i = 2; i <= n; ++i)
-		printf("%d ", SA::ht[i]);
+    for (int i = 1; i <= n; ++i)
+        printf("%d ", SA::sa[i] + 1);
+    printf("\n");
+    for (int i = 2; i <= n; ++i)
+        printf("%d ", SA::ht[i]);
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -1004,8 +1004,8 @@ $C(n, m) = (C(n \% mod, m \% mod) * C(n/mod, m/mod))%mod$
 
 ```cpp
 ll Lucas (ll a, ll b) {
-	if(b == 0) return 1;
-	ll ret = (C(a%mod, b%mod, mod)* Lucas(a/mod, b/mod))%mod;
+    if(b == 0) return 1;
+    ll ret = (C(a%mod, b%mod, mod)* Lucas(a/mod, b/mod))%mod;
  return ret;
 }
 ```
@@ -1031,8 +1031,8 @@ T qpow(T a, T b, T m) {
 ```cpp
 template < typename T >
 T GCD(T a, T b) {
-	if(b) while((a %= b) && (b %= a));
-	return a + b;
+    if(b) while((a %= b) && (b %= a));
+    return a + b;
 }
 
 template < typename T >
@@ -1054,9 +1054,9 @@ void ex_gcd(T a, T b, T &x, T &y){
 
 ```cpp
 void init() {
-	inv[1] = 1;
-	for (int i = 2; i <= n; ++i) 
-		inv[i] = (long long)(p - p / i) * inv[p % i] % p;
+    inv[1] = 1;
+    for (int i = 2; i <= n; ++i) 
+        inv[i] = (long long)(p - p / i) * inv[p % i] % p;
 }
 ```
 
@@ -3399,111 +3399,111 @@ int main() {
 
 ```cpp
 struct SplayTree {
-	int fa[MAXN], ch[MAXN][2], val[MAXN], addv[MAXN], siz[MAXN], rev[MAXN], mn[MAXN], sum[MAXN];
-	int st[MAXN], root, tot;
-	void Rev(int x) {
-		if(!x) return;
-		swap(ch[x][0], ch[x][1]);
-		rev[x] ^= 1;
-	}
-	void Add(int x, int C) {
-		if(!x) return;
-		val[x] += C; mn[x] += C; addv[x] += C; 
-		sum[x] += C * siz[x];
-	}
-	void PushDown(int x) {
-		if(rev[x]) {
-			if(ch[x][0]) Rev(ch[x][0]);
-			if(ch[x][1]) Rev(ch[x][1]);
-			rev[x] ^= 1;
-		}
-		if(addv[x]) {
-			if(ch[x][0]) Add(ch[x][0], addv[x]);
-			if(ch[x][1]) Add(ch[x][1], addv[x]);
-			addv[x] = 0;
-		}
-	}
-	void PushUp(int x) {
-		siz[x] = 1; sum[x] = mn[x] = val[x]; 
-		if(ch[x][0]) siz[x] += siz[ch[x][0]], mn[x] = min(mn[x], mn[ch[x][0]]), sum[x] += sum[ch[x][0]];
-		if(ch[x][1]) siz[x] += siz[ch[x][1]], mn[x] = min(mn[x], mn[ch[x][1]]), sum[x] += sum[ch[x][1]];
-	}
-	void rotate(int x) {
-		int y = fa[x], z = fa[y], k = ch[y][1] == x, w = ch[x][!k];
-		if(fa[y]) ch[z][ch[z][1]==y] = x; 
-		ch[x][!k] = y; ch[y][k] = w;
-		if(w) fa[w] = y;
-		fa[x] = z; fa[y] = x; 
-		PushUp(y); PushUp(x);
-	}
-	void Splay(int x, int goal) {
-		int y = x, top = 0; st[++top] = y;
-		while(fa[y]) st[++top] = fa[y], y = fa[y];
-		while(top) PushDown(st[top--]);
-		while(fa[x] != goal) {
-			int y = fa[x], z = fa[y];
-			if(fa[y] != goal) rotate((ch[z][1]==y)^(ch[y][1]==x) ? x : y);
-			rotate(x);
-		}
-		if(!goal) root = x;
-		PushUp(x);
-	}
-	int kth(int k) {
-		int x = root, cur;
-		while(true) {
-			PushDown(x);
-			cur = siz[ch[x][0]] + 1;
-			if(cur == k) return x;
-			if(k < cur) x = ch[x][0];
-			else k -= cur, x = ch[x][1];
-		}
-	}
-	int Build(int l, int r, int pre, int *a) {
-		int x = ++tot, mid = (l + r) >> 1;
-		fa[x] = pre; val[x] = a[mid];
-		if(l < mid) ch[x][0] = Build(l, mid-1, x, a);
-		if(r > mid) ch[x][1] = Build(mid+1, r, x, a);
-		PushUp(x);
-		return x;
-	}
-	void Reverse(int x, int y) {
-		x = kth(x); y = kth(y+2);
-		Splay(x, 0); Splay(y, x); Rev(ch[y][0]);
-	}
-	void Insert(int pos, int x) {
-		int pos1 = kth(pos+1), pos2 = kth(pos+2);
-		Splay(pos1, 0); Splay(pos2, pos1);
-		val[++tot] = x; fa[tot] = pos2; ch[pos2][0] = tot;
-		PushUp(tot); PushUp(pos2); PushUp(pos1);
-	}
-	void Delete(int pos) {
-		int x = kth(pos), y = kth(pos+2);
-		Splay(x, 0); Splay(y, x);
-		ch[y][0] = 0; PushUp(y); PushUp(x);
-	}
-	void Add(int x, int y, int C) {
-		x = kth(x); y = kth(y+2);
-		Splay(x, 0); Splay(y, x); Add(ch[y][0], C);
-	}
-	int GetMin(int x, int y) {
-		x = kth(x); y = kth(y+2);
-		Splay(x, 0); Splay(y, x);
-		return mn[ch[y][0]];
-	}
-	int GetSum(int x, int y) {
-		x = kth(x); y = kth(y + 2);
-		Splay(x, 0); Splay(y, x);
-		return sum[ch[y][0]];
-	}
-	void OutPut(int x, vector<int> &vec) {
-		PushDown(x);
-		if(ch[x][0]) OutPut(ch[x][0], vec);
-		vec.push_back(val[x]);
-		if(ch[x][1]) OutPut(ch[x][1], vec);
-	}
-	void Build(int n, int *a) {
-		root = Build(0, n+1, 0, a);
-	}
+    int fa[MAXN], ch[MAXN][2], val[MAXN], addv[MAXN], siz[MAXN], rev[MAXN], mn[MAXN], sum[MAXN];
+    int st[MAXN], root, tot;
+    void Rev(int x) {
+        if(!x) return;
+        swap(ch[x][0], ch[x][1]);
+        rev[x] ^= 1;
+    }
+    void Add(int x, int C) {
+        if(!x) return;
+        val[x] += C; mn[x] += C; addv[x] += C; 
+        sum[x] += C * siz[x];
+    }
+    void PushDown(int x) {
+        if(rev[x]) {
+            if(ch[x][0]) Rev(ch[x][0]);
+            if(ch[x][1]) Rev(ch[x][1]);
+            rev[x] ^= 1;
+        }
+        if(addv[x]) {
+            if(ch[x][0]) Add(ch[x][0], addv[x]);
+            if(ch[x][1]) Add(ch[x][1], addv[x]);
+            addv[x] = 0;
+        }
+    }
+    void PushUp(int x) {
+        siz[x] = 1; sum[x] = mn[x] = val[x]; 
+        if(ch[x][0]) siz[x] += siz[ch[x][0]], mn[x] = min(mn[x], mn[ch[x][0]]), sum[x] += sum[ch[x][0]];
+        if(ch[x][1]) siz[x] += siz[ch[x][1]], mn[x] = min(mn[x], mn[ch[x][1]]), sum[x] += sum[ch[x][1]];
+    }
+    void rotate(int x) {
+        int y = fa[x], z = fa[y], k = ch[y][1] == x, w = ch[x][!k];
+        if(fa[y]) ch[z][ch[z][1]==y] = x; 
+        ch[x][!k] = y; ch[y][k] = w;
+        if(w) fa[w] = y;
+        fa[x] = z; fa[y] = x; 
+        PushUp(y); PushUp(x);
+    }
+    void Splay(int x, int goal) {
+        int y = x, top = 0; st[++top] = y;
+        while(fa[y]) st[++top] = fa[y], y = fa[y];
+        while(top) PushDown(st[top--]);
+        while(fa[x] != goal) {
+            int y = fa[x], z = fa[y];
+            if(fa[y] != goal) rotate((ch[z][1]==y)^(ch[y][1]==x) ? x : y);
+            rotate(x);
+        }
+        if(!goal) root = x;
+        PushUp(x);
+    }
+    int kth(int k) {
+        int x = root, cur;
+        while(true) {
+            PushDown(x);
+            cur = siz[ch[x][0]] + 1;
+            if(cur == k) return x;
+            if(k < cur) x = ch[x][0];
+            else k -= cur, x = ch[x][1];
+        }
+    }
+    int Build(int l, int r, int pre, int *a) {
+        int x = ++tot, mid = (l + r) >> 1;
+        fa[x] = pre; val[x] = a[mid];
+        if(l < mid) ch[x][0] = Build(l, mid-1, x, a);
+        if(r > mid) ch[x][1] = Build(mid+1, r, x, a);
+        PushUp(x);
+        return x;
+    }
+    void Reverse(int x, int y) {
+        x = kth(x); y = kth(y+2);
+        Splay(x, 0); Splay(y, x); Rev(ch[y][0]);
+    }
+    void Insert(int pos, int x) {
+        int pos1 = kth(pos+1), pos2 = kth(pos+2);
+        Splay(pos1, 0); Splay(pos2, pos1);
+        val[++tot] = x; fa[tot] = pos2; ch[pos2][0] = tot;
+        PushUp(tot); PushUp(pos2); PushUp(pos1);
+    }
+    void Delete(int pos) {
+        int x = kth(pos), y = kth(pos+2);
+        Splay(x, 0); Splay(y, x);
+        ch[y][0] = 0; PushUp(y); PushUp(x);
+    }
+    void Add(int x, int y, int C) {
+        x = kth(x); y = kth(y+2);
+        Splay(x, 0); Splay(y, x); Add(ch[y][0], C);
+    }
+    int GetMin(int x, int y) {
+        x = kth(x); y = kth(y+2);
+        Splay(x, 0); Splay(y, x);
+        return mn[ch[y][0]];
+    }
+    int GetSum(int x, int y) {
+        x = kth(x); y = kth(y + 2);
+        Splay(x, 0); Splay(y, x);
+        return sum[ch[y][0]];
+    }
+    void OutPut(int x, vector<int> &vec) {
+        PushDown(x);
+        if(ch[x][0]) OutPut(ch[x][0], vec);
+        vec.push_back(val[x]);
+        if(ch[x][1]) OutPut(ch[x][1], vec);
+    }
+    void Build(int n, int *a) {
+        root = Build(0, n+1, 0, a);
+    }
 }seq[MAXN];
 ```
 
@@ -3512,8 +3512,8 @@ struct SplayTree {
 ```cpp
 struct SegmentTree {
     static const int maxn = 1e5 + 100;
-	#define lson(x) s[x].lc
-	#define rson(x) s[x].rc
+    #define lson(x) s[x].lc
+    #define rson(x) s[x].rc
     struct node {
         int lc, rc, sum;
     }s[maxn * 80];
@@ -3887,69 +3887,69 @@ const int mod = 1e9 + 7;
 ll w[N];
 
 struct Segment {
-	static const int MAX = 2e5 + 100;
-	#define lson node << 1
-	#define rson node << 1 | 1
-	ll sum[MAX << 2];
+    static const int MAX = 2e5 + 100;
+    #define lson node << 1
+    #define rson node << 1 | 1
+    ll sum[MAX << 2];
 
-	void pushup(int node, int l, int r) {
-		sum[node] = sum[lson] + sum[rson];
-	}
+    void pushup(int node, int l, int r) {
+        sum[node] = sum[lson] + sum[rson];
+    }
 
-	void build(int node, int l, int r) {
-		if(l == r) {
-			sum[node] = w[l];
-			return ;
-		}
-		int mid = l + r >> 1;
-		build(lson, l, mid);
-		build(rson, mid + 1, r);
-		pushup(node, l, r);
-	}
+    void build(int node, int l, int r) {
+        if(l == r) {
+            sum[node] = w[l];
+            return ;
+        }
+        int mid = l + r >> 1;
+        build(lson, l, mid);
+        build(rson, mid + 1, r);
+        pushup(node, l, r);
+    }
 
-	void change(int node, int l, int r, int idx, int val) {
-		if(l == r) {
-			sum[node] = val;
-			return ;
-		}
-		int mid = l + r >> 1;
-		if(idx <= mid) change(lson, l, mid, idx, val);
-		else change(rson, mid + 1, r, idx, val);
-		pushup(node, l, r);
-	}
+    void change(int node, int l, int r, int idx, int val) {
+        if(l == r) {
+            sum[node] = val;
+            return ;
+        }
+        int mid = l + r >> 1;
+        if(idx <= mid) change(lson, l, mid, idx, val);
+        else change(rson, mid + 1, r, idx, val);
+        pushup(node, l, r);
+    }
 
-	int queryid(int node, int l, int r, int L, int R, ll val) {
-		if(l == r) return l;
-		int mid = l + r >> 1;
-		if(R <= mid) return queryid(lson, l, mid, L, R, val);
-		else if(L > mid) return queryid(rson, mid + 1, r, L, R, val);
-		else {
+    int queryid(int node, int l, int r, int L, int R, ll val) {
+        if(l == r) return l;
+        int mid = l + r >> 1;
+        if(R <= mid) return queryid(lson, l, mid, L, R, val);
+        else if(L > mid) return queryid(rson, mid + 1, r, L, R, val);
+        else {
             ll lsum = querysum(lson, l, mid, L, mid);
-			if(lsum >= val) return queryid(lson, l, mid, L, mid, val);
-			else return queryid(rson, mid + 1, r, mid + 1, R, val - lsum);
-		}
-	}
+            if(lsum >= val) return queryid(lson, l, mid, L, mid, val);
+            else return queryid(rson, mid + 1, r, mid + 1, R, val - lsum);
+        }
+    }
 
-	ll querysum(int node, int l, int r, int L, int R) {
-		if(L <= l && R >= r) {
-			return sum[node];
-		}
-		int mid = l + r >> 1;
-		ll val = 0;
-		if(L <= mid) val += querysum(lson, l, mid, L, R);
-		if(R > mid) val += querysum(rson, mid + 1, r, L, R);
-		return val;
-	}
+    ll querysum(int node, int l, int r, int L, int R) {
+        if(L <= l && R >= r) {
+            return sum[node];
+        }
+        int mid = l + r >> 1;
+        ll val = 0;
+        if(L <= mid) val += querysum(lson, l, mid, L, R);
+        if(R > mid) val += querysum(rson, mid + 1, r, L, R);
+        return val;
+    }
 } treeans;
 
 int main() {
-	treeans.build(1, 1, n);
-	for(int i = 1; i <= m; ++i) {
-		ll l = gl(), r = gl();
+    treeans.build(1, 1, n);
+    for(int i = 1; i <= m; ++i) {
+        ll l = gl(), r = gl();
         ll k = treeans.querysum(1, 1, n, l, r);
         k = (k + 1) / 2;
         ll id = treeans.queryid(1, 1, n, l, r, k);
-	}
+    }
 }
 ```
 
@@ -4212,8 +4212,8 @@ int main() {
 ```jsx
 struct SegmentTree {
     static const int M = 1050;
-	#define lson node << 1
-	#define rson node << 1 | 1
+    #define lson node << 1
+    #define rson node << 1 | 1
     // in tree begin
     struct InSegmentTree {
         int maxn[M << 2], minx[M << 2];
@@ -4324,7 +4324,7 @@ struct SegmentTree {
 
 ```jsx
 struct TwoSegment {
-	#define lson node << 1
+    #define lson node << 1
     #define rson node << 1 | 1
     // in tree begin
     struct Segment {

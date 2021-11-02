@@ -298,7 +298,7 @@ namespace KMP{
     }
 
     vector<int> match(const string &pattern, const string &text){
-    	//res返回所有匹配位置 
+        //res返回所有匹配位置 
         vector<int> res;
         int n = pattern.length(), m = text.length();
         build(pattern);
@@ -403,7 +403,7 @@ struct ACAM {
         }
         tot = 0;
     }
-	// build Trie Tree
+    // build Trie Tree
     void insert(const string &s, int cnt) {
         int root = 0;
         for(int i = 0, len = s.length(); i < len; ++i) {
@@ -414,7 +414,7 @@ struct ACAM {
         }
         trie[root].cnt += cnt;
     }
-	// build Fail
+    // build Fail
     void build() {
         trie[0].fail = -1;
         queue<int> q;
@@ -437,7 +437,7 @@ struct ACAM {
             }
         }
     }
-	// jump Fail
+    // jump Fail
     int query(const string &s) {
         int root = 0, ans = 0;
         for(int i = 0, len = s.length(); i < len; ++i) {
@@ -505,7 +505,7 @@ struct ACAM {
             }
         }
     }
-	// Fail is a DAG 
+    // Fail is a DAG 
     void query(const string &s) {
         int root = 0;
         for(int i = 0, len = s.length(); i < len; ++i) {
@@ -582,8 +582,8 @@ struct ACAM {
         for(int i = 0, len = s.length(); i < len; ++i) {
             int id = s[i] - 'a';
             int k = trie[root].net[id];
-	// jump Fail（暴力跳链）
-            while(k) { 
+            // jump Fail（暴力跳链）
+            while(k) {
                 if(trie[k].id) {
                     ans[trie[k].id] ++;
                     MAX = max(ans[trie[k].id], MAX);
@@ -601,6 +601,37 @@ struct ACAM {
 - $rak$数组：$rak[i]$表示$suffix(i)$的排名
 
 - $sa$数组：$sa[i]$表示排名为$i$的后缀的起始下标
+
+```cpp
+char s[maxn];        //原串
+int fail[maxn];        //fail指针
+int len[maxn];        //该节点表示的字符串长度
+int tree[maxn][26];    //同Trie，指向儿子
+int trans[maxn];    //trans指针
+int tot,pre;        //tot代表节点数，pre代表上次插入字符后指向的回文树位置
+int getfail(int x,int i){        //从x开始跳fail，满足字符s[i]的节点
+    while(i-len[x]-1<0||s[i-len[x]-1]!=s[i])x=fail[x];
+    return x;
+}
+int gettrans(int x,int i){
+    while(((len[x]+2)<<1)>len[tot]||s[i-len[x]-1]!=s[i])x=fail[x];
+    return x;
+}
+void insert(int u,int i){
+    int Fail=getfail(pre,i);        //找到符合要求的点
+    if(!tree[Fail][u]){        //没建过就新建节点
+        len[++tot]=len[Fail]+2;    //长度自然是父亲长度+2
+        fail[tot]=tree[getfail(fail[Fail],i)][u];    //fail为满足条件的次短回文串+u
+        tree[Fail][u]=tot;        //指儿子
+        if(len[tot]<=2)trans[tot]=fail[tot];    //特殊trans
+        else{
+            int Trans=gettrans(trans[Fail],i);    //求trans
+            trans[tot]=tree[Trans][u];
+        }
+    }
+    pre=tree[Fail][u];        //更新pre
+}
+```
 
 - $height$数组：排名$l-1$与排名$l$的子串的$lcp$
 
@@ -737,49 +768,48 @@ void suffixArray(int n, const T *str) {
 }
 
 void RMQ_init() {
-	for(int i = 0; i < n; ++i) mi[i][0] = ht[i + 1];
-	for(int j = 1; (1 << j) <= n; ++j){
-		for(int i = 0; i + ( 1 << j) <= n; ++i){
-			mi[i][j] = min(mi[i][j - 1], mi[i + (1 << (j - 1))][j - 1]);
-		}
-	}
+    for(int i = 0; i < n; ++i) mi[i][0] = ht[i + 1];
+    for(int j = 1; (1 << j) <= n; ++j){
+        for(int i = 0; i + ( 1 << j) <= n; ++i){
+            mi[i][j] = min(mi[i][j - 1], mi[i + (1 << (j - 1))][j - 1]);
+        }
+    }
 }
 
 int RMQ(int L, int R) {
-	int k = 0, len = R - L + 1;
-	while( ( 1 << (k + 1)) <= len) ++k;
-	return min(mi[L][k], mi[R - (1 << k) + 1][k]);
+    int k = 0, len = R - L + 1;
+    while( ( 1 << (k + 1)) <= len) ++k;
+    return min(mi[L][k], mi[R - (1 << k) + 1][k]);
 }
 
 int LCP(int i, int j) {
-	if(rk[i] > rk[j]) swap(i, j);
-	return RMQ(rk[i], rk[j] - 1);
+    if(rk[i] > rk[j]) swap(i, j);
+    return RMQ(rk[i], rk[j] - 1);
 }
 
 template<typename T>
 void init(T *str){
-	n = strlen(str);
-	str[n] = 0;
-	suffixArray(n, str);
-	RMQ_init();
+    n = strlen(str);
+    str[n] = 0;
+    suffixArray(n, str);
+    RMQ_init();
 }
 };
 
 //读入从0开始 
 int main() {
-	scanf("%s", s);
-	n = strlen(s);
-	s[n] = 'a' - 1;
+    scanf("%s", s);
+    n = strlen(s);
+    s[n] = 'a' - 1;
+    SA::suffixArray(n, s);
 
-	SA::suffixArray(n, s);
+    for (int i = 1; i <= n; ++i)
+        printf("%d ", SA::sa[i] + 1);
+    printf("\n");
+    for (int i = 2; i <= n; ++i)
+        printf("%d ", SA::ht[i]);
 
-	for (int i = 1; i <= n; ++i)
-		printf("%d ", SA::sa[i] + 1);
-	printf("\n");
-	for (int i = 2; i <= n; ++i)
-		printf("%d ", SA::ht[i]);
-
-	return 0;
+    return 0;
 }
 ```
 

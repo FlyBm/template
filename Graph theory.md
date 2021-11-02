@@ -1509,6 +1509,11 @@ int lca(int x, int y){
 }
 ```
 
+### 树上路径交
+A->B、C->D的路径交为
+LCA(A, C), LCA(A, D), LCA(B, C), LCA(B, D)
+其中深度最深的两点之间的路径
+
 ### 缩点
 
 (缩完后可以跑dp)

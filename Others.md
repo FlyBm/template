@@ -188,96 +188,96 @@ import java.math.BigDecimal;
 import java.util.*;
 public class Main {
 
-	public static void main(String[] args) {
-		//创建方式
-		//方式1 Scanner读入
-		Scanner in = new Scanner(System.in); 
-		while(in.hasNext()) //等同于!=EOF
-		{
-		    BigInteger a;
-		    a = in.nextBigInteger();
-		    System.out.print(a.toString());
-		}
-		//方式2 初始化创建
-		String str = "123";
-		BigInteger a = BigInteger.valueOf(str);
+    public static void main(String[] args) {
+        //创建方式
+        //方式1 Scanner读入
+        Scanner in = new Scanner(System.in); 
+        while(in.hasNext()) //等同于!=EOF
+        {
+            BigInteger a;
+            a = in.nextBigInteger();
+            System.out.print(a.toString());
+        }
+        //方式2 初始化创建
+        String str = "123";
+        BigInteger a = BigInteger.valueOf(str);
 
-		int num = 456;
-		BigInteger a = BigInteger.valueOf(num);
-		
-		//p进制输出
-		int p;
-		System.out.print(a.toString(p)); // 输出a的p进制，不填默认10进制
+        int num = 456;
+        BigInteger a = BigInteger.valueOf(num);
+        
+        //p进制输出
+        int p;
+        System.out.print(a.toString(p)); // 输出a的p进制，不填默认10进制
 
-		//比较
-		BigInteger a = new BigInteger("123");
-		BigInteger b = new BigInteger("456");
+        //比较
+        BigInteger a = new BigInteger("123");
+        BigInteger b = new BigInteger("456");
 
-		System.out.println(a.equals(b)); // a == b 时为 true 否则为 false
-		if(a.compareTo(b) == 0) System.out.println("a == b"); // a == b
-		else if(a.compareTo(b) > 0) System.out.println("a > b"); // a > b
-		else if(a.compareTo(b) < 0) System.out.println("a < b"); // a < b
+        System.out.println(a.equals(b)); // a == b 时为 true 否则为 false
+        if(a.compareTo(b) == 0) System.out.println("a == b"); // a == b
+        else if(a.compareTo(b) > 0) System.out.println("a > b"); // a > b
+        else if(a.compareTo(b) < 0) System.out.println("a < b"); // a < b
 
-		BigInteger c = a.add(b); //加法 记得赋值
-		BigInteger c = a.subtract(b); //减法
-		BigInteger c = a.multiply(b); //乘法
-		BigInteger c = a.divide(b);//除法
-		BigInteger c = b.remainder(a);//取余
-		BigInteger c = a.abs();//取绝对值
-		BigInteger c = a.negate();//取负数
-		BigInteger POW = a.pow();//幂
-		BigInteger GCD = a.gcd()//最大公约数
-		
-		//创建对象
-		BigDecimal b1 = new BigDecimal("1.34");//1.34
-		BigDecimal b2 = BigDecimal.valueOf(1.34);//1.34
+        BigInteger c = a.add(b); //加法 记得赋值
+        BigInteger c = a.subtract(b); //减法
+        BigInteger c = a.multiply(b); //乘法
+        BigInteger c = a.divide(b);//除法
+        BigInteger c = b.remainder(a);//取余
+        BigInteger c = a.abs();//取绝对值
+        BigInteger c = a.negate();//取负数
+        BigInteger POW = a.pow();//幂
+        BigInteger GCD = a.gcd()//最大公约数
+        
+        //创建对象
+        BigDecimal b1 = new BigDecimal("1.34");//1.34
+        BigDecimal b2 = BigDecimal.valueOf(1.34);//1.34
 
-		//读入
+        //读入
 
-		BigDecimal b3 = in.nextBigDecimal();
-		//加,减，乘，除，转换
+        BigDecimal b3 = in.nextBigDecimal();
+        //加,减，乘，除，转换
 
-		BigDecimal c4 = b1.add(b2);
-		BigDecimal c4 = b1.subtract(b2);
-		BigDecimal c4 = b1.multiply(b2);
-		BigDecimal c4 = b1.divide(b2);
-		double d = b1.doubleValue();
-		String s = b1.toString();
-		long num = b1.longValue();
-		int num = b1.longValue();
+        BigDecimal c4 = b1.add(b2);
+        BigDecimal c4 = b1.subtract(b2);
+        BigDecimal c4 = b1.multiply(b2);
+        BigDecimal c4 = b1.divide(b2);
+        double d = b1.doubleValue();
+        String s = b1.toString();
+        long num = b1.longValue();
+        int num = b1.longValue();
 
-		//比较
-		int a = bigdemical.compareTo(bigdemical2);
-		//-1表示bigdemical < bigdemical2
-		//0表示bigdemical == bigdemical2
-		//1表示bigdemical > bigdemical2
+        //比较
+        int a = bigdemical.compareTo(bigdemical2);
+        //-1表示bigdemical < bigdemical2
+        //0表示bigdemical == bigdemical2
+        //1表示bigdemical > bigdemical2
 
-		//设置精度
-		//scale表示精度几位 
-		//ROUND_HALF_UP 四舍五入
-		//ROUND_DOWN 直接截断
-		//ROUND_UP 向上取
-		b.setScale(scale, BigDecimal.ROUND_HALF_UP);
-		
-		//快读
-		public static StreamTokenizer in = new StreamTokenizer(new BufferedReader(new InputStreamReader(System.in),32768));
-		public static PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
+        //设置精度
+        //scale表示精度几位 
+        //ROUND_HALF_UP 四舍五入
+        //ROUND_DOWN 直接截断
+        //ROUND_UP 向上取
+        b.setScale(scale, BigDecimal.ROUND_HALF_UP);
+        
+        //快读
+        public static StreamTokenizer in = new StreamTokenizer(new BufferedReader(new InputStreamReader(System.in),32768));
+        public static PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
 
-		public static double nextDouble() throws IOException{ 
-		    in.nextToken(); return in.nval; 
-		}
-			public static float nextFloat() throws IOException{ 
-		    in.nextToken(); return (float)in.nval; 
-		}
-			public static int nextInt() throws IOException{ 
-		    in.nextToken(); return (int)in.nval; 
-		}
-			public static String next() throws IOException{ 
-		    in.nextToken(); return in.sval;
-		}
+        public static double nextDouble() throws IOException{ 
+            in.nextToken(); return in.nval; 
+        }
+            public static float nextFloat() throws IOException{ 
+            in.nextToken(); return (float)in.nval; 
+        }
+            public static int nextInt() throws IOException{ 
+            in.nextToken(); return (int)in.nval; 
+        }
+            public static String next() throws IOException{ 
+            in.nextToken(); return in.sval;
+        }
 
-		public static void main(String[] args) throws IOException{
-		//		获取输入
+        public static void main(String[] args) throws IOException{
+        //        获取输入
             while(in.nextToken()!=StreamTokenizer.TT_EOF){
                 break;
             }
