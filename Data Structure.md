@@ -1740,7 +1740,115 @@ int main() {
 
 
 ### 李超线段树
+```cpp
+#include<bits/stdc++.h>
 
+using namespace std;
+const int MAXN = 1000005;
+
+#define ll long long
+
+struct Line {
+    ll k, b;
+    ll val (ll x) const { return k * x + b; }
+    explicit Line(ll _k = 0, ll _b = 0) { k = _k; b = _b; }
+};
+
+const ll INF = (ll) 1e18;
+
+struct LiChao_Segmenttree {
+#define lson node << 1
+#define rson node << 1 | 1
+    static ll cross_x(const Line &A, const Line &B) { // 求交点
+        return (B.b - A.b) / (A.k - B.k);
+    }
+
+    struct tree_node {
+        bool vis;
+        bool has_line;
+        Line line;
+    } s[MAXN << 2];
+
+    void build(int node, int l, int r) {
+        s[node].vis = false;
+        s[node].has_line = false;
+        if (l == r) return ;
+        int mid = (l + r) >> 1;
+        build(lson, l, mid);
+        build(rson, mid + 1, r);
+    }
+
+    void insert(int node, int l, int r, int L, int R, Line x) {
+        s[node].vis = true;
+        if (l == L && r == R) {
+            if (not s[node].has_line) {
+                s[node].has_line = true;
+                s[node].line = x;
+                return;
+            }
+            if (s[node].line.val(l) >= x.val(l) and s[node].line.val(r) >= x.val(r)) return; // 原线段完全大于插入线段
+            if (s[node].line.val(l) < x.val(l) and s[node].line.val(r) < x.val(r)) { s[node].line = x; return; } // 原线段完全小于插入线段
+            int mid = (l + r) >> 1;
+            if (cross_x(x, s[node].line) <= mid) { // 交点在 mid 左边
+                if (x.k < s[node].line.k) insert(lson, l, mid, L, mid, x);
+                else insert(lson, l, mid, L, mid, s[node].line), s[node].line = x;
+            } else {
+                if (x.k > s[node].line.k) insert(rson, mid + 1, r, mid + 1, R, x);
+                else insert(rson, mid + 1, r, mid + 1, R, s[node].line), s[node].line = x;
+            }
+            return ;
+        }
+
+        int mid = (l + r) >> 1;
+        if (r <= mid) insert(lson, l, mid, L, R, x);
+        else if (l > mid) insert(rson, mid + 1, r, L, R, x);
+        else {
+            insert(lson, l, mid, L, mid, x);
+            insert(rson, mid + 1, r, mid + 1, R, x);
+        }
+    }
+
+    void clear(int node, int l, int r) {
+        s[node].vis = false; s[node].has_line = false;
+        if (l != r) {
+            int mid = (l + r) >> 1;
+            if (s[lson].vis) clear(lson, l, mid);
+            if (s[rson].vis) clear(rson, mid + 1, r);
+        }
+    }
+
+    ll get_val(int node, int l, int r, int x) {
+        if (not s[node].vis) return -INF;
+        ll ret;
+        if (not s[node].has_line) ret = -INF;
+        else ret = s[node].line.val(x);
+        if (l == r) return ret;
+        int mid = (l + r) >> 1;
+        if (x <= mid) return max(ret, get_val(lson, l, mid, x));
+        else return max(ret, get_val(rson, mid + 1, r, x));
+    }
+} seg_up, seg_down;
+
+
+int main() {
+    ios::sync_with_stdio(false);
+    int n, m; cin >> n >> m;
+    seg_up.build(1, 1, n);
+    seg_down.build(1, 1, n);
+    while (m--) {
+        int op; cin >> op;
+        if (op == 0) {
+            int k, b; cin >> k >> b;
+            seg_up.insert(1, 1, n, 1, n, Line(k, b));
+            seg_down.insert(1, 1, n, 1, n, Line(-k, -b));
+        } else {
+            int x; cin >> x;
+            printf("%lld %lld\n", seg_up.get_val(1, 1, n, x), -seg_down.get_val(1, 1, n, x));
+        }
+    }
+    return 0;
+}
+```
 ### 树链剖分
 
 ```cpp
