@@ -464,6 +464,13 @@ void exgcd(T a, T b, T &x, T &y){
 }
 ```
 
+当$a$和$b$互质、有$exgcd(a, b, x, y)$中的 x 即为所求.
+通解，$d=\gcd(a,b),k\in Z$   
+$$
+x=\frac{c}{d}x_0+k\frac{b}{d}\\ 
+y=\frac{c}{d}y_0+k\frac{a}{d} 
+$$
+
 ### 线性筛1到n因子个数
 
 ```cpp
@@ -529,7 +536,7 @@ void init() {
 }
 ```
 
-### 欧拉定理 & 费马小定理
+
 
 ### 类欧几里得算法
 
@@ -575,8 +582,11 @@ T inv(T num, T mod) {
 #### 费马小定理
 
 若$\ p\ $为素数，$gcd(a,\ p) = 1\ $，则$\ a^{p-1}\equiv1\ (mod\ p)$
-
-
+欧拉定理推论
+要求$a, b$互质，并且b是质数！！！
+因为 $ax \equiv 1 \pmod b$ 
+所以 $ax \equiv a^{b-1} \pmod b$
+所以 $x \equiv a^{b-2} \pmod b$ 
 
 ### 线性同余方程
 
@@ -595,7 +605,29 @@ T inv(T num, T mod) {
 
 ### BSGS
 
-求解$a^x \equiv b (mod\ m)$
+在O($\sqrt{p}$)的时间复杂度内求解
+$a^x\equiv b(mod\ p)$ 其中$gcd(a,p)=1$ 
+```cpp
+unordered_map<ll,int>mp;
+ll BSGS(ll a , ll b , ll p) {
+    mp.clear();
+    a %= p; b %= p;
+    if (b == 1) return 0;
+    ll k = sqrt(p) + 1;
+    for (ll i = 0 , j = b % p ; i < k ; i ++) {
+    	mp[j] = i;
+    	j = j * a % p;
+    }
+    ll q = qpow(a , k , p);
+    for (ll x = 1 , num = q ; x <= k ; x ++) {
+    	if (mp.count(num)) return x * k - mp[num];
+    	num = num * q % p;
+    }
+    return -1;
+}
+```
+手写hash版
+
 ```cpp
 template <typename A, typename B> struct MAP {
     struct node { A u; B v; int nxt; };
@@ -628,6 +660,97 @@ int BSGS(int a, int b, int p) {
     return -1;
 }
 ```
+
+若$gcd(a,p)>1$ ,则时间复杂度比O($\sqrt{p}$)大（但并不会大多少，$\sum \sqrt {p}≤5*10^6$ 的情况下能过$a、b、p$均为$10^9$的数据
+
+```cpp
+#include <bits/stdc++.h>
+
+struct hash_table {
+    struct line {
+        int u, v, cnt;
+    } edge[100000];
+    int head[hash_mod], cnt;
+
+    void clr() {
+        memset(head, 0, sizeof(head));
+        cnt = 0;
+    }
+
+    void add(int u, int v, int w) {
+        edge[++cnt] = (line) {
+                w, v, head[u]
+        };
+        head[u] = cnt;
+    }
+
+    void ins(int x, int i) {
+        int tmp = x % hash_mod;
+        add(tmp, i, x);
+    }
+
+    int fin(int x) {
+        for (int i = head[x % hash_mod]; i; i = edge[i].cnt) {
+            if (edge[i].u == x) return edge[i].v;
+        }
+        return -1;
+    }
+} Hash;
+
+void exbsgs(ll a, ll b, ll p) {
+    if (b % p == 1 || p == 1) {
+        puts("0");
+        return;
+    }
+    ll cnt = 0, tmp = 1;
+    while (1) {
+        ll d = __gcd(a, p);
+        if (d == 1) break;
+        if (b % d) {
+            puts("No Solution");
+            return;
+        }
+        b /= d;
+        p /= d;
+        ++cnt;
+        tmp = 1LL * tmp * a / d % p;
+        if (b == tmp) {
+            printf("%lld\n", cnt);
+            return;
+        }
+    }
+    Hash.clr();
+    ll up = (ll) sqrt(p) + 1;
+    for (ll i = 0, t = b; i < up; i++, t = 1LL * t * a % p)Hash.ins(t, i);
+    for (ll i = 1, tt = qpow(a, up, p), t = 1LL * tmp * tt % p; i <= up; i++, t = 1LL * t * tt % p) {
+        ll val = Hash.fin(t);
+        if (val == -1) continue;
+        printf("%d\n", i * up - val + cnt);
+        return;
+    }
+    puts("No Solution");
+}
+
+ll a, p, b;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin >> a >> p >> b;
+    a = a % p;
+    b = b % p;
+    if (b == 1 || p == 1) {
+        puts("0");
+        continue;
+    } else if (a == 0) {
+        if (b == 0) puts("1");
+        else puts("No Solution");
+        continue;
+    }
+    exbsgs(a, b, p);
+}
+```
+
+
 
 ### 莫比乌斯反演
 
@@ -1392,6 +1515,13 @@ ll C(int x, int y) {
 
 $C(n, m) = (C(n \% mod, m \% mod) \times C(\frac{n}{mod}, \frac{m}{mod}))\%mod$
 
+对于非负整数m和n和素数p， 同余式:
+$$
+\binom{n}{m} \equiv \sum_i^{k}\binom{n_i}{m_i}\pmod p
+$$
+成立。其中$m_i$、$n_i$是对$m$、$n$进行$p$进制分解的第$i$位，其中$i\geq0$。
+但当p不是素数时，可以将其分解质因数，将组合数按照卢卡斯定理的方法求p的质因数的模，然后用中国剩余定理合并即可。
+
 ```cpp
 ll Lucas(ll a, ll b) {
     if (b == 0) return 1;
@@ -1399,6 +1529,121 @@ ll Lucas(ll a, ll b) {
     return ret;
 }
 ```
+
+#### 拓展卢卡斯
+
+如果p不是质数，将其质因数分解，对这些带系数的质因数分别求余数，靠CRT取回原数。
+要求$C_n^m \equiv a_i\pmod {p^{q_i}}$，只需求$n!\equiv \pmod {p^{q_i}}$.
+
+```cpp
+// calc (n! % pk) (but no p^s !!!! )
+inline ll F(ll n, ll P, ll PK) {
+    if (n == 0)
+        return 1;
+    ll rou = 1; //循环节
+    ll rem = 1; //余项
+    for (ll i = 1; i <= PK; i++) {
+        if (i % P)
+            rou = rou * i % PK;
+    }
+    for (ll i = PK * (n / PK); i <= n; i++) {
+        if (i % P)
+            rem = rem * (i % PK) % PK;
+    }
+    return F(n / P, P, PK) % PK *
+           fast_pow(rou, n / PK, PK) % PK *
+           rem % PK;
+}
+
+// 返回n!中有多少p
+inline ll G(ll n, ll P) {
+    if (n < P)
+        return 0;
+    return G(n / P, P) + (n / P);
+}
+
+// Cnm % p^k
+inline ll C_PK(ll n, ll m, ll P, ll PK) {
+    ll fz = F(n, P, PK), fm1 = INV(F(m, P, PK), PK), fm2 = INV(F(n - m, P, PK), PK);
+    ll mi = fast_pow(P, G(n, P) - G(m, P) - G(n - m, P), PK); // num(p) in Cnm p^s
+    return fz * fm1 % PK * fm2 % PK * mi % PK;
+}
+
+ll A[1001], B[1001];
+//x=B(mod A)
+
+inline ll exLucas(ll n, ll m, ll P) {
+    ll ljc = P, tot = 0;
+    for (ll tmp = 2; tmp * tmp <= P; tmp++) {
+        if (!(ljc % tmp)) {
+            ll PK = 1;
+            while (!(ljc % tmp)) {
+                PK *= tmp;
+                ljc /= tmp;
+            }
+            A[++tot] = PK;
+            B[tot] = C_PK(n, m, tmp, PK);
+        }
+    }
+    // ljc is prime
+    if (ljc != 1) {
+        A[++tot] = ljc;
+        B[tot] = C_PK(n, m, ljc, ljc);
+    }
+    // CRT
+    ll ans = 0;
+    for (ll i = 1; i <= tot; i++) {
+        ll M = P / A[i], T = INV(M, A[i]);
+        ans = (ans + B[i] * M % P * T % P) % P;
+    }
+    return ans;
+}
+```
+
+### 卡特兰数列
+
+### Catalan 数列
+
+以下问题属于 Catalan 数列：
+
+1. 有 $2n$ 个人排成一行进入剧场。入场费 5 元。其中只有 $n$ 个人有一张 5 元钞票，另外 $n$ 人只有 10 元钞票，剧院无其它钞票，问有多少中方法使得只要有 10 元的人买票，售票处就有 5 元的钞票找零？
+2. 一位大城市的律师在她住所以北 $n$ 个街区和以东 $n$ 个街区处工作。每天她走 $2n$ 个街区去上班。如果他从不穿越（但可以碰到）从家到办公室的对角线，那么有多少条可能的道路？
+3. 在圆上选择 $2n$ 个点，将这些点成对连接起来使得所得到的 $n$ 条线段不相交的方法数？
+4. 对角线不相交的情况下，将一个凸多边形区域分成三角形区域的方法数？
+5. 一个栈（无穷大）的进栈序列为 $1,2,3, \cdots ,n$ 有多少个不同的出栈序列？
+6. $n$ 个结点可构造多少个不同的二叉树？
+7. $n$ 个 $+1$ 和 $n$ 个 $-1$ 构成 $2n$ 项 $a_1,a_2, \cdots ,a_{2n}$，其部分和满足 $a_1+a_2+ \cdots +a_k \geq 0(k=1,2,3, \cdots ,2n)$ 对与 $n$ 该数列为？
+
+其对应的序列为：
+
+| $H_0$ | $H_1$ | $H_2$ | $H_3$ | $H_4$ | $H_5$ | $H_6$ | ...  |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--: |
+|   1   |   1   |   2   |   5   |  14   |  42   |  132  | ...  |
+
+(Catalan 数列）
+
+该递推关系的解为：`			
+
+$$
+H_n = \frac{\binom{2n}{n}}{n+1}(n \geq 2, n \in \mathbf{N_{+}})
+$$
+
+关于 Catalan 数的常见公式：
+
+$$
+H_n = \begin{cases}
+    \sum_{i=1}^{n} H_{i-1} H_{n-i} & n \geq 2, n \in \mathbf{N_{+}}\\
+    1 & n = 0, 1
+\end{cases}
+$$
+
+$$
+H_n = \frac{H_{n-1} (4n-2)}{n+1}
+$$
+
+$$
+H_n = \binom{2n}{n} - \binom{2n}{n-1}
+$$
 
 ### 高斯消元
 
