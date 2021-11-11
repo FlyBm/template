@@ -1917,7 +1917,29 @@ int main(){
 ```
 
 ### 二分图
+无向图
+```cpp
+bool sell(int x) {
+    istrue[x] = true;
+    for (auto to : edge[x]) {
+        if (not istrue[to]) {
+            istrue[to] = true;
+            if (not fang[to] or sell(fang[to])) {
+                fang[to] = x; fang[x] = to;
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
+int cnt = 0;
+for (int i = 1; i <= n; ++i) {
+    if (fang[i]) continue;
+    for (int j = 1; j <= n; ++j) istrue[j] = false;
+    if (sell(i)) ++cnt;
+}
+```
 ```cpp
 //染色法判断二分图
 bool dfs(int x, int c){
