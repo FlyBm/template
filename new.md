@@ -337,7 +337,59 @@ public class Main {
     }
 }
 ```
+### Java读入优化
+```java
+import java.io.*;
+import java.math.BigInteger;
+import java.util.*;
 
+public class Main {
+    static class Scanner {
+        BufferedReader br;
+        StringTokenizer st;
+        public Scanner(InputStream s) {
+            br = new BufferedReader(new InputStreamReader(s));
+        }
+
+        public Scanner(FileReader f) {
+            br = new BufferedReader(f);
+        }
+
+        public String next() throws IOException {
+            while (st == null || !st.hasMoreTokens())
+                st = new StringTokenizer(br.readLine());
+            return st.nextToken();
+        }
+
+        public int nextInt() throws IOException {
+            return Integer.parseInt(next());
+        }
+
+        public long nextLong() throws IOException {
+            return Long.parseLong(next());
+        }
+
+        public double nextDouble() throws IOException {
+            return Double.parseDouble(next());
+        }
+
+        public int[] nextIntArr(int n) throws IOException {
+            int[] arr = new int[n];
+            for (int i = 0; i < n; ++i) {
+                arr[i] = Integer.parseInt(next());
+            }
+            return arr;
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        PrintWriter pw = new PrintWriter(System.out);
+        Scanner reader = new Scanner(System.in);
+        pw.println("hello");
+        pw.close();
+    }
+}
+```
 ### 二、三分查找
 ```cpp
 // lower_bound   find the first num >= x
