@@ -805,3 +805,39 @@ vector<int> z_function(string s) {
 
 
 
+### 最小表示法
+
+求循环同构的最小表示
+
+```cpp
+int a[N];
+
+int min_show(int n) {
+    int i = 0, j = 1, k = 0;
+    while (i < n and j < n and k < n) {
+        if (a[(i + k) % n] == a[(j + k) % n]) ++k;
+        else {
+            if (a[(i + k) % n] > a[(j + k) % n]) i += k + 1;
+            else j += k + 1;
+            if (i == j) ++i;
+            k = 0;
+        }
+    }
+    return min(i, j);
+}
+
+int main() {
+    int n = gn();
+    for (int i = 0; i < n; ++i) {
+        a[i] = gn();
+    }
+    int idx = min_show(n);
+//    cout << idx << endl;
+    int cnt = 0;
+    while (cnt < n) {
+        ++cnt;
+        cout << a[idx] << " \n"[cnt == n];
+        idx = (idx + 1) % n;
+    }
+}
+```

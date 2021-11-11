@@ -296,3 +296,172 @@ public class Main {
     }
 }
 ```
+
+### Java String 读入
+
+```java
+class Read {
+    public BufferedReader reader;
+    public StringTokenizer tokenizer;
+
+    public Read() {
+        reader = new BufferedReader(new InputStreamReader(System.in));
+        tokenizer = null;
+    }
+
+    public String next() {
+        while (tokenizer == null || !tokenizer.hasMoreTokens()) {
+            try {
+                tokenizer = new StringTokenizer(reader.readLine());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return tokenizer.nextToken();
+    }
+
+    public String nextLine() {
+        String str = null;
+        try {
+            str = reader.readLine();
+        } catch (IOException e) {
+            // TODO 自动生成的 catch 块
+            e.printStackTrace();
+        }
+        return str;
+    }
+
+    public int nextInt() {
+        return Integer.parseInt(next());
+    }
+
+    public long nextLong() {
+        return Long.parseLong(next());
+    }
+
+    public Double nextDouble() {
+        return Double.parseDouble(next());
+    }
+
+    public BigInteger nextBigInteger() {
+        return new BigInteger(next());
+    }
+}
+
+```
+### 整数读到文件末
+```cpp
+public class Main {
+    public static StreamTokenizer in = new StreamTokenizer(new BufferedReader(new InputStreamReader(System.in),32768));
+    public static PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
+
+    public static double nextDouble() throws IOException{
+        in.nextToken(); return in.nval;
+    }
+    public static float nextFloat() throws IOException{
+        in.nextToken(); return (float)in.nval;
+    }
+    public static int nextInt() throws IOException{
+        in.nextToken(); return (int)in.nval;
+    }
+    public static String next() throws IOException {
+        in.nextToken(); return in.sval;
+    }
+    public static void main(String[] args) throws IOException {
+        while (in.nextToken() != StreamTokenizer.TT_EOF) {
+            int h = (int) in.nval;
+            System.out.printf("%d\n", qpow(3, h) - 1);
+        }
+    }
+}
+```
+### Java读入优化
+```java
+import java.io.*;
+import java.math.BigInteger;
+import java.util.*;
+
+public class Main {
+    static class Scanner {
+        BufferedReader br;
+        StringTokenizer st;
+        public Scanner(InputStream s) {
+            br = new BufferedReader(new InputStreamReader(s));
+        }
+
+        public Scanner(FileReader f) {
+            br = new BufferedReader(f);
+        }
+
+        public String next() throws IOException {
+            while (st == null || !st.hasMoreTokens())
+                st = new StringTokenizer(br.readLine());
+            return st.nextToken();
+        }
+
+        public int nextInt() throws IOException {
+            return Integer.parseInt(next());
+        }
+
+        public long nextLong() throws IOException {
+            return Long.parseLong(next());
+        }
+
+        public double nextDouble() throws IOException {
+            return Double.parseDouble(next());
+        }
+
+        public int[] nextIntArr(int n) throws IOException {
+            int[] arr = new int[n];
+            for (int i = 0; i < n; ++i) {
+                arr[i] = Integer.parseInt(next());
+            }
+            return arr;
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        PrintWriter pw = new PrintWriter(System.out);
+        Scanner reader = new Scanner(System.in);
+        pw.println("hello");
+        pw.close();
+    }
+}
+```
+### 二、三分查找
+```cpp
+// lower_bound   find the first num >= x
+//[l, mid], [mid + 1, r]
+int search_one(int l, int r) {
+    while (l < r) {
+        int mid = (l + r) >> 1;
+        if (check(mid)) r = mid;
+        else l = mid + 1;
+    }
+    return l;
+}
+
+// upper_bound  find the first num > x
+// [l, mid - 1], [mid, r]
+int search_two(int l, int r) {
+    while (l < r) {
+        int mid = (l + r + 1) >> 1;
+        if (check(mid)) l = mid;
+        else r = mid - 1;
+    }
+    return l;
+}
+
+int l = 1,r = 100;
+while(l < r) {
+    int lmid = l + (r - l) / 3;
+    int rmid = r - (r - l) / 3;
+    lans = f(lmid),rans = f(rmid);
+    // 求凹函数的极小值
+    if(lans <= rans) r = rmid - 1;
+    else l = lmid + 1;
+    // 求凸函数的极大值
+    if(lasn >= rans) l = lmid + 1;
+    else r = rmid - 1;
+}
+```
