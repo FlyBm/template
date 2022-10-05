@@ -465,3 +465,17 @@ while(l < r) {
     else r = rmid - 1;
 }
 ```
+
+### 日期相关
+
+蔡勒公式
+
+```cpp
+int getWeek(int y, int m, int d) {
+    if (m < 3) m += 12, y--;
+    int c = y / 100;
+    y = y % 100;
+    int res =  y + (y / 4) + (c / 4) - 2*c + (26*(m + 1) / 10) + d - 1;
+    return (res % 7 + 7) % 7;
+}
+```
